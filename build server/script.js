@@ -3,21 +3,41 @@ const path = require('path');
 const fs = require('fs');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
+const Redis = require('ioredis');
+
+const publisher = new Redis(process.env.REDIS_HOST);
+
+//acknowledgement
+
+publisher.ping()
+    .then((result) => {
+        console.log('Redis connection successful:', result); // Should print 'PONG'
+    })
+    .catch((err) => {
+        console.error('Redis connection failed:', err);
+    });
 
 // make s3cliient connetion code here
 const s3Client = new S3Client({
-    region: 'ap-south-1',
+    region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId: '',
-        secretAccessKey: ''
+        accessKeyId: AWS_ACCESSKEY,
+        secretAccessKey: process.env.AWS_SECRETACCESSKEY
     }
 });
 
 //supposed to be come from environment
 const PROJECT_ID = process.env.PROJECT_ID
+
+//log publisher function
+function publishLog(log) {
+    publisher.publish(`logs: ${PROJECT_ID}`, JSON.stringify(log));
+}
+
 //change directory to where project is located as we are currenlty in workdir as /app
 async function init() {
     console.log("Executing script.js...");
+    publishLog('Build Started...');
     const projectDir = path.join(__dirname, 'output');
 
     //create process instance
@@ -26,14 +46,17 @@ async function init() {
     processInstance.on('data', function (data) {
         console.log(data.toString());
         //here also ogs published to reddis or kafka for system designs
+        publishLog(data.toString());
     });
 
     processInstance.on('error', function (data) {
         console.log('Error: ' + data.toString());
+        publishLog(`error: ${data.toString()}`)
     });
 
     processInstance.on('close', async function () {
         console.log("Build completed successfully!");
+        publishLog(`Build Complete`);
 
         //now push that builded code to s3 in the statical form
         const distFolderPath = path.join(__dirname, 'output', 'dist');
@@ -45,13 +68,14 @@ async function init() {
         // path vite.svg
         // path assets / index - BSn - hgr8.js
         // path assets / index - DLYYcElR.css
-
+        publishLog(`Starting to upload....`);
         for (const file of distFolderContents) {
             // console.log("path",file);
             const filePath = path.join(distFolderPath, file);
             if (fs.lstatSync(filePath).isDirectory()) continue; //skip file as a path as this will not occur in this case as we have each filr path with file presence
 
             console.log('uploading', filePath);
+            publishLog(`uploading ${file}`);
 
             const command = new PutObjectCommand({
                 Bucket: 'user-build-codes',
@@ -63,9 +87,11 @@ async function init() {
             //send data 
             await s3Client.send(command);
             console.log('uploaded', file);
+            publishLog(`uploaded ${file}`);
 
         }
         console.log('done all files upload!');
+        publishLog(`Done`);
 
     });
 }
