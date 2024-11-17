@@ -4,8 +4,10 @@ const fs = require('fs');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
 const Redis = require('ioredis');
+require('dotenv').config();
 
-const publisher = new Redis(process.env.REDIS_HOST);
+const publisher = new Redis(process.env.REDDIS_HOST);
+
 
 //acknowledgement
 
@@ -17,11 +19,15 @@ publisher.ping()
         console.error('Redis connection failed:', err);
     });
 
+publisher.on('error', (err) => {
+    console.log('Redis connection failed:', err);
+})
+
 // make s3cliient connetion code here
 const s3Client = new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
-        accessKeyId: AWS_ACCESSKEY,
+        accessKeyId: process.env.AWS_ACCESSKEY,
         secretAccessKey: process.env.AWS_SECRETACCESSKEY
     }
 });
@@ -31,11 +37,12 @@ const PROJECT_ID = process.env.PROJECT_ID
 
 //log publisher function
 function publishLog(log) {
-    publisher.publish(`logs: ${PROJECT_ID}`, JSON.stringify(log));
+    publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify(log));
 }
 
 //change directory to where project is located as we are currenlty in workdir as /app
 async function init() {
+
     console.log("Executing script.js...");
     publishLog('Build Started...');
     const projectDir = path.join(__dirname, 'output');
