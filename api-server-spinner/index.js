@@ -18,20 +18,23 @@ io.on('connection', (socket) => {
         socket.emit('message', `joined for ${channel}`);
     });
 });
+const suscriber = new Redis(process.env.REDDIS_HOST);
 
 //function which suscribes to logs and send user specific logs to their own data
 async function emitMessages() {
     console.log("Suscribed to logs....");
     //her we will suscribe all logs whic are in format logs:* as we have published that using this as channel name
     suscriber.psubscribe('logs:*');
+    console.log("Suscribed to pattern logs:*");
     suscriber.on('pmessage',(pattern,channel,message)=>{
+        console.log("chname: " + channel);
         io.to(channel).emit('message',message);
     })
 }
 
 io.listen(9001, () => console.log("listening on port 9002"));
 
-const suscriber = new Redis(process.env.REDDIS_HOST);
+
 app.use(express.json());
 
 //inttialize ecs client here
