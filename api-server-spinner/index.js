@@ -4,6 +4,7 @@ const { ECSClient, RunTaskCommand } = require("@aws-sdk/client-ecs");
 const Redis = require('ioredis');
 const { Server } = require('socket.io');
 require('dotenv').config();
+const { PrismaClient } = require('@prisma/client');
 
 const app = express();
 
@@ -11,6 +12,23 @@ const PORT = 5000;
 
 //create new socket srever for logs subscribing and pushing
 const io = new Server({ cors: '*' }); // listens all origins
+const prisma = new PrismaClient();
+
+async function main() {
+    // Log to indicate the connection attempt
+    console.log('Attempting to connect to the database...');
+    
+    try {
+      // Run a simple query to test the connection
+      const users = await prisma.user.findMany();
+      
+      // Log successful query result
+      console.log('Successfully connected to the database and fetched users:', users);
+    } catch (error) {
+      // Log any error that happens during the query
+      console.error('Error connecting to the database or fetching users:', error);
+    }
+  }
 
 io.on('connection', (socket) => {
     socket.on('suscribe', function (channel) {
@@ -58,8 +76,8 @@ const config = {
 
 
 
-//requwst of user project for making their deployment
-app.post('/create-project', async function (req, res) {
+//this will make deployment of the project
+app.post('/deploy-project', async function (req, res) {
     const { gitUrl, slug } = req.body;
     const projectSlug = slug ? slug : generateSlug();
 
@@ -94,4 +112,16 @@ app.post('/create-project', async function (req, res) {
 });
 emitMessages();  //manager kogs emitting service from redddis pub sub
 
+//prisma caller
+main()
+  .catch(e => {
+    // Log error if the async main function fails
+    console.error('An unexpected error occurred in the main function:', e);
+  })
+  .finally(async () => {
+    // Ensure disconnection
+    console.log('Disconnecting from the database...');
+    await prisma.$disconnect();
+    console.log('Disconnected from the database.');
+  });
 app.listen(PORT, () => console.log(`API Server Running..${PORT}`));
