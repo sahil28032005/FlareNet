@@ -132,6 +132,9 @@ app.post('/deploy', async (req, res) => {
         // Step 1: Validate input
         const validatedData = deploymentSchema.parse(req.body);
 
+        //generate url if user provided custom uri handle logic for it otherwiswe make use of default name
+        const generatedUri = validatedData.url || `http://${validatedData.projectId}.localhost:9000`;
+
         // Step 2: Check if project exists
         const project = await prisma.project.findUnique({
             where: { id: validatedData.projectId },
@@ -149,15 +152,49 @@ app.post('/deploy', async (req, res) => {
         //mark tht deploymenr entry in the database
         const newDeployment = await prisma.deployment.create({
             data: {
-              projectId: validatedData.projectId,
-              environment: validatedData.environment,
-              status: validatedData.status,
-              url: validatedData.url || `https://default-deployment-url/${validatedData.projectId}`,
-              version: validatedData.version || "v1.0.0", // Provide a default version
+                projectId: validatedData.projectId,
+                environment: validatedData.environment,
+                status: validatedData.status,
+                url: generatedUri,
+                version: validatedData.version || "v1.0.0", // Provide a default version
             },
-          })
+            //this include is just like populate() in mongodb or fetch_assoc() in php and readRecursive() in ruby as an powerful tree of tech stacks 
+            include: {
+                project: true, // Fetch related project data
+            },
+        });
 
         //spin docker cntainer as task to manage automated things
+        const command = new RunTaskCommand({
+            cluster: config.CLUSTER,
+            taskDefinition: config.TASK,
+            launchType: 'FARGATE',
+            count: 1,
+            networkConfiguration: {
+                awsvpcConfiguration: {
+                    assignPublicIp: 'ENABLED',
+                    subnets: ['subnet-0e0c97b6f83bfc538', 'subnet-08a60214836f38b79', 'subnet-0c4be927b2f4c3790'],
+                    securityGroups: ['sg-0bf9e7e682e1bed1a ']
+                }
+            },
+            overrides: {
+                containerOverrides: [
+                    {
+                        name: 'task_cloner_image',
+                        environment: [
+                            { name: 'GIT_REPOSITORY__URL', value: newDeployment.project.gitUrl },
+                            { name: 'PROJECT_ID', value: newDeployment.project.id },
+                            { name: 'DEPLOYMENT_ID', value: newDeployment.id },
+                        ]
+                    }
+                ]
+            }
+        })
+
+        await client.send(command);
+
+        //send user url of the deployment with status
+        return res.json({ status: 'queued', data: { deploymentId: newDeployment.id, domain: newDeployment.url } })
 
     }
     catch (e) {
