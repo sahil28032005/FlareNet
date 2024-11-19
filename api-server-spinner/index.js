@@ -6,10 +6,28 @@ const { Server } = require('socket.io');
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const { z } = require("zod");
+const { kafka } = require('kafkajs');
 
 const app = express();
 
 const PORT = 5000;
+
+//kafka config instance
+const kafka = new Kafka({
+    clientId: `docker-build-server-${DEPLOYEMENT_ID}`,
+    brokers: [`${process.env.KAFKA_BROKER}`],
+    ssl: {
+        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
+    },
+    sasl: {
+        username: process.env.KAFKA_USERNAME,
+        password: process.env.KAFKA_PASSWORD,
+        mechanism: 'plain'
+    }
+});
+
+//create kafka consumer instance and try to consume logs by initializing them
+const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
 //create new socket srever for logs subscribing and pushing
 const io = new Server({ cors: '*' }); // listens all origins
@@ -28,6 +46,41 @@ async function main() {
     } catch (error) {
         // Log any error that happens during the query
         console.error('Error connecting to the database or fetching users:', error);
+    }
+}
+
+//kafka consumer function
+async function logsConsumer() {
+    try {
+        console.log("consumer trying to connect....");
+        await consumer.connect();
+        console.log("consumer connection success..");
+
+        //suscribe to topic so partition assigned by zookeeper
+        await consumer.suscribe({ topics: ['builder-logs'], fromBeginning: true });
+
+        //run and process consumer batchwise
+        await consumer.run({
+            eachBatch: async function ({ batch, heartbeat, commitOffsetsIfNecessary, resolveOffset }) {
+                //take batch from batches
+                const messages = batch.messages;
+                console.log(`received ${messages.length} messages...`);
+
+                for (const message of messages) {
+                    if (!message.value) continue;
+                    const stringMessage = message.value.toString();
+                    const { PROJECT_ID, DEPLOYMENT_ID, log } = JSON.parse(stringMessage);
+                    console.log(log, DEPLOYMENT_ID, PROJECT_ID);
+
+                    //SEND THAT LOGS TO CLICKHOUSE OR ANY HIGH THROUGHPUT SYSTEM PREFER CLICKHOUSE/RABBITMQ/REDDIS OR ANY OTHRE
+                    
+                }
+
+            }
+        });
+    }
+    catch (error) {
+        console.log(error.message);
     }
 }
 
@@ -136,7 +189,7 @@ async function createUser() {
 
     }
     catch (e) {
-       console.log('Error creating user internal error:', e.message);
+        console.log('Error creating user internal error:', e.message);
     }
 }
 
