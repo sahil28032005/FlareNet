@@ -5,8 +5,10 @@ const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
 const Redis = require('ioredis');
 require('dotenv').config();
+const { Kafka } = require('kafkajs');
 
 const publisher = new Redis(process.env.REDDIS_HOST);
+
 
 
 //acknowledgement
@@ -34,15 +36,41 @@ const s3Client = new S3Client({
 
 //supposed to be come from environment
 const PROJECT_ID = process.env.PROJECT_ID
+const DEPLOYEMENT_ID = process.env.DEPLOYEMENT_ID
 
+//make kafka configuration here
+const kafka = new Kafka({
+    clientId: `docker-build-server-${DEPLOYEMENT_ID}`,
+    brokers: [`${process.env.KAFKA_BROKER}`],
+    ssl: {
+        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
+    },
+    sasl: {
+        username: process.env.KAFKA_USERNAME,
+        password: process.env.KAFKA_PASSWORD,
+        mechanism: 'plain'
+    }
+})
+
+//make kafka producer
+const producer = kafka.producer();
 //log publisher function
-function publishLog(log) {
-    publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify(log));
+async function publishLog(log) {
+
+    //reddis publisher format
+    // publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify(log));
+
+    //for kafka another config
+    await producer.send({ topic: `builder-logs`, messages: [{ key: 'log', value: JSON.stringify({ PROJECT_ID, DEPLOYEMENT_ID, log }) }] });
 }
 
 //change directory to where project is located as we are currenlty in workdir as /app
 async function init() {
 
+    //connect kafka producer from here which able to bublish logs to particula topic
+    await producer.connect(); //main producer conneciton to kafka broker
+    console.log("producer connection successfull will be be able to publis logs");
+    return;
     console.log("Executing script.js...");
     publishLog('Build Started...');
     const projectDir = path.join(__dirname, 'output');

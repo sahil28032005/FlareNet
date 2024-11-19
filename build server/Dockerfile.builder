@@ -18,6 +18,7 @@ WORKDIR /app
 COPY service.sh service.sh
 COPY script.js script.js
 COPY package*.json ./
+COPY kafka.pem kafka.pem
 
 #run npm i for packages installation
 RUN npm install
