@@ -3,27 +3,27 @@ const path = require('path');
 const fs = require('fs');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
-const Redis = require('ioredis');
+// const Redis = require('ioredis');
 require('dotenv').config();
 const { Kafka } = require('kafkajs');
 
-const publisher = new Redis(process.env.REDDIS_HOST);
+// const publisher = new Redis(process.env.REDDIS_HOST);
 
 
 
 //acknowledgement
 
-publisher.ping()
-    .then((result) => {
-        console.log('Redis connection successful:', result); // Should print 'PONG'
-    })
-    .catch((err) => {
-        console.error('Redis connection failed:', err);
-    });
+// publisher.ping()
+//     .then((result) => {
+//         console.log('Redis connection successful:', result); // Should print 'PONG'
+//     })
+//     .catch((err) => {
+//         console.error('Redis connection failed:', err);
+//     });
 
-publisher.on('error', (err) => {
-    console.log('Redis connection failed:', err);
-})
+// publisher.on('error', (err) => {
+//     console.log('Redis connection failed:', err);
+// })
 
 // make s3cliient connetion code here
 const s3Client = new S3Client({
@@ -70,7 +70,6 @@ async function init() {
     //connect kafka producer from here which able to bublish logs to particula topic
     await producer.connect(); //main producer conneciton to kafka broker
     console.log("producer connection successfull will be be able to publis logs");
-    return;
     console.log("Executing script.js...");
     publishLog('Build Started...');
     const projectDir = path.join(__dirname, 'output');

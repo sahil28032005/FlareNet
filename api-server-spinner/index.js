@@ -6,7 +6,9 @@ const { Server } = require('socket.io');
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const { z } = require("zod");
-const { kafka } = require('kafkajs');
+const { Kafka } = require('kafkajs');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 
@@ -14,7 +16,7 @@ const PORT = 5000;
 
 //kafka config instance
 const kafka = new Kafka({
-    clientId: `docker-build-server-${DEPLOYEMENT_ID}`,
+    clientId: `api-server-receiver_side`,
     brokers: [`${process.env.KAFKA_BROKER}`],
     ssl: {
         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
@@ -57,7 +59,7 @@ async function logsConsumer() {
         console.log("consumer connection success..");
 
         //suscribe to topic so partition assigned by zookeeper
-        await consumer.suscribe({ topics: ['builder-logs'], fromBeginning: true });
+        await consumer.subscribe({ topics: ['builder-logs'], fromBeginning: true });
 
         //run and process consumer batchwise
         await consumer.run({
@@ -73,7 +75,7 @@ async function logsConsumer() {
                     console.log(log, DEPLOYMENT_ID, PROJECT_ID);
 
                     //SEND THAT LOGS TO CLICKHOUSE OR ANY HIGH THROUGHPUT SYSTEM PREFER CLICKHOUSE/RABBITMQ/REDDIS OR ANY OTHRE
-                    
+
                 }
 
             }
@@ -318,7 +320,7 @@ app.post('/deploy-project', async function (req, res) {
     await client.send(command);
     return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.localhost:9000` } });
 });
-emitMessages();  //manager kogs emitting service from redddis pub sub
+// emitMessages();  //manager kogs emitting service from redddis pub sub
 
 //prisma caller
 main()
@@ -332,4 +334,5 @@ main()
         await prisma.$disconnect();
         console.log('Disconnected from the database.');
     });
+logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
 app.listen(PORT, () => console.log(`API Server Running..${PORT}`));
