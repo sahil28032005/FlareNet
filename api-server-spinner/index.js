@@ -89,15 +89,19 @@ app.post('/create-project', async function (req, res) {
         });
 
         //parse check body as it is according to schema
-        const isValidated = createProjectSchema.parse(request.body);
+        const isValidated = createProjectSchema.parse(req.body);
         if (isValidated.error) return res.status(404).json({ error: isValidated.error });
 
         //after proper validation insert that data into database
-        const newProject = await prisma.object({
-            name: isValidated.name,
-            gitUrl: isValidated.gitUrl,
-            description: isValidated.description || null,
-            ownerId: isValidated.ownerId
+        const newProject = await prisma.project.create({
+            data: {
+                name: isValidated.name,
+                gitUrl: isValidated.gitUrl,
+                description: isValidated.description || null,
+                owner: {
+                    connect: { id: isValidated.ownerId }, // Ensure `newUser.id` exists in the database
+                }
+            },
         });
 
         //respond with project creation siccess
@@ -115,6 +119,27 @@ app.post('/create-project', async function (req, res) {
         });
     }
 });
+
+//tester functin for creating user
+async function createUser() {
+    try {
+        //creation query 
+        const newUser = await prisma.user.create({
+            data: {
+                email: "example@example.com", // Replace with the user's email
+                name: "John Doe", // Optional, can be `null`
+                role: "USER", // Replace if you have other roles like ADMIN
+            },
+        });
+
+        console.log('Created User:', newUser);
+
+    }
+    catch (e) {
+       console.log('Error creating user internal error:', e.message);
+    }
+}
+
 
 //main deployer actual
 
