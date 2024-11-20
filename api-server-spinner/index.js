@@ -9,10 +9,19 @@ const { z } = require("zod");
 const { Kafka } = require('kafkajs');
 const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@clickhouse/client');
 
 const app = express();
 
 const PORT = 5000;
+
+//clickhouse congigs
+const clickHouseClient = createClient({
+    host: process.env.CH_HOST,
+    database: process.env.CH_DB,
+    username: process.env.CH_USERNAME,
+    password: process.env.CH_PASSWORD
+});
 
 //kafka config instance
 const kafka = new Kafka({
@@ -75,7 +84,15 @@ async function logsConsumer() {
                     console.log(log, DEPLOYMENT_ID, PROJECT_ID);
 
                     //SEND THAT LOGS TO CLICKHOUSE OR ANY HIGH THROUGHPUT SYSTEM PREFER CLICKHOUSE/RABBITMQ/REDDIS OR ANY OTHRE
-
+                    const { query_id } = await clickHouseClient.insert({
+                        table: 'log_events',
+                        values: [{ event_id: uuidv4(), deployment_id: DEPLOYEMENT_ID, log }],
+                        format: 'JSONEachRow'
+                    });
+                    console.log("",query_id);
+                    resolveOffset(message.offset);
+                    await commitOffsetsIfNecessary(message.offset);
+                    await heartbeat();
                 }
 
             }
