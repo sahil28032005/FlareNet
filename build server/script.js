@@ -36,11 +36,11 @@ const s3Client = new S3Client({
 
 //supposed to be come from environment
 const PROJECT_ID = process.env.PROJECT_ID
-const DEPLOYEMENT_ID = process.env.DEPLOYEMENT_ID
+const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID
 
 //make kafka configuration here
 const kafka = new Kafka({
-    clientId: `docker-build-server-${DEPLOYEMENT_ID}`,
+    clientId: `docker-build-server-${DEPLOYMENT_ID}`,
     brokers: [`${process.env.KAFKA_BROKER}`],
     ssl: {
         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
@@ -61,7 +61,7 @@ async function publishLog(log) {
     // publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify(log));
 
     //for kafka another config
-    await producer.send({ topic: `builder-logs`, messages: [{ key: 'log', value: JSON.stringify({ PROJECT_ID, DEPLOYEMENT_ID, log }) }] });
+    await producer.send({ topic: `builder-logs`, messages: [{ key: 'log', value: JSON.stringify({ PROJECT_ID, DEPLOYMENT_ID, log }) }] });
 }
 
 //change directory to where project is located as we are currenlty in workdir as /app
@@ -129,6 +129,8 @@ async function init() {
 
     });
 }
+
+
 
 init();
 
