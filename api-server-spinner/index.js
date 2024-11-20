@@ -9,10 +9,20 @@ const { z } = require("zod");
 const { Kafka } = require('kafkajs');
 const fs = require('fs');
 const path = require('path');
+const { createClient } = require('@clickhouse/client');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
 const PORT = 5000;
+
+//clickhouse congigs
+const clickHouseClient = createClient({
+    host: process.env.CH_HOST,
+    database: process.env.CH_DB,
+    username: process.env.CH_USERNAME,
+    password: process.env.CH_PASSWORD
+});
 
 //kafka config instance
 const kafka = new Kafka({
@@ -75,7 +85,15 @@ async function logsConsumer() {
                     console.log(log, DEPLOYMENT_ID, PROJECT_ID);
 
                     //SEND THAT LOGS TO CLICKHOUSE OR ANY HIGH THROUGHPUT SYSTEM PREFER CLICKHOUSE/RABBITMQ/REDDIS OR ANY OTHRE
-
+                    const { query_id } = await clickHouseClient.insert({
+                        table: 'log_events',
+                        values: [{ event_id: uuidv4(), deployment_id: DEPLOYMENT_ID, log }],
+                        format: 'JSONEachRow'
+                    });
+                    console.log("MESSAGE INSERTED TO CLICKHOUSE WITH ID", DEPLOYMENT_ID);
+                    resolveOffset(message.offset);
+                    await commitOffsetsIfNecessary(message.offset);
+                    await heartbeat();
                 }
 
             }
@@ -335,4 +353,32 @@ main()
         console.log('Disconnected from the database.');
     });
 logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
+
+//for getting logs using deployment id
+app.get('/getLogs/:id', async function (req, res) {
+    try {
+        const id = req.params.id;
+
+        //finder query
+        const logs = await clickHouseClient.query({
+            query: `SELECT event_id, deployment_id, log, timestamp from log_events where deployment_id = {deployment_id:String}`,
+            query_params: {
+                deployment_id: id
+            },
+            format: 'JSONEachRow'
+        });
+
+        const rawLogs = await logs.json();
+
+        return res.json({ logs: rawLogs });
+
+    }
+    catch (e) {
+        res.status(401).send({
+            success: false,
+            message: 'internal error',
+            error: e.message
+        });
+    }
+});
 app.listen(PORT, () => console.log(`API Server Running..${PORT}`));

@@ -453,6 +453,18 @@
     "@smithy/types" "^3.7.0"
     tslib "^2.6.2"
 
+"@clickhouse/client-common@1.8.1":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@clickhouse/client-common/-/client-common-1.8.1.tgz#1b7994990d867ba195e05a43e3413f4cf3b119cb"
+  integrity sha512-Z0R5zKaS3N35Op338WVRHIfoqDh9gotXZwekm0lbHQmwNaj3nY2iJ113dFYKjb1V+ESu+PvLEA//LJUGZyPQOg==
+
+"@clickhouse/client@^1.8.1":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@clickhouse/client/-/client-1.8.1.tgz#2273f6b993d21351c32d4e2a6a1b35b0c05d435b"
+  integrity sha512-Ec0pCdwftIPD7hCxhOukHS0Zxr2tDc5mNAHBqkT3c0c6GO2WQdZkME9+EcfGcoF7+foUp82F5a0bPfSDDjfWmg==
+  dependencies:
+    "@clickhouse/client-common" "1.8.1"
+
 "@ioredis/commands@^1.1.1":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@ioredis/commands/-/commands-1.2.0.tgz#6d61b3097470af1fdbbe622795b8921d42018e11"
@@ -1577,6 +1589,11 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
+
+uuid@^11.0.3:
+  version "11.0.3"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-11.0.3.tgz#248451cac9d1a4a4128033e765d137e2b2c49a3d"
+  integrity sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==
 
 uuid@^9.0.1:
   version "9.0.1"
