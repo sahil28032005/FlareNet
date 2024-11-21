@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import selected0 from "@/assets/selected0.jpg";
 import selected1 from "@/assets/selected1.jpg";
 import "./HeroSection.css";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  //navigator reference
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -32,18 +35,17 @@ const HeroSection = () => {
         <p className="text-lg md:text-xl mb-8">
           Reliable, scalable, and secure hosting solutions for modern websites.
         </p>
-        <Button className="bg-yellow-400 text-black hover:bg-gray-200 px-6 py-3 text-lg rounded-md shadow-lg">
+        <Button onClick={() => { navigate("/service"); }} className="bg-yellow-400 text-black hover:bg-gray-200 px-6 py-3 text-lg rounded-md shadow-lg">
           Get Started
         </Button>
       </div>
 
       {/* Right Image Section */}
       <div
-        className={`absolute bottom-[-40px] right-[-30px] md:bottom-[-10px] md:right-[140px] transform rotate-12 shadow-lg p-4 rounded-lg glowing-border transition-transform duration-1000 ${
-          isVisible
-            ? "translate-x-0 opacity-100"
-            : "translate-x-[50%] opacity-0"
-        }`}
+        className={`absolute bottom-[-40px] right-[-30px] md:bottom-[-10px] md:right-[140px] transform rotate-12 shadow-lg p-4 rounded-lg glowing-border transition-transform duration-1000 ${isVisible
+          ? "translate-x-0 opacity-100"
+          : "translate-x-[50%] opacity-0"
+          }`}
         style={{ width: "300px", height: "300px" }}
       >
         <img
@@ -55,11 +57,10 @@ const HeroSection = () => {
 
       {/* Left Image Section */}
       <div
-        className={`absolute top-[-30px] left-[-30px] md:top-[50px] md:left-[90px] transform -rotate-12 shadow-lg p-4 rounded-lg glowing-border transition-transform duration-1000 ${
-          isVisible
-            ? "translate-x-0 opacity-100"
-            : "-translate-x-[50%] opacity-0"
-        }`}
+        className={`absolute top-[-30px] left-[-30px] md:top-[50px] md:left-[90px] transform -rotate-12 shadow-lg p-4 rounded-lg glowing-border transition-transform duration-1000 ${isVisible
+          ? "translate-x-0 opacity-100"
+          : "-translate-x-[50%] opacity-0"
+          }`}
         style={{ width: "300px", height: "300px" }}
       >
         <img
