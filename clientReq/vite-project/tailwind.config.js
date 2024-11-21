@@ -10,6 +10,8 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+			darkBg: "#121212", // Deep blackish background
+			accent: "#ffffff", // White for outlines
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -50,7 +52,10 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		}
+  		},
+		  boxShadow: {
+			glow: "0 0 10px rgba(255, 255, 255, 0.6)",
+		  },
   	}
   },
   plugins: [require("tailwindcss-animate")],
