@@ -1,0 +1,39 @@
+.deploy-form-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  input,
+  textarea {
+    background-color: #1f2937; /* Dark gray background */
+    color: white;
+    border: 1px solid #374151; /* Lighter gray border */
+    border-radius: 4px;
+    padding: 10px;
+  }
+  
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #facc15; /* Yellow border on focus */
+    box-shadow: 0 0 5px rgba(250, 204, 21, 0.5);
+  }
+  
+  button {
+    padding: 10px 15px;
+    border-radius: 4px;
+  }
+  
+  select {
+    background-color: #1f2937;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  select:focus {
+    outline: none;
+    border-color: #facc15;
+    box-shadow: 0 0 5px rgba(250, 204, 21, 0.5);
+  }
+  

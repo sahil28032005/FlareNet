@@ -1,18 +1,25 @@
-import { useState } from 'react'
+import { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // import './App.css'
-import { Button } from '@/components/ui/button';
-import NavBar from './components/NavBar';
 import LandingPage from './components/pages/LandingPage';
+import Service from './components/pages/Service';
+import DeploymentProgress from './components/pages/DeploymentProgress';
 function App() {
 
 
   return (
-    <>
-      {/* default renderer as counter */}
-      
-        <LandingPage />
-     
-    </>
+    <Router>
+      <Routes>
+        {/* Define Route for LandingPage */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Define Route for Service */}
+        <Route path="/service" element={<Service />} />
+
+        {/* Define Route for progress page */}
+        <Route path="/progress" element={<DeploymentProgress />} />
+      </Routes>
+    </Router>
   )
 }
 
