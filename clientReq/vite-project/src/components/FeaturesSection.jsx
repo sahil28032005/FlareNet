@@ -1,14 +1,19 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import scalable from "@/assets/scalable.jpg";
+import integrate from "@/assets/integrate.jpg";
+import secure from "@/assets/secure.jpg";
+import performance from "@/assets/performance.jpg";
+import support from "@/assets/support.jpg";
 import './FeaturesSection.css'; // Import the custom CSS file for styles
 
 const FeaturesSection = () => {
     const features = [
-        { title: "Fast Performance", description: "Blazing-fast load times for your websites.", imgSrc: "/images/fast-performance.jpg" },
-        { title: "24/7 Support", description: "Our team is here to help you anytime.", imgSrc: "/images/support.jpg" },
-        { title: "Scalability", description: "Easily scale with growing traffic.", imgSrc: "/images/scalability.jpg" },
-        { title: "Secure Hosting", description: "Top-notch security for your data.", imgSrc: "/images/security.jpg" },
-        { title: "Easy Integration", description: "Seamless integration with popular platforms.", imgSrc: "/images/integration.jpg" },
+        { title: "Fast Performance", description: "Blazing-fast load times for your websites.", imgSrc: performance },
+        { title: "24/7 Support", description: "Our team is here to help you anytime.", imgSrc: support },
+        { title: "Scalability", description: "Easily scale with growing traffic.", imgSrc: scalable},
+        { title: "Secure Hosting", description: "Top-notch security for your data.", imgSrc: secure },
+        { title: "Easy Integration", description: "Seamless integration with popular platforms.", imgSrc: integrate },
     ];
 
     return (

@@ -48,26 +48,42 @@ Example CSS reset
   }
 
   /* typing animation */
-  .typing-animation {
-    border-right: 2px solid #fff; /* Cursor */
-    white-space: nowrap; /* Prevent text from wrapping */
-    overflow: hidden; /* Hide overflowed text */
-    display: inline-block; /* To apply the border-right effect */
-    animation: typing 2s steps(30) 1s 1 normal both, blink-caret 0.75s step-end infinite;
-  }
+ 
   
-  @keyframes typing {
-    from {
-      width: 0;
-    }
-    to {
-      width: 100%;
-    }
-  }
+
   
   @keyframes blink-caret {
     50% {
       border-color: transparent;
     }
+  }
+  .glowing-text {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5),
+      0 0 30px rgba(255, 255, 255, 0.3);
+  }
+  
+  .glowing-border {
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+  }
+  
+  .glowing-border-red {
+    border: 2px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  }
+  
+  .transition-transform {
+    transition: transform 1s, opacity 1s;
+  }
+  .glowing-text {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff9, 0 0 40px #ff9;
+  }
+  
+  .glowing-border {
+    box-shadow: 0 0 10px #fff, 0 0 20px #ff9, 0 0 30px #ff9, 0 0 40px #ff9;
+  }
+  
+  .glowing-border-red {
+    box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff3333, 0 0 30px #ff3333, 0 0 40px #ff3333;
   }
   
