@@ -11,8 +11,10 @@ const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@clickhouse/client');
 const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
 
 const app = express();
+app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
 
 const PORT = 5000;
 
@@ -140,7 +142,7 @@ const client = new ECSClient({
 //make con=figuration object for task and cluster
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
-    TASK: 'git_project_cloner_task:3'
+    TASK: 'git_project_cloner_task:4'
 }
 
 //my subnets
@@ -213,17 +215,51 @@ async function createUser() {
     }
 }
 
+//for getting user projects using ownerId as an unique foreign key realtion
+app.get("/projects/:ownerId", async function (req, res) {
+    try {
+        const ownerId = parseInt(req.params.ownerId, 10);
+        if (isNaN(ownerId)) {
+            return res.status(400).send({
+                success: false,
+                message: "Invalid ownerId ptovidee",
+            });
+        }
+        //otherwise fetach all projects from the owner
+        const projects = await prisma.project.findMany({
+            where: { ownerId },
+            include: {
+                deployments: true,
+                owner: true
+            }
+        });
+
+        //return all found projects from that ownerId
+        res.status(200).send({
+            success: true,
+            data: projects
+        });
+    }
+    catch (e) {
+        return res.status(404).send({
+            success: false,
+            message: 'response error from api',
+            error: e.message
+        });
+    }
+});
+
 
 //main deployer actual
 
 app.post('/deploy', async (req, res) => {
+    //all is dependent on just projectId
     try {
         //make zod schema for deployment validation
         const deploymentSchema = z.object({
             projectId: z.string().uuid("Invalid project ID"), // Ensure it matches UUID format
-            environment: z.enum(["DEV", "STAGING", "PROD"], "Invalid environment"),
+            environment: z.enum(["DEV", "STAGING", "PROD"], "Invalid environment").default("STAGING"),
             status: z.enum(["INACTIVE", "ACTIVE", "FAILED"]).optional().default("INACTIVE"),
-            url: z.string().url("Invalid deployment URL").optional(),
             version: z.string().optional(), // Optional version or tag
         });
 
@@ -261,6 +297,7 @@ app.post('/deploy', async (req, res) => {
                 project: true, // Fetch related project data
             },
         });
+        console.log("deployment added in prisma for deployment id", newDeployment.id);
 
         //spin docker cntainer as task to manage automated things
         const command = new RunTaskCommand({
@@ -272,7 +309,7 @@ app.post('/deploy', async (req, res) => {
                 awsvpcConfiguration: {
                     assignPublicIp: 'ENABLED',
                     subnets: ['subnet-0e0c97b6f83bfc538', 'subnet-08a60214836f38b79', 'subnet-0c4be927b2f4c3790'],
-                    securityGroups: ['sg-0bf9e7e682e1bed1a ']
+                    securityGroups: ['sg-0bf9e7e682e1bed1a']
                 }
             },
             overrides: {
@@ -288,7 +325,7 @@ app.post('/deploy', async (req, res) => {
                 ]
             }
         })
-
+        
         await client.send(command);
 
         //send user url of the deployment with status
@@ -303,6 +340,24 @@ app.post('/deploy', async (req, res) => {
         });
     }
 });
+//get single project using projectId
+// Example with Express.js
+app.get("/api/project/:id", async (req, res) => {
+    const { id } = req.params;
+    console.log("arrived id", id);
+    try {
+        const project = await prisma.project.findUnique({
+            where: { id: id },
+        });
+        if (!project) {
+            return res.status(404).json({ error: "Project not found" });
+        }
+        res.json(project);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch project" });
+    }
+});
+
 
 //this will make deployment of the project
 app.post('/deploy-project', async function (req, res) {
