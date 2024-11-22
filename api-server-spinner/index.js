@@ -18,6 +18,7 @@ app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
 
 const PORT = 5000;
 
+//applied tree shaking checkpoint commit
 //clickhouse congigs
 const clickHouseClient = createClient({
     host: process.env.CH_HOST,
