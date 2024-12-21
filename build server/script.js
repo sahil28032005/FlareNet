@@ -39,17 +39,24 @@ const PROJECT_ID = process.env.PROJECT_ID
 const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID
 
 //make kafka configuration here
+// const kafka = new Kafka({
+//     clientId: `docker-build-server-${DEPLOYMENT_ID}`,
+//     brokers: [`${process.env.KAFKA_BROKER}`],
+//     ssl: {
+//         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
+//     },
+//     sasl: {
+//         username: process.env.KAFKA_USERNAME,
+//         password: process.env.KAFKA_PASSWORD,
+//         mechanism: 'plain'
+//     }
+// })
+
+
+//for local docker
 const kafka = new Kafka({
-    clientId: `docker-build-server-${DEPLOYMENT_ID}`,
+    clientId: 'builder_local',
     brokers: [`${process.env.KAFKA_BROKER}`],
-    ssl: {
-        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
-    },
-    sasl: {
-        username: process.env.KAFKA_USERNAME,
-        password: process.env.KAFKA_PASSWORD,
-        mechanism: 'plain'
-    }
 })
 
 //make kafka producer
@@ -133,6 +140,12 @@ async function init() {
 
 
 init();
+// async function checkKafka() {
+//     await producer.connect();
+//     console.log("producer connected");
+//     await producer.send({ topic: `builder-logs`, messages: [{ key: 'log', value: 'tester message' }] });
+// }
+// checkKafka();
 
 //another implementation using spwan from child_process
 
