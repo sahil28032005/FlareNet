@@ -12,6 +12,7 @@ const path = require('path');
 const { createClient } = require('@clickhouse/client');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
+const buildQueue = require('./queues/buildQueue');
 
 const app = express();
 app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
@@ -27,19 +28,32 @@ const clickHouseClient = createClient({
     password: process.env.CH_PASSWORD
 });
 
-//kafka config instance
+//kafka config instance of aiven
+// const kafka = new Kafka({
+//     clientId: `api-server-receiver_side`,
+//     brokers: [`${process.env.KAFKA_BROKER}`],
+//     ssl: {
+//         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
+//     },
+//     sasl: {
+//         username: process.env.KAFKA_USERNAME,
+//         password: process.env.KAFKA_PASSWORD,
+//         mechanism: 'plain'
+//     }
+// });
+
+//updated kafka configuration
 const kafka = new Kafka({
     clientId: `api-server-receiver_side`,
     brokers: [`${process.env.KAFKA_BROKER}`],
     ssl: {
-        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
+        rejectUnauthorized: false, // Use true for strict verification
+        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
+        cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
+        key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
     },
-    sasl: {
-        username: process.env.KAFKA_USERNAME,
-        password: process.env.KAFKA_PASSWORD,
-        mechanism: 'plain'
-    }
-});
+})
+
 
 //create kafka consumer instance and try to consume logs by initializing them
 const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
@@ -113,7 +127,7 @@ io.on('connection', (socket) => {
         socket.emit('message', `joined for ${channel}`);
     });
 });
-const suscriber = new Redis(process.env.REDDIS_HOST);
+// const suscriber = new Redis(process.env.REDDIS_HOST);
 
 //function which suscribes to logs and send user specific logs to their own data
 async function emitMessages() {
@@ -326,7 +340,7 @@ app.post('/deploy', async (req, res) => {
                 ]
             }
         })
-        
+
         await client.send(command);
 
         //send user url of the deployment with status

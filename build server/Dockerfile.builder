@@ -19,6 +19,8 @@ COPY service.sh service.sh
 COPY script.js script.js
 COPY package*.json ./
 COPY kafka.pem kafka.pem
+COPY service.cert service.cert
+COPY service.key service.key
 COPY .env .env
 
 #run npm i for packages installation
