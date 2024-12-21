@@ -39,25 +39,24 @@ const PROJECT_ID = process.env.PROJECT_ID
 const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID
 
 //make kafka configuration here
-// const kafka = new Kafka({
-//     clientId: `docker-build-server-${DEPLOYMENT_ID}`,
-//     brokers: [`${process.env.KAFKA_BROKER}`],
-//     ssl: {
-//         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
-//     },
-//     sasl: {
-//         username: process.env.KAFKA_USERNAME,
-//         password: process.env.KAFKA_PASSWORD,
-//         mechanism: 'plain'
-//     }
-// })
+const kafka = new Kafka({
+    clientId: `docker-build-server-${DEPLOYMENT_ID}`,
+    brokers: [`${process.env.KAFKA_BROKER}`],
+    ssl: {
+        rejectUnauthorized: false, // Use true for strict verification
+        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
+        cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
+        key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
+    },
+})
 
 
 //for local docker
-const kafka = new Kafka({
-    clientId: 'builder_local',
-    brokers: [`${process.env.KAFKA_BROKER}`],
-})
+// const kafka = new Kafka({
+//     clientId: 'builder_local',
+//     // brokers: [`${process.env.KAFKA_BROKER}`],
+//     brokers: ['host.docker.internal:9092'],
+// })
 
 //make kafka producer
 const producer = kafka.producer();
