@@ -1,10 +1,10 @@
 const express = require('express');
 const { generateSlug } = require('random-word-slugs');
-const { ECSClient, RunTaskCommand } = require("@aws-sdk/client-ecs");
+const { RunTaskCommand } = require("@aws-sdk/client-ecs");
 const Redis = require('ioredis');
 const { Server } = require('socket.io');
 require('dotenv').config();
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('./utils/prismaClient');
 const { z } = require("zod");
 const { Kafka } = require('kafkajs');
 const fs = require('fs');
@@ -13,6 +13,8 @@ const { createClient } = require('@clickhouse/client');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const buildQueue = require('./queues/buildQueue');
+const { client } = require('./utils/awsClient');
+const { version } = require('os');
 
 const app = express();
 app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
@@ -60,8 +62,6 @@ const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
 //create new socket srever for logs subscribing and pushing
 const io = new Server({ cors: '*' }); // listens all origins
-const prisma = new PrismaClient();
-
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
@@ -147,13 +147,13 @@ io.listen(9001, () => console.log("listening on port 9002"));
 app.use(express.json());
 
 //inttialize ecs client here
-const client = new ECSClient({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESSKEY,
-        secretAccessKey: process.env.AWS_SECRETACCESSKEY
-    }
-});
+// const client = new ECSClient({
+//     region: process.env.AWS_REGION,
+//     credentials: {
+//         accessKeyId: process.env.AWS_ACCESSKEY,
+//         secretAccessKey: process.env.AWS_SECRETACCESSKEY
+//     }
+// });
 //make con=figuration object for task and cluster
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
@@ -265,7 +265,7 @@ app.get("/projects/:ownerId", async function (req, res) {
 });
 
 
-//main deployer actual
+//main deployer actual via bullmq queue
 
 app.post('/deploy', async (req, res) => {
     //all is dependent on just projectId
@@ -313,35 +313,40 @@ app.post('/deploy', async (req, res) => {
             },
         });
         console.log("deployment added in prisma for deployment id", newDeployment.id);
+        //here add job to the deployment queue inseted of deploying it directly
+        await buildQueue.add('build', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
+         //after adding jobs to the queue respond to the user
+         
+ 
+         //here no need to spin as it will be done by workker now
+         //spin docker cntainer as task to manage automated things
+        // const command = new RunTaskCommand({
+        //     cluster: config.CLUSTER,
+        //     taskDefinition: config.TASK,
+        //     launchType: 'FARGATE',
+        //     count: 1,
+        //     networkConfiguration: {
+        //         awsvpcConfiguration: {
+        //             assignPublicIp: 'ENABLED',
+        //             subnets: ['subnet-0e0c97b6f83bfc538', 'subnet-08a60214836f38b79', 'subnet-0c4be927b2f4c3790'],
+        //             securityGroups: ['sg-0bf9e7e682e1bed1a']
+        //         }
+        //     },
+        //     overrides: {
+        //         containerOverrides: [
+        //             {
+        //                 name: 'task_cloner_image',
+        //                 environment: [
+        //                     { name: 'GIT_REPOSITORY__URL', value: newDeployment.project.gitUrl },
+        //                     { name: 'PROJECT_ID', value: newDeployment.project.id },
+        //                     { name: 'DEPLOYMENT_ID', value: newDeployment.id },
+        //                 ]
+        //             }
+        //         ]
+        //     }
+        // })
 
-        //spin docker cntainer as task to manage automated things
-        const command = new RunTaskCommand({
-            cluster: config.CLUSTER,
-            taskDefinition: config.TASK,
-            launchType: 'FARGATE',
-            count: 1,
-            networkConfiguration: {
-                awsvpcConfiguration: {
-                    assignPublicIp: 'ENABLED',
-                    subnets: ['subnet-0e0c97b6f83bfc538', 'subnet-08a60214836f38b79', 'subnet-0c4be927b2f4c3790'],
-                    securityGroups: ['sg-0bf9e7e682e1bed1a']
-                }
-            },
-            overrides: {
-                containerOverrides: [
-                    {
-                        name: 'task_cloner_image',
-                        environment: [
-                            { name: 'GIT_REPOSITORY__URL', value: newDeployment.project.gitUrl },
-                            { name: 'PROJECT_ID', value: newDeployment.project.id },
-                            { name: 'DEPLOYMENT_ID', value: newDeployment.id },
-                        ]
-                    }
-                ]
-            }
-        })
-
-        await client.send(command);
+        // await client.send(command);
 
         //send user url of the deployment with status
         return res.json({ status: 'queued', data: { deploymentId: newDeployment.id, domain: newDeployment.url } })
