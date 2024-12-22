@@ -26,8 +26,11 @@ const PORT = 5000;
 const clickHouseClient = createClient({
     host: process.env.CH_HOST,
     database: process.env.CH_DB,
-    username: process.env.CH_USERNAME,
-    password: process.env.CH_PASSWORD
+    protocol: 'http',
+    compression: true,
+    timeout: 10000, // Timeout in milliseconds
+    // username: process.env.CH_USERNAME,
+    // password: process.env.CH_PASSWORD
 });
 
 //kafka config instance of aiven
@@ -315,11 +318,11 @@ app.post('/deploy', async (req, res) => {
         console.log("deployment added in prisma for deployment id", newDeployment.id);
         //here add job to the deployment queue inseted of deploying it directly
         await buildQueue.add('build', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
-         //after adding jobs to the queue respond to the user
-         
- 
-         //here no need to spin as it will be done by workker now
-         //spin docker cntainer as task to manage automated things
+        //after adding jobs to the queue respond to the user
+
+
+        //here no need to spin as it will be done by workker now
+        //spin docker cntainer as task to manage automated things
         // const command = new RunTaskCommand({
         //     cluster: config.CLUSTER,
         //     taskDefinition: config.TASK,
@@ -456,4 +459,26 @@ app.get('/getLogs/:id', async function (req, res) {
         });
     }
 });
+
+// Function to check the connection
+async function testClickHouseConnection() {
+    try {
+        const result = await clickHouseClient.query({
+            query: 'SELECT version()',  // Basic query to check the server version
+            format: 'JSONEachRow',
+        }).then(response => {
+            if (response.data && response.data.length > 0) {
+                console.log('ClickHouse connected successfully! Server version:', response.data[0].version);
+            } else {
+                console.log('No data returned from ClickHouse.');
+            }
+        });
+    } catch (error) {
+        console.error('Failed to connect to ClickHouse:', error.message);
+    }
+}
+
+
+// Call the function
+// testClickHouseConnection();
 app.listen(PORT, () => console.log(`API Server Running..${PORT}`));
