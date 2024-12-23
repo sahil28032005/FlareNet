@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const { generateSlug } = require('random-word-slugs');
 const { RunTaskCommand } = require("@aws-sdk/client-ecs");
 const Redis = require('ioredis');
 const { Server } = require('socket.io');
-require('dotenv').config();
 const { prisma } = require('./utils/prismaClient');
 const { z } = require("zod");
 const { Kafka } = require('kafkajs');
@@ -23,6 +23,11 @@ const PORT = 5000;
 
 //applied tree shaking checkpoint commit
 //clickhouse congigs
+
+console.log("AWS Access Key:", process.env.AWS_ACCESSKEY);
+console.log("AWS Secret Key:", process.env.AWS_SECRETACCESSKEY);
+console.log("AWS Region:", process.env.AWS_REGION);
+
 const clickHouseClient = createClient({
     host: process.env.CH_HOST,
     database: process.env.CH_DB,
@@ -317,7 +322,8 @@ app.post('/deploy', async (req, res) => {
         });
         console.log("deployment added in prisma for deployment id", newDeployment.id);
         //here add job to the deployment queue inseted of deploying it directly
-        await buildQueue.add('build', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
+        await buildQueue.add('deploy', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
+        console.log("job added in queue");
         //after adding jobs to the queue respond to the user
 
 
@@ -477,7 +483,10 @@ async function testClickHouseConnection() {
         console.error('Failed to connect to ClickHouse:', error.message);
     }
 }
-
+(async () => {
+    const jobCounts = await buildQueue.getJobCounts();
+    console.log('Job counts:', jobCounts);
+  })();
 
 // Call the function
 // testClickHouseConnection();
