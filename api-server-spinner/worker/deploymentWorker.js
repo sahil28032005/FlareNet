@@ -6,13 +6,16 @@ const { prisma } = require('../utils/prismaClient');
 //cluster/aws configs object
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
-    TASK: 'git_project_cloner_task:4'
+    TASK: 'git_project_cloner_task:5'
 }
+
+console.log("worker file");
+console.log('cluster name: ' + client.config.credentials.accessKeyId);
 //define worker to process jobs
-const deploymentWorker = new Worker('deploymentQueue', async (job) => {
+const deploymentWorker = new Worker('buildQueue', async (job) => {
     const { deploymentId, projectId, environment, gitUrl, version } = job.data;
     try {
-        console.log(`Processing deployment for ${projectId} - Deployment ID: ${deploymentId}`);
+        console.log(`Worker is Processing deployment for ${projectId} - Deployment ID: ${deploymentId}`);
         //mark deployment status as active in  prisma database
         await prisma.deployment.update({
             where: { id: deploymentId },
@@ -52,25 +55,30 @@ const deploymentWorker = new Worker('deploymentQueue', async (job) => {
         //after processng container task mark deloyment as completed
         await prisma.deployment.update({
             where: { id: deploymentId },
-            data: { status: 'COMPLETED' },
+            data: { status: 'ACTIVE' },
         });
 
     }
     catch (err) {
         console.error(`Error for processing deployment job: ${err.message}`);
+        throw err;
 
     } await prisma.deployment.update({
         where: { id: deploymentId },
         data: { status: 'FAILED' },
     });
 
-    throw err;
+    
 }, {
     connection: {
         host: 'localhost',
         port: 6379,
     }
 });
+deploymentWorker.on('ready', () => {
+    console.log('Worker is ready to process jobs.');
+  });
+  
 deploymentWorker.on('completed', (job) => {
     console.log(`Job completed: ${job.id}`);
 });
@@ -78,3 +86,5 @@ deploymentWorker.on('completed', (job) => {
 deploymentWorker.on('failed', (job, err) => {
     console.error(`Job failed: ${job.id}, Error: ${err.message}`);
 });
+
+  
