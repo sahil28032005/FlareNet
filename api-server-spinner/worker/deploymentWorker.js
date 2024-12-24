@@ -2,7 +2,7 @@ const { Worker } = require('bullmq');
 const { RunTaskCommand } = require('@aws-sdk/client-ecs');
 const { client } = require('../utils/awsClient');
 const { prisma } = require('../utils/prismaClient');
-
+const failedQueue = require('../queues/failedQueue');
 //cluster/aws configs object
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
@@ -68,7 +68,7 @@ const deploymentWorker = new Worker('buildQueue', async (job) => {
         data: { status: 'FAILED' },
     });
 
-    
+
 }, {
     connection: {
         host: 'localhost',
@@ -77,14 +77,24 @@ const deploymentWorker = new Worker('buildQueue', async (job) => {
 });
 deploymentWorker.on('ready', () => {
     console.log('Worker is ready to process jobs.');
-  });
-  
+});
+
 deploymentWorker.on('completed', (job) => {
     console.log(`Job completed: ${job.id}`);
 });
 
-deploymentWorker.on('failed', (job, err) => {
+deploymentWorker.on('failed', async (job, err) => {
     console.error(`Job failed: ${job.id}, Error: ${err.message}`);
+
+    // Add the failed job to a dead letter queue (DLQ)
+    await failedQueue.add('failedJob', {
+        ...job.data, // Include the original job data
+        failedAt: new Date().toISOString(), // Timestamp for when the job failed
+        error: err.message // Include the error message for debugging
+    });
+
+    //maek hib as state oenf=ding review and annother or store in databse if necessary
+    
 });
 
-  
+
