@@ -50,6 +50,7 @@ enum Environment {
   STAGING
   DEVELOPMENT
 }
+
 model Project {
   id          String       @id @default(uuid()) @db.Uuid
   name        String
@@ -60,6 +61,7 @@ model Project {
   deployments Deployment[] // a project can have multiple deployments
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  FailedJob   FailedJob[]
 
   @@index([name])
   @@index([gitUrl])
@@ -76,8 +78,40 @@ model Deployment {
   version     String? // Optional version or tag of the deployment
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  FailedJob   FailedJob[]
 
   @@index([environment])
   @@index([status]) // Index for efficient status filtering
 }
 
+//for escalating the failed jobs
+model FailedJob {
+  id              String          @id @default(uuid()) @db.Uuid
+  queueName       String // Name of the queue where the job originated (e.g., 'buildQueue')
+  jobId           String          @unique // Unique identifier for the failed job in BullMQ
+  deploymentId    String?         @db.Uuid // Related deployment ID, if applicable
+  projectId       String?         @db.Uuid // Related project ID, if applicable
+  errorMessage    String // Error message or reason for failure
+  failedAt        DateTime        @default(now()) // Timestamp when the job failed
+  status          FailedJobStatus @default(PENDING) // Current status of the failed job
+  retryCount      Int             @default(0) // Number of retry attempts
+  lastProcessedAt DateTime? // Timestamp of the last retry or processing attempt
+  createdAt       DateTime        @default(now()) // Creation timestamp
+  updatedAt       DateTime        @updatedAt // Updated timestamp
+
+  // Relations
+  deployment Deployment? @relation(fields: [deploymentId], references: [id])
+  project    Project?    @relation(fields: [projectId], references: [id])
+
+  @@index([queueName])
+  @@index([status])
+}
+
+// Enum for Failed Job Status
+enum FailedJobStatus {
+  PENDING // Waiting for review or processing
+  RETRYING // Currently being retried
+  RESOLVED // Successfully reprocessed or resolved
+  ESCALATED // Escalated for manual review or intervention
+  DISCARDED // No longer relevant and discarded
+}

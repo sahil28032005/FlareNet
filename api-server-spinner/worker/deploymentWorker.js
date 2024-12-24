@@ -94,7 +94,25 @@ deploymentWorker.on('failed', async (job, err) => {
     });
 
     //maek hib as state oenf=ding review and annother or store in databse if necessary
-    
+    await UpdateServicePrimaryTaskSetCommand.failedJob.create({
+        data: {
+            queueName: 'buildQueue',
+            jobId: job.id,
+            deploymentId: job.data.deploymentId || null,
+            projectId: job.data.projectId || null,
+            errorMessage: err.message,
+            failedAt: new Date(),
+            status: 'PENDING',
+        }
+    });
+
+    // Optionally update the deployment status
+    if (job.data.deploymentId) {
+        await prisma.deployment.update({
+            where: { id: job.data.deploymentId },
+            data: { status: 'FAILED' },
+        });
+    }
 });
 
 
