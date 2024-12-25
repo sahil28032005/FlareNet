@@ -1,0 +1,7 @@
+{
+    "deploymentWorkflow": [
+        "triggerBuild",
+        "runTests",
+        "sendNotification"
+    ]
+}
