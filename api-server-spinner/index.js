@@ -324,40 +324,7 @@ app.post('/deploy', async (req, res) => {
         //here add job to the deployment queue inseted of deploying it directly
         await buildQueue.add('deploy', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
         console.log("job added in queue");
-        //after adding jobs to the queue respond to the user
-
-
-        //here no need to spin as it will be done by workker now
-        //spin docker cntainer as task to manage automated things
-        // const command = new RunTaskCommand({
-        //     cluster: config.CLUSTER,
-        //     taskDefinition: config.TASK,
-        //     launchType: 'FARGATE',
-        //     count: 1,
-        //     networkConfiguration: {
-        //         awsvpcConfiguration: {
-        //             assignPublicIp: 'ENABLED',
-        //             subnets: ['subnet-0e0c97b6f83bfc538', 'subnet-08a60214836f38b79', 'subnet-0c4be927b2f4c3790'],
-        //             securityGroups: ['sg-0bf9e7e682e1bed1a']
-        //         }
-        //     },
-        //     overrides: {
-        //         containerOverrides: [
-        //             {
-        //                 name: 'task_cloner_image',
-        //                 environment: [
-        //                     { name: 'GIT_REPOSITORY__URL', value: newDeployment.project.gitUrl },
-        //                     { name: 'PROJECT_ID', value: newDeployment.project.id },
-        //                     { name: 'DEPLOYMENT_ID', value: newDeployment.id },
-        //                 ]
-        //             }
-        //         ]
-        //     }
-        // })
-
-        // await client.send(command);
-
-        //send user url of the deployment with status
+    
         return res.json({ status: 'queued', data: { deploymentId: newDeployment.id, domain: newDeployment.url } })
 
     }
