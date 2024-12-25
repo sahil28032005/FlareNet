@@ -2,7 +2,6 @@
     "deploymentWorkflow": [
         "triggerBuild",
         "runTests",
-        "deploy",
         "sendNotification"
     ]
 }
