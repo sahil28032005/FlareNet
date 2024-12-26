@@ -15,6 +15,7 @@ const cors = require('cors');
 const buildQueue = require('./queues/buildQueue');
 const { client } = require('./utils/awsClient');
 const { version } = require('os');
+const githubRoutes = require('./routes/githubRoutes');
 
 const app = express();
 app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
@@ -24,9 +25,9 @@ const PORT = 5000;
 //applied tree shaking checkpoint commit
 //clickhouse congigs
 
-console.log("AWS Access Key:", process.env.AWS_ACCESSKEY);
-console.log("AWS Secret Key:", process.env.AWS_SECRETACCESSKEY);
-console.log("AWS Region:", process.env.AWS_REGION);
+// console.log("AWS Access Key:", process.env.AWS_ACCESSKEY);
+// console.log("AWS Secret Key:", process.env.AWS_SECRETACCESSKEY);
+// console.log("AWS Region:", process.env.AWS_REGION);
 
 const clickHouseClient = createClient({
     host: process.env.CH_HOST,
@@ -70,6 +71,11 @@ const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
 //create new socket srever for logs subscribing and pushing
 const io = new Server({ cors: '*' }); // listens all origins
+
+//middlewares
+
+//routes
+app.use('/api/github',githubRoutes);
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
