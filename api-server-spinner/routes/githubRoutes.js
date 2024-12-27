@@ -1,13 +1,17 @@
 const express = require('express');
+const { createWebHook } = require('../auth/createWebHook');
 
-const { getGitHubAuthUrl,
+const { githubRedirect,
     exchangeCodeForToken,
-    saveAccessToken } = require('../auth/githubAuth');
+    saveAccessToken,githubCallback } = require('../auth/githubAuth');
 
 const router = express.Router();
 
-router.get('/aut-url',getGitHubAuthUrl);
-router.post('/token',exchangeCodeForToken);
-router.post('/save-token',saveAccessToken);
+router.get('/auth-url', githubRedirect);
+router.post('/token', githubCallback);
+router.post('/save-token', saveAccessToken);
+
+//routers for creating webhooks
+router.post('/create-webhook', createWebHook);
 
 module.exports = router;
