@@ -29,15 +29,15 @@ const PORT = 5000;
 // console.log("AWS Secret Key:", process.env.AWS_SECRETACCESSKEY);
 // console.log("AWS Region:", process.env.AWS_REGION);
 
-const clickHouseClient = createClient({
-    host: process.env.CH_HOST,
-    database: process.env.CH_DB,
-    protocol: 'http',
-    compression: true,
-    timeout: 10000, // Timeout in milliseconds
-    // username: process.env.CH_USERNAME,
-    // password: process.env.CH_PASSWORD
-});
+// const clickHouseClient = createClient({
+//     host: process.env.CH_HOST,
+//     database: process.env.CH_DB,
+//     protocol: 'http',
+//     compression: true,
+//     timeout: 10000, // Timeout in milliseconds
+//     // username: process.env.CH_USERNAME,
+//     // password: process.env.CH_PASSWORD
+// });
 
 //kafka config instance of aiven
 // const kafka = new Kafka({
@@ -54,20 +54,20 @@ const clickHouseClient = createClient({
 // });
 
 //updated kafka configuration
-const kafka = new Kafka({
-    clientId: `api-server-receiver_side`,
-    brokers: [`${process.env.KAFKA_BROKER}`],
-    ssl: {
-        rejectUnauthorized: false, // Use true for strict verification
-        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
-        cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
-        key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
-    },
-})
+// const kafka = new Kafka({
+//     clientId: `api-server-receiver_side`,
+//     brokers: [`${process.env.KAFKA_BROKER}`],
+//     ssl: {
+//         rejectUnauthorized: false, // Use true for strict verification
+//         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
+//         cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
+//         key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
+//     },
+// })
 
 
 //create kafka consumer instance and try to consume logs by initializing them
-const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
+// const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
 //create new socket srever for logs subscribing and pushing
 const io = new Server({ cors: '*' }); // listens all origins
@@ -398,18 +398,18 @@ app.post('/deploy-project', async function (req, res) {
 // emitMessages();  //manager kogs emitting service from redddis pub sub
 
 //prisma caller
-main()
-    .catch(e => {
-        // Log error if the async main function fails
-        console.error('An unexpected error occurred in the main function:', e);
-    })
-    .finally(async () => {
-        // Ensure disconnection
-        console.log('Disconnecting from the database...');
-        await prisma.$disconnect();
-        console.log('Disconnected from the database.');
-    });
-logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
+// main()
+//     .catch(e => {
+//         // Log error if the async main function fails
+//         console.error('An unexpected error occurred in the main function:', e);
+//     })
+//     .finally(async () => {
+//         // Ensure disconnection
+//         console.log('Disconnecting from the database...');
+//         await prisma.$disconnect();
+//         console.log('Disconnected from the database.');
+//     });
+// logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
 
 //for getting logs using deployment id
 app.get('/getLogs/:id', async function (req, res) {
