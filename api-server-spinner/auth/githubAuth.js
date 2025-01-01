@@ -64,27 +64,85 @@ async function githubCallback(req, res) {
 }
 
 //getting user information from access
-async function getUserInfo(accessToken) {
-    const response = await axios.get('https://api.github.com/user', {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+async function getUserInfoHelper(accessToken) {
+    try {
+        const response = await axios.get('https://api.github.com/user', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        });
 
-    return response.data;// This will return user info like login, name, email, etc.
+        return response.data; // Return the user info like login, name, email, etc.
+    } catch (error) {
+        throw new Error('Failed to fetch user info from GitHub');
+    }
 }
 
-//list user repositories
-async function listRepositories(accessToken) {
-    const response = await axios.get('https://api.github.com/user/repos', {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+// Helper function to fetch repositories from GitHub
+async function fetchRepositoriesFromGitHub(accessToken) {
+    try {
+        const response = await axios.get('https://api.github.com/user/repos', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        });
 
-    return response.data; // This will return an array of repositories
+        return response.data; // Return the array of repositories
+    } catch (error) {
+        throw new Error('Failed to fetch repositories from GitHub');
+    }
+}
+
+
+//caller files
+async function getUserInfo(req, res) {
+    try {
+        //get access token form query or body or from any source might be temp database
+        let accessToken = req.query.accessToken || req.body.accessToken;
+
+        if (!accessToken) {
+            return res.status(400).json({ message: 'Missing access token' });
+        }
+
+        //fetch user info using provided access token
+        const userInfo = await getUserInfoHelper(accessToken);
+
+        //send user infor in response
+        res.json(userInfo);
+    }
+    catch (err) {
+        res.status(500).send({
+            success: false,
+            message: 'error fetching user info',
+            error: err.message
+        });
+    }
+}
+
+async function listRepositories(req, res) {
+    try {
+      //get access token from query or body
+      let accessToken = req.query.accessToken || req.body.accessToken;
+
+      if (!accessToken) {
+        return res.status(400).json({ message: 'Missing access token' });
+      }
+
+      //fetch repositories using provided access token
+      const repositories = await fetchRepositoriesFromGitHub(accessToken);
+
+      //send repositories in the response
+      res.json(repositories);
+    }
+    catch (err) {
+        res.status(500).send({
+            success: false,
+            message: 'error fetching repositories',
+            error: err.message
+        });
+    }
 }
 
 module.exports = {
@@ -92,5 +150,7 @@ module.exports = {
     exchangeCodeForToken,
     saveAccessToken,
     githubRedirect,
-    githubCallback
+    githubCallback,
+    getUserInfo,
+    listRepositories
 };
