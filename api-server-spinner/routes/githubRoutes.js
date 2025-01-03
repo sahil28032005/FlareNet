@@ -4,6 +4,7 @@ const { createWebHook } = require('../auth/createWebHook');
 const { githubRedirect,
     exchangeCodeForToken,
     saveAccessToken,githubCallback,getUserInfo,listRepositories } = require('../auth/githubAuth');
+const {handlePushEvent}=require('../auth/webEventHandelers');
 // const { App } = require('octokit');
 
 const router = express.Router();
@@ -19,4 +20,7 @@ router.get('/user-repos',listRepositories); //working tested using query param o
 //routers for creating webhooks
 router.post('/create-webhook', createWebHook);
 
+
+//web hook route
+router.post('/webhook-notifier',handlePushEvent);
 module.exports = router;

@@ -1,4 +1,4 @@
-await function handlePushEvent(event) {
+async function handlePushEvent(event) {
     const { repository, ref } = event;
 
     console.log(`push event detected: ${repository} for branch ${ref}`);
