@@ -74,8 +74,10 @@ const io = new Server({ cors: '*' }); // listens all origins
 
 //middlewares
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 //routes
-app.use('/api/github',githubRoutes);
+app.use('/api/github', githubRoutes);
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
@@ -158,7 +160,6 @@ async function emitMessages() {
 io.listen(9001, () => console.log("listening on port 9002"));
 
 
-app.use(express.json());
 
 //inttialize ecs client here
 // const client = new ECSClient({
@@ -330,7 +331,7 @@ app.post('/deploy', async (req, res) => {
         //here add job to the deployment queue inseted of deploying it directly
         await buildQueue.add('deploy', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
         console.log("job added in queue");
-    
+
         return res.json({ status: 'queued', data: { deploymentId: newDeployment.id, domain: newDeployment.url } })
 
     }
@@ -459,7 +460,7 @@ async function testClickHouseConnection() {
 (async () => {
     const jobCounts = await buildQueue.getJobCounts();
     console.log('Job counts:', jobCounts);
-  })();
+})();
 
 // Call the function
 // testClickHouseConnection();

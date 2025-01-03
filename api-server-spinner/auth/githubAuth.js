@@ -12,7 +12,7 @@ function getGitHubAuthUrl() {
     return `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scope}`;
 }
 
-//exchange code for access token
+//exchange code for access token this will return access tolem required for all activities
 async function exchangeCodeForToken(code) {
     const response = await axios.post('https://github.com/login/oauth/access_token', {
         client_id: CLIENT_ID,
