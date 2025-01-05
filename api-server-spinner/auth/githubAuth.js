@@ -95,11 +95,12 @@ async function githubCallback(req, res) {
         //needs to be saved in database
 
         //get userId from anyWhere
-        const userId = req.user.id;
+        // const userId = req.user.id;
+        const userId = 1;
 
         await saveAccessToken(userId, accessToken);
 
-        res.json({ message: 'Access token received and stored in database' });
+        res.json({ message: 'Access token received and stored in database', accessToken: accessToken });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
