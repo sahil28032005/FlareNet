@@ -50,30 +50,30 @@ async function createWebHook(req, res) {
     }
 }
 
-async function createWebhookOcta() {
+async function createWebhookOcta(oauthToken, owner, repo) {
     try {
-      const response = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
-        owner: 'sahil28032005',
-        repo: 'Docker-cheatsheet',
-        name: 'web',
-        active: true,
-        events: ['push', 'pull_request'], // Add other events as needed
-        config: {
-          url: 'https://d5a1-103-252-53-110.ngrok-free.app/api/github/webhook-notifier', // Replace with your server URL
-          content_type: 'json',
-          insecure_ssl: '0'
-        },
-        headers: {
-          'X-GitHub-Api-Version': '2022-11-28'
-        }
-      });
-  
-      console.log('Webhook created successfully:', response.data);
+        const response = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
+            owner: 'sahil28032005',
+            repo: 'Docker-cheatsheet',
+            name: 'web',
+            active: true,
+            events: ['push', 'pull_request'], // Add other events as needed
+            config: {
+                url: 'https://d5a1-103-252-53-110.ngrok-free.app/api/github/webhook-notifier', // Replace with your server URL
+                content_type: 'json',
+                insecure_ssl: '0'
+            },
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        });
+
+        console.log('Webhook created successfully:', response.data);
     } catch (error) {
-      console.error('Error creating webhook:', error);
+        console.error('Error creating webhook:', error);
     }
-  }
-  
+}
+
 //   createWebhookOcta(); single call is made already
 
 module.exports = { createWebHook };

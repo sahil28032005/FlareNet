@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { prisma } = require('../utils/prismaClient');
 require('dotenv').config({ path: '../.env' });
+const crypto = require('crypto');
 //required vars
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
@@ -31,6 +32,38 @@ async function exchangeCodeForToken(code) {
 
 //save access token inside database
 async function saveAccessToken(userId, accessToken) {
+    try {
+        const encryptedAccessToken = encryptToken(accessToken);
+
+        //check if the user already has a token stored
+        const existingToken = await prisma.oAuthToken.findUnique({
+            where: { userId },
+        });
+
+        if (existingToken) {
+            // Update the existing token
+            const updatedToken = await prisma.oAuthToken.update({
+                where: { userId },
+                data: { token: encryptedToken },
+            });
+            console.log('Access token updated:', updatedToken);
+            return updatedToken;
+        } else {
+            // Create a new token entry
+            const newToken = await prisma.oAuthToken.create({
+                data: {
+                    userId,
+                    token: encryptedToken,
+                },
+            });
+            console.log('Access token saved:', newToken);
+            return newToken;
+        }
+    }
+    catch (e) {
+        console.error('Error saving access token:', error);
+        throw new Error('Failed to save access token');
+    }
 
 }
 
@@ -58,6 +91,15 @@ async function githubCallback(req, res) {
         const accessToken = await exchangeCodeForToken(code);
         // res.json({ message: 'Access token received', accessToken });
         console.log(accessToken);
+
+        //needs to be saved in database
+
+        //get userId from anyWhere
+        const userId = req.user.id;
+
+        await saveAccessToken(userId, accessToken);
+
+        res.json({ message: 'Access token received and stored in database' });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -123,18 +165,18 @@ async function getUserInfo(req, res) {
 
 async function listRepositories(req, res) {
     try {
-      //get access token from query or body
-      let accessToken = req.query.accessToken || req.body.accessToken;
+        //get access token from query or body
+        let accessToken = req.query.accessToken || req.body.accessToken;
 
-      if (!accessToken) {
-        return res.status(400).json({ message: 'Missing access token' });
-      }
+        if (!accessToken) {
+            return res.status(400).json({ message: 'Missing access token' });
+        }
 
-      //fetch repositories using provided access token
-      const repositories = await fetchRepositoriesFromGitHub(accessToken);
+        //fetch repositories using provided access token
+        const repositories = await fetchRepositoriesFromGitHub(accessToken);
 
-      //send repositories in the response
-      res.json(repositories);
+        //send repositories in the response
+        res.json(repositories);
     }
     catch (err) {
         res.status(500).send({
@@ -143,6 +185,15 @@ async function listRepositories(req, res) {
             error: err.message
         });
     }
+}
+
+
+//basic helper functions
+function encryptToken(token) {
+    const cipher = crypto.createCipher('aes256', 'your-secret-key');
+    let encrypted = cipher.update(token, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
 }
 
 module.exports = {
