@@ -1,17 +1,17 @@
 async function handlePushEvent(event) {
-    const { repository, ref } = event;
+    const { repository, ref } = event.body;
 
-    console.log(`push event detected: ${repository} for branch ${ref}`);
+    console.log(`Push event detected`);
+    console.log("Event object:", event.body);
 
-    //extract context from the event
+    // Extract context from the event
     const context = {
-        gitUrl: repository.clone_url,
-        branch: ref.split('/').pop(),
-        repositoryName: repository.name,
+        gitUrl: repository.clone_url,        // Repository's clone URL
+        branch: ref.split('/').pop(),        // Extract branch name from ref (e.g., refs/heads/main -> main)
+        repositoryName: repository.name,     // Repository name
     }
 
-    //trigger workflow using context
-
+    console.log("Extracted context:", context);
 }
 
 module.exports = { handlePushEvent }
