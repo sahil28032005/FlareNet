@@ -4,7 +4,7 @@ const { Octokit } = require('@octokit/core');
 // Create a GitHub webhook for the provided repository
 
 //making octaakit instance here
-const octokit = new Octokit({ auth: process.env.WEBHOOK_SECRET });
+
 console.log(process.env.WEBHOOK_SECRET); // Remove after debugging
 
 async function createWebHook(req, res) {
@@ -51,10 +51,13 @@ async function createWebHook(req, res) {
 }
 
 async function createWebhookOcta(oauthToken, owner, repo) {
+
+    //create octokit instance using users oAuth  token
+    const octokit = new Octokit({ auth: oauthToken });
     try {
         const response = await octokit.request('POST /repos/{owner}/{repo}/hooks', {
-            owner: 'sahil28032005',
-            repo: 'Docker-cheatsheet',
+            owner: owner,//reppo owner whose account is being used after auth
+            repo: repo, //repoName on which webhook will be created
             name: 'web',
             active: true,
             events: ['push', 'pull_request'], // Add other events as needed
@@ -76,4 +79,25 @@ async function createWebhookOcta(oauthToken, owner, repo) {
 
 //   createWebhookOcta(); single call is made already
 
-module.exports = { createWebHook };
+//helper methods
+async function webHookOctoKitHelper(req, res) {
+    const { oauthToken, owner, repo } = req.body;
+
+    if (!oauthToken || !owner || !repo) {
+        return res.status(400).json({ message: 'Missing required parameters: oauthToken, owner, or repo' });
+    }
+    try {
+        const webhook = await createWebhookOcta(oauthToken, owner, repo);
+        res.status(200).json({
+            message: 'Webhook created successfully',
+            webhook
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error creating webhook',
+            error: error.message
+        });
+    }
+}
+
+module.exports = { webHookOctoKitHelper };
