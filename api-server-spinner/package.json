@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-ecs": "^3.693.0",
     "@clickhouse/client": "^1.8.1",
+    "@octokit/core": "^3.6.0",
     "@prisma/client": "^5.22.0",
     "axios": "^1.7.9",
     "bullmq": "^5.34.4",
@@ -20,7 +21,7 @@
     "express": "^4.21.1",
     "ioredis": "^5.4.1",
     "kafkajs": "^2.2.4",
-    "octokit": "^4.0.2",
+    "octokit": "^4.0.3",
     "prisma": "^5.22.0",
     "random-word-slugs": "^0.1.7",
     "socket.io": "^4.8.1",
