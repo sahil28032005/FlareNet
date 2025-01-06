@@ -304,6 +304,8 @@ app.post('/deploy', async (req, res) => {
             where: { id: validatedData.projectId },
         });
 
+        
+
         if (!project) {
             return res.status(404).send({
                 success: false,

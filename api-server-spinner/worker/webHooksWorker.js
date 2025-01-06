@@ -12,11 +12,19 @@ const taskHandelers = {
 }
 
 const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {
-    const { deploymentId, workflow, context } = job.data;
+    //necessary data for build deployment must coome
+    const { deploymentId, projectId, workflow, gitUrl } = job.data;
+
+    //make context to pass tashHandlere
+    const context = {
+        deploymentId,
+        projectId,
+        gitUrl
+    }
 
     try {
         // Process build (you can add logic to actually build the project)
-        console.log(`Building project for ${gitUrl}, version ${version}`);
+        console.log(`Building project for ${gitUrl}`);
 
         //try to iterate on workflow steps and process appropriate tasks attached with it
         console.log('workflow steps:', workflow);
