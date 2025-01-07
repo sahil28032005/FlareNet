@@ -33,4 +33,6 @@ ls -la "$OUTPUT_DIR"
 echo "Running the build script..."
 node ./script.js
 
-tail -f /dev/null
+# Signal successful completion
+echo "All tasks completed. Exiting ECS container."
+exit 0
