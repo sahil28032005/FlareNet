@@ -62,7 +62,7 @@ async function createWebhookOcta(oauthToken, owner, repo) {
             active: true,
             events: ['push', 'pull_request'], // Add other events as needed
             config: {
-                url: 'https://d5a1-103-252-53-110.ngrok-free.app/api/github/webhook-notifier', // Replace with your server URL
+                url: 'https://fde7-103-252-53-110.ngrok-free.app/api/github/webhook-notifier', // Replace with your server URL
                 content_type: 'json',
                 insecure_ssl: '0'
             },

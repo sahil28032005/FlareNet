@@ -23,7 +23,7 @@ model User {
   role       Role        @default(USER)
   Profile    Profile?
   Project    Project[]
-  OAuthToken OAuthToken?  //relation to oauth token model
+  OAuthToken OAuthToken? //relation to oauth token model
 }
 
 model Profile {
@@ -55,7 +55,7 @@ enum Environment {
 model Project {
   id          String       @id @default(uuid()) @db.Uuid
   name        String
-  gitUrl      String
+  gitUrl      String       @unique
   description String?
   ownerId     Int
   owner       User         @relation(fields: [ownerId], references: [id])

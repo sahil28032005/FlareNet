@@ -13,7 +13,7 @@ console.log("worker file");
 console.log('cluster name: ' + client.config.credentials.accessKeyId);
 //define worker to process jobs
 const deploymentWorker = new Worker('buildQueue', async (job) => {
-    const { deploymentId, projectId, environment, gitUrl, version } = job.data;
+    const { deploymentId, projectId, environment="DEVELOPMENT", gitUrl, version="v1.0.0" } = job.data;
     try {
         console.log(`Worker is Processing deployment for ${projectId} - Deployment ID: ${deploymentId}`);
         //mark deployment status as active in  prisma database

@@ -7,8 +7,8 @@ const sendNotification = require('../tasks/sendNotifications');
 //task handeler mapping
 const taskHandelers = {
     triggerBuild,
-    runTests,
-    sendNotification
+    // runTests,  (not builded yet hence commented)
+    // sendNotification
 }
 
 const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {
