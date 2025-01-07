@@ -22,6 +22,8 @@ const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {
         gitUrl
     }
 
+    //debugs logs
+    console.log('arrived context', context);
     try {
         // Process build (you can add logic to actually build the project)
         console.log(`Building project for ${gitUrl}`);
@@ -37,6 +39,7 @@ const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {
                 console.error(`No handler found for task: ${taskName}`);
                 throw new Error(`Task "${taskName}" does not have a handler`);
             }
+            console.log("task handler found for workflow");
 
             //execute task via providing context
             await taskHandler(context);
@@ -46,8 +49,8 @@ const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {
         //write same code as buildqueue worker does just done queue seperations
     }
     catch (err) {
-        console.error(`Error in processing build job for deploymentId ${deploymentId}: ${error.message}`);
-        throw error; // Re-throw the error to mark the job as failed
+        console.error(`Error in processing build job for deploymentId ${deploymentId}: ${err.message}`);
+        throw err; // Re-throw the error to mark the job as failed
     }
 }, {
     connection: {

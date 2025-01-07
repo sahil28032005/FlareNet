@@ -7,7 +7,7 @@ async function runWorkflow(workflowName, deploymentId, projectId, gitUrl) {
   if (!workflow) {
     throw new Error(`Workflow ${workflowName} not found`);
   }
-  console.log(`Adding workflow "${workflowName}" as a single job with context:`, context);
+  console.log(`Adding workflow "${workflowName}" as a single job`);
   //process workflow in predefined manner
   try {
     await webHookQueue.add(workflowName, { workflow, deploymentId, projectId, gitUrl });
