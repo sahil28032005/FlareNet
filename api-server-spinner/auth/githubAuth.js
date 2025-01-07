@@ -15,25 +15,43 @@ function getGitHubAuthUrl() {
 
 //exchange code for access token this will return access tolem required for all activities
 async function exchangeCodeForToken(code) {
-    const response = await axios.post('https://github.com/login/oauth/access_token', {
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-        code,
-    }, {
-        headers: { Accept: 'application/json' },
-    });
+    try {
+        const response = await axios.post(
+            'https://github.com/login/oauth/access_token',
+            {
+                client_id: CLIENT_ID,
+                client_secret: CLIENT_SECRET,
+                code,
+            },
+            {
+                headers: { Accept: 'application/json' },
+            }
+        );
 
-    if (response.data.error) {
-        throw new Error(response.data.error_description);
+        if (response.data.error) {
+            throw new Error(response.data.error_description);
+        }
+
+        return response.data.access_token;
+    } catch (err) { // Use `err` as the error object
+        console.error('Error exchanging code for token:', err.message);
+        throw new Error('Failed to exchange code for token'); // Re-throw or handle as needed
     }
-
-    return response.data.access_token;
 }
 
 //save access token inside database
 async function saveAccessToken(userId, accessToken) {
     try {
-        const encryptedAccessToken = encryptToken(accessToken);
+        const encrypted = encryptToken(accessToken);
+
+        console.log("token encrytpion done");
+        //stringify token for storing in database
+        const encryptedData = JSON.stringify({
+            token: encrypted.encryptedData,
+            iv: encrypted.iv, //stoer iv with encrypted toekn for decrypt securely
+        });
+
+        console.log("token stringified");
 
         //check if the user already has a token stored
         const existingToken = await prisma.oAuthToken.findUnique({
@@ -44,7 +62,7 @@ async function saveAccessToken(userId, accessToken) {
             // Update the existing token
             const updatedToken = await prisma.oAuthToken.update({
                 where: { userId },
-                data: { token: encryptedToken },
+                data: { token: encryptedData },
             });
             console.log('Access token updated:', updatedToken);
             return updatedToken;
@@ -53,7 +71,7 @@ async function saveAccessToken(userId, accessToken) {
             const newToken = await prisma.oAuthToken.create({
                 data: {
                     userId,
-                    token: encryptedToken,
+                    token: encryptedData,
                 },
             });
             console.log('Access token saved:', newToken);
@@ -191,10 +209,47 @@ async function listRepositories(req, res) {
 
 //basic helper functions
 function encryptToken(token) {
-    const cipher = crypto.createCipher('aes256', 'your-secret-key');
-    let encrypted = cipher.update(token, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return encrypted;
+    try {
+        const algorithm = 'aes-256-cbc';
+        const secretKey = process.env.SECRET_KEY;
+
+        // Validate that SECRET_KEY is defined and has the correct length (32 bytes for aes-256-cbc)
+        if (!secretKey || secretKey.length !== 32) {
+            throw new Error('SECRET_KEY must be defined and 32 bytes long.');
+        }
+
+        const iv = crypto.randomBytes(16); // Initialization vector (16 bytes)
+
+        const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
+        let encrypted = cipher.update(token, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+
+        return {
+            encryptedData: encrypted,
+            iv: iv.toString('hex'),
+        };
+    } catch (err) {
+        console.error('Error encrypting token:', err.message);
+        throw new Error('Encryption failed. Ensure that SECRET_KEY is properly configured.');
+    }
+}
+
+
+//decrypt token when needed
+function decryptToken(encryptedData) {
+    const algorithm = 'aes-256-cbc';
+    const secretKey = process.env.SECRET_KEY; // Securely stored key
+    const { token, iv } = JSON.parse(encryptedData); // Parse stored JSON
+
+    const decipher = crypto.createDecipheriv(
+        algorithm,
+        Buffer.from(secretKey, 'hex'),
+        Buffer.from(iv, 'hex')
+    );
+
+    let decrypted = decipher.update(token, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
 }
 
 module.exports = {
