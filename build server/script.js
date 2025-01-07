@@ -132,6 +132,7 @@ async function init() {
         }
         console.log('done all files upload!');
         publishLog(`Done`);
+        process.exit(0); 
 
     });
 }

@@ -6,7 +6,7 @@ const failedQueue = require('../queues/failedQueue');
 //cluster/aws configs object
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
-    TASK: 'git_project_cloner_task:5'
+    TASK: 'git_project_cloner_task:6'
 }
 
 console.log("worker file");
