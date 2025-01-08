@@ -19,11 +19,13 @@ datasource db {
 model User {
   id         Int         @id @default(autoincrement())
   email      String      @unique
+  password   String? // Hashed password for email-password authentication
   name       String?
   role       Role        @default(USER)
   Profile    Profile?
   Project    Project[]
   OAuthToken OAuthToken? //relation to oauth token model
+  createdAt  DateTime    @default(now())
 }
 
 model Profile {

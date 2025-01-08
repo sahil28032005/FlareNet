@@ -16,6 +16,7 @@ const buildQueue = require('./queues/buildQueue');
 const { client } = require('./utils/awsClient');
 const { version } = require('os');
 const githubRoutes = require('./routes/githubRoutes');
+const authRoutes = require('./routes/autthRoutes');
 
 const app = express();
 app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
@@ -78,6 +79,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //routes
 app.use('/api/github', githubRoutes);
+app.use('/api/auth',authRoutes);
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
