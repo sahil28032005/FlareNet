@@ -89,7 +89,7 @@ async function saveAccessToken(userId, accessToken) {
 async function githubRedirect(req, res) {
     try {
         const authUrl = getGitHubAuthUrl();
-        res.json({ message: 'Redirect to GitHub for authentication', authUrl }); // Send auth URL in response
+        res.json({ success: true, message: 'Redirect to GitHub for authentication', authUrl }); // Send auth URL in response
     }
     catch (e) {
         res.status(500).send({
@@ -118,9 +118,9 @@ async function githubCallback(req, res) {
 
         await saveAccessToken(userId, accessToken);
 
-        res.json({ message: 'Access token received and stored in database', accessToken: accessToken });
+        res.json({ success: true, message: 'Access token received and stored in database', accessToken: accessToken });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({success:false, message: error.message });
     }
 }
 

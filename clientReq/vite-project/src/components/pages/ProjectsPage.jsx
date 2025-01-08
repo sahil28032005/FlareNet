@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import axios from "axios";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { FaGithub } from "react-icons/fa";
 import "./ProjectsPage.css";
 
@@ -15,6 +17,8 @@ const ProjectsPage = () => {
     const [newProject, setNewProject] = useState({ name: "", gitUrl: "", description: "", ownerId: 1 });
     const navigate = useNavigate();
     const location = useLocation();
+    const [userInfo, setUserInfo] = useState(null); // User info state
+    const [userRepos, setUserRepos] = useState([]); // User repositories state
 
     // Fetch user's previous projects
     useEffect(() => {
@@ -30,6 +34,35 @@ const ProjectsPage = () => {
         };
         fetchProjects();
     }, [ownerId]);
+
+    //fetch user info and repos if access token is avaliable
+    useEffect(() => {
+        const accessToken = localStorage.getItem('github_token');
+        if (accessToken) {
+            console.log("Access token found in localStorage:", accessToken);
+            const fetchUserInfo = async () => {
+                try {
+                    const userInfoResponse = await axios.get(`http://localhost:5000/api/github/user-info?accessToken=${accessToken}`);
+                    console.log("uresponse", userInfoResponse);
+                    if (userInfoResponse.data) {
+                        console.log("inside if");
+                        setUserInfo(userInfoResponse.data);
+                    }
+
+                    const userReposResponse = await axios.get(`http://localhost:5000/api/github/user-repos?accessToken=${accessToken}`);
+                    if (userReposResponse.data) {
+                        setUserRepos(userReposResponse.data);
+                    }
+                }
+                catch (err) {
+                    console.error("Error fetching user info", err.message);
+                }
+            }
+            fetchUserInfo();
+        }
+
+
+    }, []);
 
     const handleCreateProject = async () => {
         if (newProject.name && newProject.gitUrl && newProject.description) {
@@ -57,8 +90,10 @@ const ProjectsPage = () => {
     useEffect(() => {
         const fetchAccessToken = async (code) => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/github/token?code=${code}`);
+                const response = await axios.post(`http://localhost:5000/api/github/token?code=${code}`);
                 if (response.data.success) {
+                    const token = response.data.accessToken;
+                    localStorage.setItem('github_token', token); // Store token in localStorage
                     alert("github authorization successful!");
                     //optionally save response,data to localstoragr or context
                 }
@@ -97,14 +132,64 @@ const ProjectsPage = () => {
 
     return (
         <div className="projects-page">
+            {console.log("userInfo", userInfo)}
             <div className="projects-container">
                 <h2 className="title">Welcome to Your Projects</h2>
                 <div className="authorize-container">
-                <button onClick={handleAuthorizeWithGitHub} className="authorize-button">
+                    <button onClick={handleAuthorizationWithGithub} className="authorize-button">
                         <FaGithub className="github-icon" />
                         Authorize with GitHub
                     </button>
                 </div>
+
+                {/* User Information Section */}
+                {userInfo && (
+                    <Card className="user-info-card">
+                        <CardHeader>
+                            <div className="user-info-header">
+                                {/* <img src={userInfo.avatar_url} alt={userInfo.name} /> */}
+                                <Avatar>
+                                    <AvatarImage src={userInfo.avatar_url} alt={userInfo.name} />
+                                    {/* <AvatarFallback>{userName ? userName.charAt(0) : 'U'}</AvatarFallback> */}
+                                </Avatar>
+                                {/* <Avatar src={userInfo.avatar_url} alt={userInfo.name} /> */}
+                                <div>
+                                    <h3>{userInfo.name}</h3>
+                                    <p>@{userInfo.login}</p>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <p>{userInfo.bio || "No bio available"}</p>
+                            <p>Public Repositories: {userInfo.public_repos}</p>
+                            <p>Followers: {userInfo.followers}</p>
+                            <p>Following: {userInfo.following}</p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* User Repositories Section */}
+                {userRepos.length > 0 && (
+                    <div className="user-repos-section">
+                        <h3 className="subtitle">Your GitHub Repositories</h3>
+                        {userRepos.map((repo) => (
+                            <Card key={repo.id} className="repo-card">
+                                <CardHeader>
+                                    <h3>{repo.name}</h3>
+                                </CardHeader>
+                                <CardContent>
+                                    <p>{repo.description || "No description available"}</p>
+                                </CardContent>
+                                <CardFooter>
+                                    <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
+                                        View on GitHub
+                                    </a>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+
                 <div className="projects-list">
                     <h3 className="subtitle">Your Projects</h3>
                     {projects.map((project, index) => (
