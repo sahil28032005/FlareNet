@@ -59,7 +59,7 @@ const HeroSection = () => {
         </p>
         <Button
           onClick={() => {
-            navigate("/projects");
+            navigate("/new");
           }}
           className="bg-yellow-400 text-black hover:bg-gray-200 px-6 py-3 text-lg rounded-md shadow-lg transform hover:scale-105 transition-transform"
         >

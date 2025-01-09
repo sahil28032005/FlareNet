@@ -16,7 +16,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
 
         {/* Define Route for Service */}
-        <Route path="/projects" element={<Service />} />
+        <Route path="/new" element={<Service />} />
 
         {/* Define Route for progress page */}
         <Route path="/progress/:id" element={<DeploymentProgress />} />
