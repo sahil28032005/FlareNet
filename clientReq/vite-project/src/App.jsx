@@ -6,6 +6,7 @@ import Service from './components/pages/Service';
 import DeploymentProgress from './components/pages/DeploymentProgress';
 import DeployForm from './components/pages/DeployForm';
 import LoginPage from './components/LoginPage';
+import ProjectLister from './components/pages/ProjectLister';
 function App() {
 
 
@@ -26,6 +27,9 @@ function App() {
 
         {/* Define Route for Login page */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* Define Route for users pages */}
+        <Route path="/projects" element={<ProjectLister />} />
       </Routes>
     </Router>
   )

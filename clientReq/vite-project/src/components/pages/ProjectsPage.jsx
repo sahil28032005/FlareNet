@@ -11,14 +11,40 @@ import { FaGithub } from "react-icons/fa";
 import "./ProjectsPage.css";
 
 const ProjectsPage = () => {
-    const [projects, setProjects] = useState([]);
-    const [ownerId, setOwnerId] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [newProject, setNewProject] = useState({ name: "", gitUrl: "", description: "", ownerId: 1 });
     const navigate = useNavigate();
     const [userInfo, setUserInfo] = useState(null);
     const [userRepos, setUserRepos] = useState([]);
     const [expanded, setExpanded] = useState(false);
+
+    //handle import click
+
+    const handleImport = async () => {
+        try {
+            ///api call to create prroject
+            const response = await axios.post("http://localhost:5000/create-project", {
+                name: repo.name,
+                gitUrl: repo.html_url,
+                description: repo.description || "No description provided",
+                ownerId, // Dynamically passed owner ID
+            });
+
+            if (response.statusCode === 200) {
+                console.log("project created successfully");
+
+                //redirect to the project lister page
+                navigate("/projects");
+            }
+            else {
+                console.error("Project creation failed");
+            }
+
+        }
+        catch (e) {
+            console.error('error while importing project: ' + e.message);
+        }
+    }
 
     // Add this inside a `useEffect` in your `ProjectsPage` component to handle the canvas animation:
 
@@ -291,13 +317,9 @@ const ProjectsPage = () => {
                                         >
                                             View on GitHub
                                         </a>
-                                        <a
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="repo-link"
-                                        >
+                                        <button onClick={handleImport} className="import-button">
                                             Import
-                                        </a>
+                                        </button>
                                     </CardFooter>
                                 </Card>
                             ))}
