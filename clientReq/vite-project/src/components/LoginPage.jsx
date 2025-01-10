@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import {jwtDecode} from "jwt-decode";
 
 const generateBubbles = () => {
   return Array.from({ length: 25 }, (_, i) => ({
@@ -44,6 +45,21 @@ const LoginPage = () => {
 
       // Redirect to the dashboard on successful login
       if (isLogin && response.status === 200) {
+        const { token } = response.data;
+
+        //store token in localstorage
+        localStorage.setItem("authTokenLogin", token);
+
+        //decode token to get its expiry
+        const decodedToken = jwtDecode(token);
+        const expiryTime = decodedToken.exp * 1000; // Convert to milliseconds
+
+        //set timeout to clear token after expiry
+        setTimeout(() => {
+          localStorage.removeItem("authTokenLogin");
+          console.log("Token expired and removed.");
+        }, expiryTime - Date.now());
+
         navigate("/"); // Redirect to the main dashboard
       }
     } catch (error) {

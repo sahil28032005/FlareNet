@@ -2,13 +2,37 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import "./HeroSection.css";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   const [headline, setHeadline] = useState("");
+  const [username, setUsername] = useState(null);
   const fullHeadline = "Single-Click Deploy with FlareNet";
+
+  //handle user sessions with token expiry
+  useEffect(() => {
+    const token = localStorage.getItem("authTokenLogin");
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        if (Date.now() < decodedToken.exp * 1000) {
+          console.log("Token is still valid.");
+          // User is authenticated; you can fetch user data here
+        } else {
+          console.log("Token has expired.");
+          localStorage.removeItem("authTokenLogin");
+        }
+      } catch (error) {
+        console.error("Invalid token:", error.message);
+        localStorage.removeItem("authTokenLogin");
+      }
+    }
+  }, []);
+
 
   // Typing effect for headline
   useEffect(() => {
@@ -36,24 +60,29 @@ const HeroSection = () => {
     };
   }, []);
 
+  //logOut function
+  const handleLogout = () => {
+    localStorage.removeItem("authTokenLogin");
+    setUsername(null);
+  }
+
   return (
     <section
       ref={sectionRef}
       className="w-full min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-gray-900 via-black to-gray-800 text-white relative overflow-hidden"
     >
+      
       {/* Headline Section */}
       <div className="max-w-4xl px-4 md:px-12 relative z-10">
         <h1
-          className={`text-5xl md:text-6xl font-bold mb-6 glowing-text transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
-          }`}
+          className={`text-5xl md:text-6xl font-bold mb-6 glowing-text transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
+            }`}
         >
           {headline}
         </h1>
         <p
-          className={`text-lg md:text-xl mb-8 transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
-          }`}
+          className={`text-lg md:text-xl mb-8 transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
+            }`}
         >
           Deploy your applications instantly with world-class performance, scalability, and security.
         </p>
@@ -103,11 +132,10 @@ const HeroSection = () => {
         ].map((feature, index) => (
           <div
             key={index}
-            className={`p-6 rounded-lg bg-gray-800 text-white shadow-md transform transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 scale-100 translate-y-0"
-                : "opacity-0 scale-90 translate-y-10"
-            }`}
+            className={`p-6 rounded-lg bg-gray-800 text-white shadow-md transform transition-all duration-1000 ${isVisible
+              ? "opacity-100 scale-100 translate-y-0"
+              : "opacity-0 scale-90 translate-y-10"
+              }`}
           >
             <h2 className="text-xl font-semibold mb-4 text-yellow-400">
               {feature.title}
