@@ -241,7 +241,6 @@ const DeployForm = () => {
                     </form>
                 </div>
             </div>
-            <Footer />
         </>
 
     );

@@ -33,7 +33,6 @@ const LandingPage = () => {
       {/* <NavBar username={username} /> */}
       <HeroSection />
       <FeaturesSection />
-      <Footer />
     </div>
   )
 }

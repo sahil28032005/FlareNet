@@ -5,10 +5,13 @@ import { Label } from "@/components/ui/label";
 import { useNavigate, useParams } from "react-router-dom";
 import "./DeploymentProgress.css";
 import NavBar from '../NavBar';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'; // For graph visualization
 
 const DeploymentProgress = () => {
   const [logs, setLogs] = useState([]); // Logs state
   const [isDeploying, setIsDeploying] = useState(true);
+  const [progress, setProgress] = useState(0); // Deployment progress state
+  const [deploymentStats, setDeploymentStats] = useState({ success: 70, failure: 30, total: 100 }); // Demo stats
   const navigate = useNavigate();
   const { id } = useParams(); // Assuming you pass deployment ID via URL params
 
@@ -20,6 +23,8 @@ const DeploymentProgress = () => {
           const data = await response.json();
           const newLogs = data.logs.map(log => `Log Entry ${log.event_id}: ${log.log}`);
           setLogs(prevLogs => [...prevLogs, ...newLogs]); // Append new logs
+          setProgress(data.progress || progress); // Update progress if provided
+          setDeploymentStats(data.stats || deploymentStats); // Update analytics
         } else {
           console.error("Failed to fetch logs");
         }
@@ -35,93 +40,127 @@ const DeploymentProgress = () => {
 
     // Clear interval when logs are completed or component unmounts
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, progress, deploymentStats]);
 
   const handleCancel = () => {
     setIsDeploying(false);
     navigate("/service"); // Navigate back to the service page
   };
 
+  const COLORS = ['#00FF00', '#FF4D4D'];
+
   return (
     <>
       <NavBar />
-      <div
-        style={{
-          width: '100vw',
-          height: '100vh',
-          background: 'linear-gradient(145deg, #000000, #1a1a1a)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.1)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          className="deploy-progress-container bg-gray-900 text-white p-8 rounded-lg shadow-xl w-full max-w-4xl"
-          style={{
-            animation: 'glowAnimation 2s ease-in-out infinite',
-            boxShadow: '0 0 30px rgba(0, 123, 255, 0.8)',
-          }}
-        >
-          <h2 className="text-3xl font-bold mb-6 text-yellow-500">
-            Deployment Progress
-          </h2>
-          <div
-            className="log-area bg-black rounded-lg p-4 max-h-[300px] overflow-auto shadow-lg"
-            style={{
-              animation: 'glowEffect 2s ease-in-out infinite',
-              border: '2px solid #fffa',
-              boxShadow: '0 0 20px rgba(255, 255, 255, 0.3)',
-            }}
-          >
-            <Label className="text-lg text-white">Logs</Label>
+      <div className="deploy-progress-container">
+        <div className="progress-header">
+          <h2 className="text-5xl font-bold text-cyan-400 animate-glow">Deployment Progress</h2>
+          <p className="text-lg text-gray-300">Live deployment logs, real-time analytics, and more...</p>
+        </div>
+
+        <div className="progress-body">
+          {/* Analytics Section with Circular Progress */}
+          <div className="analytics-section">
+            <div className="stats-card">
+              <h3 className="text-xl text-cyan-400">Total Deployments</h3>
+              <p className="text-4xl">{deploymentStats.total}</p>
+            </div>
+            <div className="stats-card">
+              <h3 className="text-xl text-cyan-400">Success Rate</h3>
+              <div className="circular-progress">
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Success', value: deploymentStats.success },
+                        { name: 'Failure', value: deploymentStats.failure }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value" // This ensures the correct value is displayed
+                    >
+                      {['#00FF00', '#FF4D4D'].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            <div className="stats-card">
+              <h3 className="text-xl text-cyan-400">Failure Rate</h3>
+              <div className="circular-progress">
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Failure', value: deploymentStats.failure },
+                        { name: 'Success', value: deploymentStats.success }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value" // This ensures the correct value is displayed
+                    >
+                      {['#FF4D4D', '#00FF00'].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Log Area */}
+          <div className="log-area">
+            <Label className="text-white">Logs</Label>
             <Textarea
-              className="mt-2 w-full h-[200px] text-white bg-transparent border-0 outline-none"
+              className="log-textarea"
               value={logs.join("\n")}
               readOnly
               style={{
                 color: '#dcdcdc',
                 fontFamily: 'Courier New, monospace',
                 fontSize: '14px',
-                letterSpacing: '1px',
                 lineHeight: '1.5',
+                letterSpacing: '1px',
+                wordWrap: 'break-word',
               }}
             />
           </div>
 
+          {/* Progress Bar */}
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+          </div>
+
+          {/* Action Buttons */}
           {isDeploying ? (
-            <div className="mt-6 flex justify-between items-center">
-              <Button
-                onClick={handleCancel}
-                className="bg-red-600 text-white hover:bg-red-700 py-2 px-4 rounded-lg transition-all"
-                style={{
-                  boxShadow: '0 0 10px rgba(255, 0, 0, 0.5)',
-                  animation: 'glowRed 2s ease-in-out infinite',
-                }}
-              >
-                Cancel Deployment
-              </Button>
-              <Button
-                className="bg-green-600 text-white hover:bg-green-700 py-2 px-4 rounded-lg transition-all"
-                style={{
-                  boxShadow: '0 0 10px rgba(0, 255, 0, 0.5)',
-                  animation: 'glowGreen 2s ease-in-out infinite',
-                }}
-              >
-                View Dashboard
-              </Button>
+            <div className="action-buttons">
+              <Button onClick={handleCancel} className="btn-cancel">Cancel Deployment</Button>
+              <Button onClick={() => navigate("/dashboard")} className="btn-dashboard">View Dashboard</Button>
             </div>
           ) : (
-            <div className="mt-6 flex justify-center">
-              <Button
-                onClick={() => navigate("/")}
-                className="bg-blue-600 text-white hover:bg-blue-700 py-2 px-4 rounded-lg transition-all"
-              >
-                Go Back Home
-              </Button>
-            </div>
+            <Button onClick={() => navigate("/")} className="btn-home">Go Back Home</Button>
           )}
+        </div>
+
+        {/* Advertisements Section */}
+        <div className="advertisement-section">
+          <div className="advertisement-card">
+            <h4>🚀 Try Our Cloud Services Today!</h4>
+            <p>Experience seamless deployments with low latency and high performance. Sign up now and get 20% off your first 3 months!</p>
+            <Button onClick={() => navigate("/cloud-services")} className="btn-signup">Sign Up</Button>
+          </div>
+          <div className="advertisement-card">
+            <h4>🔒 Secure Your Applications</h4>
+            <p>Ensure your deployment is always safe and secure. Learn how our service protects you from threats.</p>
+            <Button onClick={() => navigate("/security")} className="btn-signup">Learn More</Button>
+          </div>
         </div>
       </div>
     </>

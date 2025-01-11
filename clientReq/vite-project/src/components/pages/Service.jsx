@@ -7,17 +7,10 @@ import Footer from "../Footer";
 const Service = () => {
     return (
         <>
-            <div>
-                <NavBar />
-            </div>
 
             <div style={{ marginTop: "70px" }}> {/* Adjust based on NavBar height */}
                 {/* <DeployForm />  we will go at this form after deploy buttin on projects page now make projects page */}
                 <ProjectsPage />
-            </div>
-
-            <div>
-                <Footer />
             </div>
         </>
     );
