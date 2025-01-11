@@ -51,19 +51,21 @@ const loginUser = async (req, res) => {
     try {
         // Find user by email
         const user = await prisma.user.findUnique({ where: { email } });
+        console.log("user",user);
+        console.log("userId",user.id);
         if (!user) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
         // Verify password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
         // Generate JWT
         const token = jwt.sign(
-            { userId: user.id, role: user.role },
+            { userId: user.id, role: user.role,email: user.email},
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
