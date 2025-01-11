@@ -7,32 +7,40 @@ import DeploymentProgress from './components/pages/DeploymentProgress';
 import DeployForm from './components/pages/DeployForm';
 import LoginPage from './components/LoginPage';
 import ProjectLister from './components/pages/ProjectLister';
+import NavBar from './components/NavBar';
+import { useUser } from './context/userContext';
+
 
 function App() {
-
+  const { user, setUserData } = useUser();
 
   return (
-    <Router>
-      <Routes>
-        {/* Define Route for LandingPage */}
-        <Route path="/" element={<LandingPage />} />
+    <>
+      <Router>
+        {/* plcae navbar here as common shared components */}
+        <NavBar/>
+        <Routes>
+          {/* Define Route for LandingPage */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Define Route for Service */}
-        <Route path="/new" element={<Service />} />
+          {/* Define Route for Service */}
+          <Route path="/new" element={<Service />} />
 
-        {/* Define Route for progress page */}
-        <Route path="/progress/:id" element={<DeploymentProgress />} />
+          {/* Define Route for progress page */}
+          <Route path="/progress/:id" element={<DeploymentProgress />} />
 
-        {/* Define Route for actual hosting form */}
-        <Route path="/service/:id" element={<DeployForm />} />
+          {/* Define Route for actual hosting form */}
+          <Route path="/service/:id" element={<DeployForm />} />
 
-        {/* Define Route for Login page */}
-        <Route path="/login" element={<LoginPage />} />
+          {/* Define Route for Login page */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Define Route for users pages */}
-        <Route path="/projects" element={<ProjectLister />} />
-      </Routes>
-    </Router>
+          {/* Define Route for users pages */}
+          <Route path="/projects" element={<ProjectLister />} />
+        </Routes>
+      </Router>
+    </>
+
   )
 }
 

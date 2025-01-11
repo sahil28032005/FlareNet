@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
+import { useUser } from "../context/userContext";
 
 const generateBubbles = () => {
   return Array.from({ length: 25 }, (_, i) => ({
@@ -25,6 +26,7 @@ const LoginPage = () => {
   const [name, setName] = useState("");
   const [message, setMessage] = useState(null);
   const [bubbles, setBubbles] = useState(generateBubbles());
+  const { setUserData } = useUser(); // Use context to set user data
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/auth";
 
@@ -48,10 +50,19 @@ const LoginPage = () => {
         const { token } = response.data;
         localStorage.setItem("authTokenLogin", token);
         const decodedToken = jwtDecode(token);
-        const expiryTime = decodedToken.exp * 1000;
 
+        const userData = {
+          id: decodedToken.userId,
+          email: decodedToken.email,
+          role: decodedToken.role,
+        };
+        setUserData(userData);
+        const expiryTime = new Date(decodedToken.exp * 1000); // `exp` is in seconds
+        
         setTimeout(() => {
           localStorage.removeItem("authTokenLogin");
+          crossOriginIsolated.log("removed by stimeout login page");
+          setUserData(null); // Clear the user data when token expires
           console.log("Token expired and removed.");
         }, expiryTime - Date.now());
 
