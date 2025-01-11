@@ -9,8 +9,10 @@ import axios from "axios";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { FaGithub } from "react-icons/fa";
 import "./ProjectsPage.css";
+import { useUser } from '../../context/userContext';
 
 const ProjectsPage = () => {
+    const { user } = useUser(); // Get the user data from the context
     const [isLoading, setIsLoading] = useState(false);
     const [newProject, setNewProject] = useState({ name: "", gitUrl: "", description: "", ownerId: 1 });
     const navigate = useNavigate();
@@ -20,17 +22,22 @@ const ProjectsPage = () => {
 
     //handle import click
 
-    const handleImport = async () => {
+    const handleImport = async (repo) => {
+        if(!user?.id){
+            console.error("no user is logged in to set ownerId.");
+        }
+
         try {
             ///api call to create prroject
+            console.log("arrived repo", repo);
             const response = await axios.post("http://localhost:5000/create-project", {
                 name: repo.name,
                 gitUrl: repo.html_url,
                 description: repo.description || "No description provided",
-                ownerId, // Dynamically passed owner ID
+                ownerId: user.id, // Use the user ID from the context// Dynamically passed owner ID
             });
 
-            if (response.statusCode === 200) {
+            if (response.status === 200) {
                 console.log("project created successfully");
 
                 //redirect to the project lister page
@@ -317,7 +324,10 @@ const ProjectsPage = () => {
                                         >
                                             View on GitHub
                                         </a>
-                                        <button onClick={handleImport} className="import-button">
+                                        <button
+                                            onClick={() => handleImport(repo)}
+                                            className="import-button"
+                                        >
                                             Import
                                         </button>
                                     </CardFooter>

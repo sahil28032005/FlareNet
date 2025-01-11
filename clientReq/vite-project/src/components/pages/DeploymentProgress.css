@@ -1,36 +1,209 @@
-@keyframes glowEffect {
-    0% {
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(0, 123, 255, 0.7);
-    }
-    50% {
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.7), 0 0 30px rgba(0, 123, 255, 0.9);
-    }
-    100% {
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(0, 123, 255, 0.7);
-    }
+/* Global Styles */
+body {
+  /* font-family: 'Courier New', monospace; */
+  background-color: #1e1e1e;
+  color: #dcdcdc;
+}
+
+.deploy-progress-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* height: 100vh; */
+  width: 100%;
+  padding: 2rem;
+}
+
+.progress-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.progress-header h2 {
+  font-size: 2.5rem;
+  color: #00bcd4;
+  text-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4;
+  margin-bottom: 10px;
+}
+
+.progress-header p {
+  font-size: 1.2rem;
+  color: #b0b0b0;
+}
+
+.analytics-section {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  width: 30%;
+  text-align: center;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.stats-card h3 {
+  font-size: 1.5rem;
+  color: #00FF00;
+  margin-bottom: 0.5rem;
+}
+
+.stats-card p {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.circular-progress {
+  width: 200px;
+  height: 200px;
+  margin: auto;
+}
+
+.log-area {
+  width: 90%;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  margin-bottom: 2rem;
+}
+
+.log-textarea {
+  width: 100%;
+  height: 200px;
+  background-color: transparent;
+  color: #dcdcdc;
+  border: none;
+  outline: none;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #333;
+  border-radius: 5px;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #00FF00;
+  border-radius: 5px;
+  transition: width 0.3s ease-in-out;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.action-buttons button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-cancel {
+  background-color: #ff4d4d;
+  color: white;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  animation: glowRed 2s ease-in-out infinite;
+}
+
+.btn-dashboard {
+  background-color: #4CAF50;
+  color: white;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  animation: glowGreen 2s ease-in-out infinite;
+}
+
+.btn-home {
+  background-color: #007BFF;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 0 10px rgba(0, 0, 255, 0.5);
+}
+
+.advertisement-section {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-top: 3rem;
+}
+
+.advertisement-card {
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  width: 45%;
+}
+
+.advertisement-card h4 {
+  color: #00bcd4;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.advertisement-card p {
+  color: #b0b0b0;
+  font-size: 1rem;
+}
+
+.btn-signup {
+  background-color: #ff6600;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 5px;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
   }
-  
-  @keyframes glowRed {
-    0% {
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
-    }
-    100% {
-      box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-    }
+  100% {
+    opacity: 1;
   }
-  
-  @keyframes glowGreen {
-    0% {
-      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
-    }
-    100% {
-      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-    }
+}
+
+@keyframes glowGreen {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
   }
-  
+  100% {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 1);
+  }
+}
+
+@keyframes glowRed {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 1);
+  }
+}
+
+@keyframes animate-glow {
+  0% {
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5), 0 0 10px rgba(0, 255, 255, 0.7);
+  }
+  100% {
+    text-shadow: 0 0 10px rgba(0, 255, 255, 1), 0 0 20px rgba(0, 255, 255, 1);
+  }
+}

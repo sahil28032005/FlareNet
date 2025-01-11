@@ -8,7 +8,9 @@ import DeployForm from './components/pages/DeployForm';
 import LoginPage from './components/LoginPage';
 import ProjectLister from './components/pages/ProjectLister';
 import NavBar from './components/NavBar';
+import Footer from './components/Footer';
 import { useUser } from './context/userContext';
+import ProtectedRoute from './components/ProctedRoutes/ProtectedRoute'; //this will be route which authenticated user is logined or not
 
 
 function App() {
@@ -18,26 +20,28 @@ function App() {
     <>
       <Router>
         {/* plcae navbar here as common shared components */}
-        <NavBar/>
+        <NavBar />
         <Routes>
-          {/* Define Route for LandingPage */}
+          {/* public routes */}
           <Route path="/" element={<LandingPage />} />
-
-          {/* Define Route for Service */}
-          <Route path="/new" element={<Service />} />
-
-          {/* Define Route for progress page */}
-          <Route path="/progress/:id" element={<DeploymentProgress />} />
-
-          {/* Define Route for actual hosting form */}
-          <Route path="/service/:id" element={<DeployForm />} />
-
           {/* Define Route for Login page */}
           <Route path="/login" element={<LoginPage />} />
+          {/* Define Route for LandingPage */}
+
+          {/* private riutes */}
+          {/* Define Route for Service */}
+          <Route path="/new" element={<ProtectedRoute><Service /></ProtectedRoute>} />
+
+          {/* Define Route for progress page */}
+          <Route path="/progress/:id" element={<ProtectedRoute><DeploymentProgress /></ProtectedRoute>} />
+
+          {/* Define Route for actual hosting form */}
+          <Route path="/service/:id" element={<ProtectedRoute><DeployForm /></ProtectedRoute>} />
 
           {/* Define Route for users pages */}
-          <Route path="/projects" element={<ProjectLister />} />
+          <Route path="/projects" element={<ProtectedRoute><ProjectLister /></ProtectedRoute>} />
         </Routes>
+        <Footer/>
       </Router>
     </>
 

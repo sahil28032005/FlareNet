@@ -6,17 +6,23 @@ import { FaGithub } from "react-icons/fa";
 import "./projectLister.css";
 import NavBar from "../NavBar";
 import Footer from "../Footer";
+import { useUser } from "../../context/userContext";
 
 const ProjectLister = () => {
-    const [ownerId] = useState(1);
     const [projects, setProjects] = useState([]);
     const navigate = useNavigate();
+    const { user } = useUser();  // Access user from context
 
     // Fetch user's projects
     useEffect(() => {
+        if (!user?.id) {
+            console.log("No user is logged in!");
+            navigate("/login");
+            return;
+        }
         const fetchProjects = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/projects/${ownerId}`);
+                const response = await axios.get(`http://localhost:5000/projects/${user.id}`);
                 if (response.data.success) {
                     setProjects(response.data.data);
                 }
@@ -25,7 +31,7 @@ const ProjectLister = () => {
             }
         };
         fetchProjects();
-    }, [ownerId]);
+    }, [user, navigate]);
 
     return (
         <>
@@ -88,8 +94,7 @@ const ProjectLister = () => {
                     ))}
                 </motion.div>
             </div>
-            <Footer/>
-            </>
+        </>
     );
 };
 
