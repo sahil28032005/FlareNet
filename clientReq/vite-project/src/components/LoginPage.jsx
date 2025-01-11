@@ -1,36 +1,37 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import Axios
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const generateBubbles = () => {
   return Array.from({ length: 25 }, (_, i) => ({
     id: i,
-    size: Math.random() * 80 + 20, // Bubble size between 20 and 100px
-    x: Math.random() * 100, // Random x position
-    y: Math.random() * 100, // Random y position
-    delay: Math.random() * 5, // Random delay
+    size: Math.random() * 80 + 20,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    delay: Math.random() * 5,
   }));
 };
 
 const LoginPage = () => {
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState(""); // For registration
-  const [message, setMessage] = useState(null); // For success/error messages
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState(null);
   const [bubbles, setBubbles] = useState(generateBubbles());
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/auth";
 
   useEffect(() => {
-    window.addEventListener("resize", () => setBubbles(generateBubbles()));
-    return () => window.removeEventListener("resize", () => setBubbles(generateBubbles()));
+    const handleResize = () => setBubbles(generateBubbles());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleSubmit = async (e) => {
@@ -43,24 +44,18 @@ const LoginPage = () => {
       const response = await axios.post(url, payload);
       setMessage({ type: "success", text: response.data.message });
 
-      // Redirect to the dashboard on successful login
       if (isLogin && response.status === 200) {
         const { token } = response.data;
-
-        //store token in localstorage
         localStorage.setItem("authTokenLogin", token);
-
-        //decode token to get its expiry
         const decodedToken = jwtDecode(token);
-        const expiryTime = decodedToken.exp * 1000; // Convert to milliseconds
+        const expiryTime = decodedToken.exp * 1000;
 
-        //set timeout to clear token after expiry
         setTimeout(() => {
           localStorage.removeItem("authTokenLogin");
           console.log("Token expired and removed.");
         }, expiryTime - Date.now());
 
-        navigate("/"); // Redirect to the main dashboard
+        navigate("/");
       }
     } catch (error) {
       setMessage({
@@ -77,12 +72,12 @@ const LoginPage = () => {
   return (
     <div
       id="bubbles-container"
-      className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white overflow-hidden"
+      className="relative flex items-center justify-center min-h-screen bg-black text-yellow-400 overflow-hidden"
     >
       {bubbles.map((bubble) => (
         <motion.div
           key={bubble.id}
-          className="bubble absolute rounded-full bg-gradient-to-r from-purple-500 to-blue-500 glow opacity-70"
+          className="absolute rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400 opacity-50"
           style={{
             width: `${bubble.size}px`,
             height: `${bubble.size}px`,
@@ -90,21 +85,20 @@ const LoginPage = () => {
             left: `${bubble.x}%`,
             zIndex: 0,
           }}
-          data-speed={bubble.size / 50}
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.7, scale: 1 }}
+          animate={{ opacity: 0.6, scale: 1 }}
           transition={{ duration: 2, delay: bubble.delay, repeat: Infinity, repeatType: "reverse" }}
         />
       ))}
 
       <motion.div
-        className="z-10 w-full sm:w-[400px] p-8 rounded-xl shadow-2xl relative bg-gradient-to-br from-[#1e293b] to-[#334155] backdrop-blur-lg border border-gray-700"
+        className="z-10 w-full sm:w-[400px] p-8 rounded-xl shadow-2xl relative bg-gradient-to-br from-gray-900 to-gray-800 text-white"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1, ease: "easeInOut" }}
       >
         <motion.h2
-          className="text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent"
+          className="text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
@@ -114,8 +108,9 @@ const LoginPage = () => {
 
         {message && (
           <div
-            className={`text-center p-2 mb-4 rounded-lg ${message.type === "success" ? "bg-green-500" : "bg-red-500"
-              }`}
+            className={`text-center p-2 mb-4 rounded-lg ${
+              message.type === "success" ? "bg-yellow-500 text-black" : "bg-red-500 text-white"
+            }`}
           >
             {message.text}
           </div>
@@ -138,7 +133,7 @@ const LoginPage = () => {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-2 p-4 rounded-lg bg-gray-800 text-white focus:ring-4 focus:ring-blue-500 transition-all duration-300"
+                className="mt-2 p-4 rounded-lg bg-gray-800 text-yellow-400 focus:ring-4 focus:ring-yellow-500"
                 placeholder="Enter your name"
                 required={!isLogin}
               />
@@ -153,7 +148,7 @@ const LoginPage = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 p-4 rounded-lg bg-gray-800 text-white focus:ring-4 focus:ring-blue-500 transition-all duration-300"
+              className="mt-2 p-4 rounded-lg bg-gray-800 text-yellow-400 focus:ring-4 focus:ring-yellow-500"
               placeholder="Enter your email"
               required
             />
@@ -167,14 +162,14 @@ const LoginPage = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 p-4 rounded-lg bg-gray-800 text-white focus:ring-4 focus:ring-blue-500 transition-all duration-300"
+              className="mt-2 p-4 rounded-lg bg-gray-800 text-yellow-400 focus:ring-4 focus:ring-yellow-500"
               placeholder="Enter your password"
               required
             />
           </div>
           <Button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:to-pink-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-500"
+            className="w-full py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold rounded-lg hover:from-yellow-600 hover:to-yellow-500"
           >
             {isLogin ? "Login" : "Register"}
           </Button>
@@ -182,14 +177,14 @@ const LoginPage = () => {
 
         <div className="mt-6 text-center">
           <motion.p
-            className="text-sm text-gray-400"
+            className="text-sm text-yellow-400"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.8 }}
           >
             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
             <span
-              className="text-blue-400 cursor-pointer hover:underline"
+              className="cursor-pointer hover:underline"
               onClick={() => setIsLogin(!isLogin)}
             >
               {isLogin ? "Register" : "Login"}
@@ -198,23 +193,23 @@ const LoginPage = () => {
         </div>
 
         <div className="mt-6 text-center space-y-3">
-          <p className="text-gray-400">Or login with</p>
+          <p className="text-yellow-400">Or login with</p>
           <div className="flex justify-center space-x-3">
             <Button
               onClick={() => handleOAuth("google")}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 py-2"
+              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-4 py-2"
             >
               Google
             </Button>
             <Button
               onClick={() => handleOAuth("github")}
-              className="bg-gray-800 hover:bg-gray-900 text-white rounded-lg px-4 py-2"
+              className="bg-gray-700 hover:bg-gray-800 text-yellow-400 rounded-lg px-4 py-2"
             >
               GitHub
             </Button>
             <Button
               onClick={() => handleOAuth("bitbucket")}
-              className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2"
+              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-4 py-2"
             >
               Bitbucket
             </Button>

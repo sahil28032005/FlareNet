@@ -1,20 +1,18 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/Card";
-import './projectLister.css';
-import { Button } from "@/components/ui/Button";
-import { Avatar, AvatarImage } from "@/components/ui/Avatar";
-import { FaGithub } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaGithub } from "react-icons/fa";
+import "./projectLister.css";
+import NavBar from "../NavBar";
+import Footer from "../Footer";
 
 const ProjectLister = () => {
-    const [ownerId, setOwnerId] = useState(1);
+    const [ownerId] = useState(1);
     const [projects, setProjects] = useState([]);
-
     const navigate = useNavigate();
 
-    // Fetch user's previous projects
+    // Fetch user's projects
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -28,41 +26,71 @@ const ProjectLister = () => {
         };
         fetchProjects();
     }, [ownerId]);
+
     return (
-        <div className="project-lister-page">
-            <header className="page-header">
-                <h1 className="page-title">Your Projects</h1>
-                <p className="page-subtitle">
-                    A collection of all the projects you've worked on. Manage, update, or share them with ease.
-                </p>
-            </header>
-            <div className="projects-list">
-                <h3 className="subtitle">Your Projects</h3>
-                {projects.map((project, index) => (
-                    <div key={index} className="project-card">
-                        <h3 className="project-title">{project.name}</h3>
-                        <p className="project-description">{project.description}</p>
-                        <a href={project.gitUrl} target="_blank" rel="noopener noreferrer" className="project-link">
-                            View on GitHub <FaGithub />
-                        </a>
-                        <button onClick={() => navigate(`/service/${project.id}`)} className="project-deploy-button">
-                            Deploy Service
-                        </button>
-                    </div>
-                ))}
+        <>
+            <NavBar />
+            <div className="project-lister-page">
+                <motion.header
+                    className="page-header"
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <h1 className="page-title">Your Projects</h1>
+                    <p className="page-subtitle">Manage and explore your projects with ease.</p>
+                </motion.header>
+
+                <motion.div
+                    className="projects-grid"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: { staggerChildren: 0.2 },
+                        },
+                    }}
+                >
+                    {projects.map((project, index) => (
+                        <motion.div
+                            key={index}
+                            className="project-card"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            variants={{
+                                hidden: { opacity: 0, y: 20 },
+                                visible: { opacity: 1, y: 0 },
+                            }}
+                        >
+                            <div className="project-card-header">
+                                <h3 className="project-name">{project.name}</h3>
+                            </div>
+                            <p className="project-description">{project.description}</p>
+                            <div className="project-card-footer">
+                                <a
+                                    href={project.gitUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="project-action-button view-button"
+                                >
+                                    View on GitHub <FaGithub />
+                                </a>
+                                <button
+                                    onClick={() => navigate(`/service/${project.id}`)}
+                                    className="project-action-button deploy-button"
+                                >
+                                    Deploy
+                                </button>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
             </div>
-        </div>
+            <Footer/>
+            </>
     );
-};
-
-const handleView = (project) => {
-    console.log(`Viewing project: ${project.name}`);
-    // Add custom view logic here
-};
-
-const handleEdit = (project) => {
-    console.log(`Editing project: ${project.name}`);
-    // Add custom edit logic here
 };
 
 export default ProjectLister;

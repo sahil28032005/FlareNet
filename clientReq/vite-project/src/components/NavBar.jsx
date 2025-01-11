@@ -4,43 +4,49 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 
-const NavBar = ({ username }) => {
+const NavBar = ({ username, setUsername }) => {
   const navigate = useNavigate();
 
+  //logOut function
+  const handleLogout = () => {
+    localStorage.removeItem("authTokenLogin");
+    setUsername(null);
+  }
   return (
-    // <nav className="fixed top-4 left-0 w-full flex justify-center z-50">
-    //   <div className="w-fit rounded-full border border-white/30 shadow-md backdrop-blur-md px-6 py-3">
-    //     <Tabs defaultValue="features">
-    //       <TabsList className="flex gap-6 rounded-full bg-transparent">
-    //         <TabsTrigger
-    //           value="features"
-    //           className="text-white glowing-shadcn transition-all"
-    //         >
-    //           Features
-    //         </TabsTrigger>
-    //         <TabsTrigger
-    //           value="how-it-works"
-    //           className="text-white glowing-shadcn transition-all"
-    //         >
-    //           How It Works
-    //         </TabsTrigger>
-    //         <TabsTrigger
-    //           value="testimonials"
-    //           className="text-white glowing-shadcn transition-all"
-    //         >
-    //           Testimonials
-    //         </TabsTrigger>
-    //         <TabsTrigger
-    //           value="faq"
-    //           className="text-white glowing-shadcn transition-all"
-    //         >
-    //           FAQ
-    //         </TabsTrigger>
-    //       </TabsList>
-    //     </Tabs>
-    //   </div>
-    // </nav>
+   
     <>
+     <nav className="fixed top-4 left-0 w-full flex justify-center z-50">
+      <div className="w-fit rounded-full border border-white/30 shadow-md backdrop-blur-md px-6 py-3">
+        <Tabs defaultValue="features">
+          <TabsList className="flex gap-6 rounded-full bg-transparent">
+            <TabsTrigger
+              value="features"
+              className="text-white glowing-shadcn transition-all"
+            >
+              Features
+            </TabsTrigger>
+            <TabsTrigger
+              value="how-it-works"
+              className="text-white glowing-shadcn transition-all"
+            >
+              How It Works
+            </TabsTrigger>
+            <TabsTrigger
+              value="testimonials"
+              className="text-white glowing-shadcn transition-all"
+            >
+              Testimonials
+            </TabsTrigger>
+            <TabsTrigger
+              value="faq"
+              className="text-white glowing-shadcn transition-all"
+            >
+              FAQ
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+    </nav>
       {/* Navbar */}
       <div className="absolute top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-transparent z-20">
         <div className="text-2xl font-bold text-yellow-400">FlareNet</div>
