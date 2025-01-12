@@ -17,6 +17,7 @@ const { client } = require('./utils/awsClient');
 const { version } = require('os');
 const githubRoutes = require('./routes/githubRoutes');
 const authRoutes = require('./routes/autthRoutes');
+const { Worker: ThreadWorker } = require('worker_threads');
 
 const app = express();
 app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
@@ -79,7 +80,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 //routes
 app.use('/api/github', githubRoutes);
-app.use('/api/auth',authRoutes);
+app.use('/api/auth', authRoutes);
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
@@ -138,6 +139,22 @@ async function logsConsumer() {
         console.log(error.message);
     }
 }
+const startWorkerThreads = () => {
+    //update path to point to the worker folder
+    const workerFiles = ['deploymentWorker.js', 'failedQueueWorker.js', 'webHooksWorker.js'].map((file) =>
+        path.join(__dirname, 'worker', file));;
+
+    //start each workrt using seperate pareller threads
+    workerFiles.forEach((file) => {
+        const workerThread = new ThreadWorker(file);
+        console.log(`started worker thread foe ${file}`);
+        workerThread.on('error', (err) => {
+            console.error(`Error in worker thread for ${file}`, err);
+        });
+    });
+}
+//start workers from here by paraller multithreading
+
 
 io.on('connection', (socket) => {
     socket.on('suscribe', function (channel) {
@@ -306,7 +323,7 @@ app.post('/deploy', async (req, res) => {
             where: { id: validatedData.projectId },
         });
 
-        
+
 
         if (!project) {
             return res.status(404).send({
@@ -414,7 +431,7 @@ app.post('/deploy-project', async function (req, res) {
 //         await prisma.$disconnect();
 //         console.log('Disconnected from the database.');
 //     });
-// logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
+logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
 
 //for getting logs using deployment id
 app.get('/getLogs/:id', async function (req, res) {
@@ -423,7 +440,7 @@ app.get('/getLogs/:id', async function (req, res) {
 
         //finder query
         const logs = await clickHouseClient.query({
-            query: `SELECT event_id, deployment_id, log, timestamp from log_events where deployment_id = {deployment_id:String}`,
+            query: `SELECT event_id, deployment_id, log, created_at from log_events where deployment_id = {deployment_id:String}`,
             query_params: {
                 deployment_id: id
             },
@@ -465,6 +482,9 @@ async function testClickHouseConnection() {
     const jobCounts = await buildQueue.getJobCounts();
     console.log('Job counts:', jobCounts);
 })();
+
+//start worker thread here to hit  our woorker in acitive mode
+startWorkerThreads();
 
 // Call the function
 // testClickHouseConnection();
