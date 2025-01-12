@@ -30,15 +30,15 @@ const PORT = 5000;
 // console.log("AWS Secret Key:", process.env.AWS_SECRETACCESSKEY);
 // console.log("AWS Region:", process.env.AWS_REGION);
 
-// const clickHouseClient = createClient({
-//     host: process.env.CH_HOST,
-//     database: process.env.CH_DB,
-//     protocol: 'http',
-//     compression: true,
-//     timeout: 10000, // Timeout in milliseconds
-//     // username: process.env.CH_USERNAME,
-//     // password: process.env.CH_PASSWORD
-// });
+const clickHouseClient = createClient({
+    host: process.env.CH_HOST,
+    database: process.env.CH_DB,
+    protocol: 'http',
+    compression: true,
+    timeout: 10000, // Timeout in milliseconds
+    // username: process.env.CH_USERNAME,
+    // password: process.env.CH_PASSWORD
+});
 
 //kafka config instance of aiven
 // const kafka = new Kafka({
@@ -55,20 +55,20 @@ const PORT = 5000;
 // });
 
 //updated kafka configuration
-// const kafka = new Kafka({
-//     clientId: `api-server-receiver_side`,
-//     brokers: [`${process.env.KAFKA_BROKER}`],
-//     ssl: {
-//         rejectUnauthorized: false, // Use true for strict verification
-//         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
-//         cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
-//         key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
-//     },
-// })
+const kafka = new Kafka({
+    clientId: `api-server-receiver_side`,
+    brokers: [`${process.env.KAFKA_BROKER}`],
+    ssl: {
+        rejectUnauthorized: false, // Use true for strict verification
+        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
+        cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
+        key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
+    },
+})
 
 
 //create kafka consumer instance and try to consume logs by initializing them
-// const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
+const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
 //create new socket srever for logs subscribing and pushing
 const io = new Server({ cors: '*' }); // listens all origins
