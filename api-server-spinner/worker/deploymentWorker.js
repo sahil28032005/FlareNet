@@ -76,7 +76,7 @@ const deploymentWorker = new Worker('buildQueue', async (job) => {
     }
 });
 deploymentWorker.on('ready', () => {
-    console.log('Worker is ready to process jobs.');
+    console.log('deployment Worker is ready to process jobs.');
 });
 
 deploymentWorker.on('completed', (job) => {

@@ -68,4 +68,7 @@ webHookTaskBuilder.on('failed', (job, err) => {
     console.error(`Build job ${job.id} failed with error: ${err.message}`);
 });
 
+webHookTaskBuilder.on('ready', () => {
+    console.log('web hook Worker is ready to process jobs.');
+});
 module.exports = webHookTaskBuilder;

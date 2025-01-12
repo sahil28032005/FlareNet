@@ -1,4 +1,4 @@
-const { worker } = require('bullmq');
+const { Worker } = require('bullmq');
 const { prisma } = require('../utils/prismaClient');
 const buildQueue = require('../queues/buildQueue');
 const failedQueueWorker = new Worker('failedBuildQueue', async (job) => {
