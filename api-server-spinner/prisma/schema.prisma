@@ -79,6 +79,7 @@ model Deployment {
   url         String? // this will be final hosted URL of the user's project
   logsUrl     String?
   version     String? // Optional version or tag of the deployment
+  autoDeploy  Boolean          @default(false) // New field to track auto-deployment
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   FailedJob   FailedJob[]
