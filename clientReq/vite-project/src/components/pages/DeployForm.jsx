@@ -40,66 +40,9 @@ const DeployForm = () => {
         setFramework(value);
     };
 
-    // Toggle the autoDeploy checkbox
-    const handleAutoDeployChange = async () => {
-        const newAutoDeployState = !autoDeploy; // Toggle the current state
-        setAutoDeploy(newAutoDeployState); // Optimistically update state
-        
-        try {
-            if (newAutoDeployState) {
-
-                //retrieve oauthToken from locaStorage
-                const oauthToken = localStorage.getItem('github_token');
-                if (!oauthToken) {
-                    alert('GitHub token not found. Please authenticate.');
-                    return;
-                }
-                // Parse the gitUrl to get owner and repo
-                const gitUrlObj = new URL(gitUrl);
-                const [owner, repoWithExt] = gitUrlObj.pathname.slice(1).split('/');
-                const repo = repoWithExt?.replace('.git', '');
-
-                if (!owner || !repo) {
-                    alert('Invalid Git URL format. Unable to extract repository details.');
-                    return;
-                }
-
-                //whern toggled true initiat webHookCreation request
-                // Construct webhookData
-                const webhookData = {
-                    oauthToken,
-                    owner,
-                    repo,
-                };
-
-                const response = await fetch('/create-webhook', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(webhookData),
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    console.log('Webhook created successfully:', result.data);
-                    setAutoDeploy(newAutoDeployState); // Update state only if successful
-                } else {
-                    console.error('Failed to create webhook:', result.message);
-                    alert(`Failed to create webhook: ${result.message}`);
-                }
-            }
-            else {
-                // If toggled to false, simply update state
-                setAutoDeploy(newAutoDeployState);
-                console.log('Auto-deploy disabled');
-            }
-        }
-        catch (e) {
-            console.error('Error during webhook creation:', e.message);
-            alert('An error occurred while creating the webhook. Please try again.');
-        }
-
+     // Toggle the autoDeploy checkbox
+     const handleAutoDeployChange = () => {
+        setAutoDeploy(!autoDeploy);
     };
 
 
@@ -116,6 +59,7 @@ const DeployForm = () => {
         // Prepare the request body
         const requestBody = {
             projectId: id,
+            autoDeploy, // Include the autoDeploy state here
         };
 
         try {
@@ -295,7 +239,7 @@ const DeployForm = () => {
                             />
                         </div>
 
-                        <div className="mb-6">
+                      <div className="mb-6">
                             <Label className="text-sm font-semibold">Auto Deploy</Label>
                             <div className="flex items-center">
                                 <input
