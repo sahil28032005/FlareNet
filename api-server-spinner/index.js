@@ -310,6 +310,7 @@ app.post('/deploy', async (req, res) => {
             environment: z.enum(["DEV", "STAGING", "PROD"], "Invalid environment").default("STAGING"),
             status: z.enum(["INACTIVE", "ACTIVE", "FAILED"]).optional().default("INACTIVE"),
             version: z.string().optional(), // Optional version or tag
+            autoDeploy: z.boolean().optional().default(false), // Add autoDeploy to the schema
         });
 
         // Step 1: Validate input
@@ -342,6 +343,7 @@ app.post('/deploy', async (req, res) => {
                 status: validatedData.status,
                 url: generatedUri,
                 version: validatedData.version || "v1.0.0", // Provide a default version
+                autoDeploy: validatedData.autoDeploy, // Include autoDeploy here
             },
             //this include is just like populate() in mongodb or fetch_assoc() in php and readRecursive() in ruby as an powerful tree of tech stacks 
             include: {
