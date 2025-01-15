@@ -40,8 +40,8 @@ const DeployForm = () => {
         setFramework(value);
     };
 
-     // Toggle the autoDeploy checkbox
-     const handleAutoDeployChange = () => {
+    // Toggle the autoDeploy checkbox
+    const handleAutoDeployChange = () => {
         setAutoDeploy(!autoDeploy);
     };
 
@@ -77,7 +77,9 @@ const DeployForm = () => {
                 const responseData = await response.json();
 
                 // Use the deploymentId from the response data
-                navigate(`/progress/${responseData.data.deploymentId}`);
+                navigate(`/progress/${responseData.data.deploymentId}`, {
+                    state: { autoDeploy, gitUrl },
+                });
             } else {
                 // Parse error response
                 const errorData = await response.json();
@@ -239,7 +241,7 @@ const DeployForm = () => {
                             />
                         </div>
 
-                      <div className="mb-6">
+                        <div className="mb-6">
                             <Label className="text-sm font-semibold">Auto Deploy</Label>
                             <div className="flex items-center">
                                 <input

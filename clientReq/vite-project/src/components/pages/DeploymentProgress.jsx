@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import "./DeploymentProgress.css";
 import NavBar from '../NavBar';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'; // For graph visualization
+import { Activity } from 'lucide-react';
 
 const DeploymentProgress = () => {
+  const location = useLocation();//receives autoDeployment parameter
+  const { autoDeploy, gitUrl } = location.state || {};//retrive autoDeploy state
   const [logs, setLogs] = useState([]); // Logs state
   const [isDeploying, setIsDeploying] = useState(true);
   const [progress, setProgress] = useState(0); // Deployment progress state
@@ -32,6 +35,66 @@ const DeploymentProgress = () => {
         console.error("Error fetching logs:", error.message);
       }
     };
+
+    //for webhook and auto deployment call
+    useEffect(() => {
+      if (autoDeploy) {
+        //write webHook call here to receibed updates from users commits
+        // Call webhook creation function
+        console.log("AutoDeploy is enabled. Creating webhook...");
+        createWebhook();
+      }
+    }, [autoDeploy]);
+
+
+    //function to createWebHook request
+    const createWebhook = async () => {
+      if (!gitUrl) {
+        console.error("GIT URL is not provided. cannot create webhook.");
+        alert("git url is required to create webhook");
+        return;
+      }
+
+      //exttract owner and repo from the git url usong regex
+      const gitUrlPattern = /^(?:https?:\/\/|git@)github\.com[:/](?<owner>[^/]+)\/(?<repo>[^.]+)(?:\.git)?$/;
+      const match = gitUrl.match(gitUrlPattern);
+
+      //retrievee Oauth githhub token from locastorage
+      const oAuthToken = localStorage.getItem('github_token');
+      if (!oauthToken) {
+        console.error("OAuth token is not found in localStorage. Please login or provide a valid token.");
+        alert("OAuth token is missing. Please authenticate and try again.");
+        return;
+      }
+
+      if (!match || !match.groups) {
+        console.error("Invalid Git URL format. Unable to extract owner and repository.");
+        alert("Invalid Git URL. Please check and try again.");
+        return;
+      }
+
+      const { owner, repo } = match.groups;
+      if (!owner || !repo) {
+        console.error("Failed to extract owner or repository from the Git URL.");
+        alert("Failed to extract repository details from the Git URL. Please verify the URL.");
+        return;
+      }
+
+      const requestBody = {
+        repo,
+        oauthToken,
+        owner,
+    };
+
+      try {
+          //make api call using axios
+          
+      }
+      catch(err){
+
+      }
+    }
+  
 
     // Polling every 2 seconds
     const interval = setInterval(() => {
