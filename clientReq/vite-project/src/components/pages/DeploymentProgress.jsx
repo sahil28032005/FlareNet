@@ -53,19 +53,27 @@ const DeploymentProgress = () => {
 
     const requestBody = {
       repo,
-      oauthToken:oAuthToken,
+      oauthToken: oAuthToken,
       owner,
     };
 
-    console.log("requestbody",requestBody);
+    console.log("requestbody", requestBody);
 
     try {
+      // Check if the webhook has already been created (stored in localStorage)
+      const webhookCreated = localStorage.getItem('webhookCreated');
+      if (webhookCreated) {
+        console.log("Webhook already created. Skipping...");
+        return;
+      }
       //make api call using axios
       const response = await axios.post("http://localhost:5000/api/github/create-webhook", requestBody, {
         headers: {
           "Content-Type": "application/json",
         }
       });
+      // If the request was successful, set the flag in localStorage
+      localStorage.setItem('webhookCreated', 'true');
       console.log("Webhook created successfully:", response.data);
     }
     catch (err) {
@@ -74,12 +82,12 @@ const DeploymentProgress = () => {
   }
 
   //  for webhook and auto deployment call
-    useEffect(() => {
-      if (autoDeploy) {
-        console.log("AutoDeploy is enabled. Creating webhook...");
-        createWebhook();
-      }
-    }, []);
+  useEffect(() => {
+    if (autoDeploy) {
+      console.log("AutoDeploy is enabled. Creating webhook...");
+      createWebhook();
+    }
+  }, []);
 
   useEffect(() => {
     const fetchLogs = async () => {
