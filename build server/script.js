@@ -3,29 +3,17 @@ const path = require('path');
 const fs = require('fs');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
-// const Redis = require('ioredis');
 require('dotenv').config();
 const { Kafka } = require('kafkajs');
 
-// const publisher = new Redis(process.env.REDDIS_HOST);
+// Helper function to format file size
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    else return (bytes / 1048576).toFixed(2) + ' MB';
+}
 
-
-
-//acknowledgement
-
-// publisher.ping()
-//     .then((result) => {
-//         console.log('Redis connection successful:', result); // Should print 'PONG'
-//     })
-//     .catch((err) => {
-//         console.error('Redis connection failed:', err);
-//     });
-
-// publisher.on('error', (err) => {
-//     console.log('Redis connection failed:', err);
-// })
-
-// make s3cliient connetion code here
+// S3 client configuration
 const s3Client = new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
@@ -34,11 +22,11 @@ const s3Client = new S3Client({
     }
 });
 
-//supposed to be come from environment
-const PROJECT_ID = process.env.PROJECT_ID
-const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID
+// Environment variables
+const PROJECT_ID = process.env.PROJECT_ID;
+const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID;
 
-//make kafka configuration here
+// Kafka configuration
 const kafka = new Kafka({
     clientId: `docker-build-server-${DEPLOYMENT_ID}`,
     brokers: [`${process.env.KAFKA_BROKER}`],
@@ -48,74 +36,70 @@ const kafka = new Kafka({
         cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
         key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
     },
-})
+});
 
-
-//for local docker
-// const kafka = new Kafka({
-//     clientId: 'builder_local',
-//     // brokers: [`${process.env.KAFKA_BROKER}`],
-//     brokers: ['host.docker.internal:9092'],
-// })
-
-//make kafka producer
+// Kafka producer setup
 const producer = kafka.producer();
-//log publisher function
+
+// Log publisher function
 async function publishLog(log) {
-
-    //reddis publisher format
-    // publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify(log));
-
-    //for kafka another config
-    await producer.send({ topic: `builder-logs`, messages: [{ key: 'log', value: JSON.stringify({ PROJECT_ID, DEPLOYMENT_ID, log }) }] });
+    await producer.send({
+        topic: 'builder-logs',
+        messages: [{
+            key: 'log',
+            value: JSON.stringify({
+                PROJECT_ID,
+                DEPLOYMENT_ID,
+                log,
+                timestamp: new Date().toISOString(), // Include timestamp for each log entry
+                logLevel: 'info' // Add log level (you can customize this based on the log type)
+            })
+        }]
+    });
 }
 
-//change directory to where project is located as we are currenlty in workdir as /app
+// Main function
 async function init() {
-
-    //connect kafka producer from here which able to bublish logs to particula topic
-    await producer.connect(); //main producer conneciton to kafka broker
-    console.log("producer connection successfull will be be able to publis logs");
+    await producer.connect();
+    console.log("Producer connection successful, will be able to publish logs.");
     console.log("Executing script.js...");
-    publishLog('Build Started...');
+    publishLog('Build Started...', 'info');
+
     const projectDir = path.join(__dirname, 'output');
 
-    //create process instance
+    // Create process instance
     const processInstance = exec(`cd ${projectDir} && npm install && npm run build`);
 
     processInstance.on('data', function (data) {
         console.log(data.toString());
-        //here also ogs published to reddis or kafka for system designs
-        publishLog(data.toString());
+        publishLog(data.toString(), 'info');
     });
 
     processInstance.on('error', function (data) {
         console.log('Error: ' + data.toString());
-        publishLog(`error: ${data.toString()}`)
+        publishLog(`Error: ${data.toString()}`, 'error');
     });
 
     processInstance.on('close', async function () {
         console.log("Build completed successfully!");
-        publishLog(`Build Complete`);
+        publishLog('Build Complete', 'success');
 
-        //now push that builded code to s3 in the statical form
+        // Upload built files to S3
         const distFolderPath = path.join(__dirname, 'output', 'dist');
-        const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true }); //this will give all paths in the form of array for further use
+        const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true });
 
-        //distfolderContents wil be array pt these values:
-        // path assets
-        // path index.html
-        // path vite.svg
-        // path assets / index - BSn - hgr8.js
-        // path assets / index - DLYYcElR.css
-        publishLog(`Starting to upload....`);
+        publishLog('Starting to upload files...', 'info');
+
         for (const file of distFolderContents) {
-            // console.log("path",file);
             const filePath = path.join(distFolderPath, file);
-            if (fs.lstatSync(filePath).isDirectory()) continue; //skip file as a path as this will not occur in this case as we have each filr path with file presence
+            if (fs.lstatSync(filePath).isDirectory()) continue;
 
-            console.log('uploading', filePath);
-            publishLog(`uploading ${file}`);
+            console.log('Uploading', filePath);
+            publishLog(`Uploading ${file}`);
+
+            const fileSize = fs.statSync(filePath).size;
+            const readableFileSize = formatFileSize(fileSize);
+            const startTime = Date.now();
 
             const command = new PutObjectCommand({
                 Bucket: 'user-build-codes',
@@ -124,55 +108,36 @@ async function init() {
                 ContentType: mime.lookup(filePath)
             });
 
-            //send data 
-            await s3Client.send(command);
-            console.log('uploaded', file);
-            publishLog(`uploaded ${file}`);
+            try {
+                await s3Client.send(command);
+                const endTime = Date.now();
+                const timeTaken = (endTime - startTime) / 1000;
 
+                console.log('Uploaded', file);
+                publishLog(`Uploaded ${file} | Size: ${readableFileSize} | Time Taken: ${timeTaken}s`, 'success');
+
+                const logMessage = {
+                    timestamp: new Date().toISOString(),
+                    eventType: 'upload_completed',
+                    fileName: file,
+                    fileSize: readableFileSize,
+                    fileSizeInBytes: fileSize,
+                    timeTaken: timeTaken,
+                    status: 'success',
+                    message: `File uploaded successfully to S3`
+                };
+
+                publishLog(JSON.stringify(logMessage), 'info');
+            } catch (error) {
+                console.log('Error uploading file:', error.message);
+                publishLog(`Error uploading ${file}: ${error.message}`, 'error');
+            }
         }
-        console.log('done all files upload!');
-        publishLog(`Done`);
-        process.exit(0); 
 
+        console.log('All files uploaded!');
+        publishLog('All files uploaded!', 'success');
+        process.exit(0);
     });
 }
 
-
-
 init();
-// async function checkKafka() {
-//     await producer.connect();
-//     console.log("producer connected");
-//     await producer.send({ topic: `builder-logs`, messages: [{ key: 'log', value: 'tester message' }] });
-// }
-// checkKafka();
-
-//another implementation using spwan from child_process
-
-// const projectDir = './output';
-
-// //run builder command for node applications
-// const buildProcess = spawn('npm', ['run', 'build'], { cwd: projectDir });
-
-// //log stdout and stderr use events for loggers
-
-// buildProcess.stdout.on('data', function (data) {
-//     console.log(`stdout: ${data}`);
-// });
-
-// buildProcess.stderr.on('data', (data) => {
-//     console.error(`stderr: ${data}`);
-// });
-
-// buildProcess.on('close', (code) => {
-//     if (code === 0) {
-//         console.log('Build completed successfully!');
-//     } else {
-//         console.error(`Build process exited with code ${code}`);
-//     }
-// });
-
-// // Handle any errors while starting the process
-// buildProcess.on('error', (error) => {
-//     console.error(`Error starting build process: ${error.message}`);
-// });

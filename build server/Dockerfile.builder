@@ -31,4 +31,3 @@ RUN chmod +x /app/service.sh
 
 # Set the shell script as the entry point
 ENTRYPOINT ["/app/service.sh"]
-
