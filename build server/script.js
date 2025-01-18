@@ -42,21 +42,24 @@ const kafka = new Kafka({
 const producer = kafka.producer();
 
 // Log publisher function
-async function publishLog(log) {
+async function publishLog(log, logLevel = 'info') {
+    const logMessage = {
+        PROJECT_ID,
+        DEPLOYMENT_ID,
+        log,
+        timestamp: new Date().toISOString(),  // Include timestamp for each log entry
+        logLevel: logLevel  // Ensure log level is passed properly
+    };
+
     await producer.send({
         topic: 'builder-logs',
         messages: [{
             key: 'log',
-            value: JSON.stringify({
-                PROJECT_ID,
-                DEPLOYMENT_ID,
-                log,
-                timestamp: new Date().toISOString(), // Include timestamp for each log entry
-                logLevel: 'info' // Add log level (you can customize this based on the log type)
-            })
+            value: JSON.stringify(logMessage)
         }]
     });
 }
+
 
 // Main function
 async function init() {

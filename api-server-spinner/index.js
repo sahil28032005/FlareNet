@@ -100,45 +100,77 @@ async function main() {
 //kafka consumer function
 async function logsConsumer() {
     try {
-        console.log("consumer trying to connect....");
+        console.log("Consumer trying to connect....");
         await consumer.connect();
-        console.log("consumer connection success..");
+        console.log("Consumer connection successful..");
 
-        //suscribe to topic so partition assigned by zookeeper
+        // Subscribe to topic so partition is assigned by Zookeeper
         await consumer.subscribe({ topics: ['builder-logs'], fromBeginning: true });
 
-        //run and process consumer batchwise
+        // Run and process consumer batch-wise
         await consumer.run({
             eachBatch: async function ({ batch, heartbeat, commitOffsetsIfNecessary, resolveOffset }) {
-                //take batch from batches
-                const messages = batch.messages;
-                console.log(`received ${messages.length} messages...`);
+                // Take batch from batches
+                console.log(`Received ${batch.messages.length} messages...`);
 
-                for (const message of messages) {
+                for (const message of batch.messages) {
                     if (!message.value) continue;
-                    const stringMessage = message.value.toString();
-                    const { PROJECT_ID, DEPLOYMENT_ID, log } = JSON.parse(stringMessage);
-                    console.log(log, DEPLOYMENT_ID, PROJECT_ID);
 
-                    //SEND THAT LOGS TO CLICKHOUSE OR ANY HIGH THROUGHPUT SYSTEM PREFER CLICKHOUSE/RABBITMQ/REDDIS OR ANY OTHRE
-                    const { query_id } = await clickHouseClient.insert({
-                        table: 'log_events',
-                        values: [{ event_id: uuidv4(), deployment_id: DEPLOYMENT_ID, log }],
-                        format: 'JSONEachRow'
-                    });
-                    console.log("MESSAGE INSERTED TO CLICKHOUSE WITH ID", DEPLOYMENT_ID);
-                    resolveOffset(message.offset);
-                    await commitOffsetsIfNecessary(message.offset);
-                    await heartbeat();
+                    try {
+                        // Parse the already stringified message directly
+                        const logMessage = JSON.parse(message.value);
+
+                        const {
+                            PROJECT_ID,
+                            DEPLOYMENT_ID,
+                            log,
+                            timestamp,
+                            logLevel,
+                            fileName,
+                            fileSize,
+                            fileSizeInBytes,
+                            timeTaken,
+                        } = logMessage;
+
+                        console.log(`Log received: ${log} | Deployment: ${DEPLOYMENT_ID} | Project: ${PROJECT_ID}`);
+
+                        // Insert log into ClickHouse with additional metadata
+                        const logEntry = {
+                            event_id: uuidv4(),
+                            project_id: PROJECT_ID,
+                            deployment_id: DEPLOYMENT_ID,
+                            log_message: log,
+                            timestamp: timestamp || new Date().toISOString(),
+                            log_level: logLevel || 'info',
+                            file_name: fileName || null,
+                            file_size: fileSize || null,
+                            file_size_in_bytes: fileSizeInBytes || null,
+                            time_taken: timeTaken || null,
+                        };
+
+                        const { query_id } = await clickHouseClient.insert({
+                            table: 'log_events',
+                            values: [logEntry],
+                            format: 'JSONEachRow',
+                        });
+
+                        console.log(`Log inserted to ClickHouse with query ID: ${query_id}`);
+                        resolveOffset(message.offset);
+                        await commitOffsetsIfNecessary(message.offset);
+                        await heartbeat();
+                    }
+                    catch (err) {
+                        console.error("Error processing message:", err.message);
+                    }
                 }
-
             }
         });
     }
     catch (error) {
-        console.log(error.message);
+        console.log("Consumer connection error:", error.message);
     }
 }
+
 const startWorkerThreads = () => {
     //update path to point to the worker folder
     const workerFiles = ['deploymentWorker.js', 'failedQueueWorker.js', 'webHooksWorker.js'].map((file) =>
