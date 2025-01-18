@@ -118,7 +118,10 @@ async function logsConsumer() {
 
                     try {
                         // Parse the already stringified message directly
-                        const logMessage = JSON.parse(message.value);
+                        const logMessage = JSON.parse(message.value.toString());
+                        console.log('lgmsg', logMessage);
+                        console.log("raw msg", message);
+                        console.log("msg val tostring", message.value.toString());
 
                         const {
                             PROJECT_ID,
@@ -140,7 +143,6 @@ async function logsConsumer() {
                             project_id: PROJECT_ID,
                             deployment_id: DEPLOYMENT_ID,
                             log_message: log,
-                            timestamp: timestamp || new Date().toISOString(),
                             log_level: logLevel || 'info',
                             file_name: fileName || null,
                             file_size: fileSize || null,

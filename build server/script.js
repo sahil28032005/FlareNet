@@ -42,13 +42,13 @@ const kafka = new Kafka({
 const producer = kafka.producer();
 
 // Log publisher function
-async function publishLog(log, logLevel = 'info') {
+async function publishLog(log, logLevel = 'info', fileDetails = {}) {
     const logMessage = {
         PROJECT_ID,
         DEPLOYMENT_ID,
         log,
-        timestamp: new Date().toISOString(),  // Include timestamp for each log entry
-        logLevel: logLevel  // Ensure log level is passed properly
+        logLevel: logLevel,  // Ensure log level is passed properly
+        ...fileDetails, // Spread fileDetails into the log message
     };
 
     await producer.send({
@@ -96,13 +96,18 @@ async function init() {
         for (const file of distFolderContents) {
             const filePath = path.join(distFolderPath, file);
             if (fs.lstatSync(filePath).isDirectory()) continue;
-
-            console.log('Uploading', filePath);
-            publishLog(`Uploading ${file}`);
-
             const fileSize = fs.statSync(filePath).size;
             const readableFileSize = formatFileSize(fileSize);
             const startTime = Date.now();
+
+            console.log('Uploading', filePath);
+            publishLog(`Uploading ${file}`, 'PROCESSING', {
+                fileName: file,
+                fileSize: readableFileSize,
+                fileSizeInBytes: fileSize,
+            });
+
+
 
             const command = new PutObjectCommand({
                 Bucket: 'user-build-codes',
@@ -117,7 +122,12 @@ async function init() {
                 const timeTaken = (endTime - startTime) / 1000;
 
                 console.log('Uploaded', file);
-                publishLog(`Uploaded ${file} | Size: ${readableFileSize} | Time Taken: ${timeTaken}s`, 'success');
+                // publishLog(`Uploaded ${file}`, 'success', {
+                //     file_name: file,
+                //     file_size: readableFileSize,
+                //     file_size_in_bytes: fileSize,
+                //     time_taken: timeTaken,
+                // });
 
                 const logMessage = {
                     timestamp: new Date().toISOString(),
@@ -130,7 +140,7 @@ async function init() {
                     message: `File uploaded successfully to S3`
                 };
 
-                publishLog(JSON.stringify(logMessage), 'info');
+                publishLog('actual data', 'info', logMessage);
             } catch (error) {
                 console.log('Error uploading file:', error.message);
                 publishLog(`Error uploading ${file}: ${error.message}`, 'error');
