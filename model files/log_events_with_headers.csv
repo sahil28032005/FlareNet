@@ -1,78 +1,37 @@
-"event_id","deployment_id","log","created_at"
-"89aa1180-01dc-4259-a640-89fbd495fb76","134bd178-1e30-43c9-995d-0158d8176372","Build Started...","2025-01-12 20:40:09"
-"2631b263-f611-4caa-a31c-904b11e5f8a2","134bd178-1e30-43c9-995d-0158d8176372","Build Complete","2025-01-12 20:40:23"
-"e6368a46-5ba6-4fe2-8155-c82e3ce019a5","134bd178-1e30-43c9-995d-0158d8176372","uploading index.html","2025-01-12 20:40:23"
-"1b90632c-41a8-4569-b26f-7fc233924bd5","134bd178-1e30-43c9-995d-0158d8176372","Starting to upload....","2025-01-12 20:40:23"
-"000ee0cd-4989-4723-a134-7d55c2006578","134bd178-1e30-43c9-995d-0158d8176372","uploading vite.svg","2025-01-12 20:40:23"
-"96b18128-8517-4496-85f4-68d19a165556","134bd178-1e30-43c9-995d-0158d8176372","uploaded index.html","2025-01-12 20:40:23"
-"b8028c66-4684-47c9-91bc-238116112184","134bd178-1e30-43c9-995d-0158d8176372","uploading assets/index-BSn-hgr8.js","2025-01-12 20:40:23"
-"022d09b6-c9f6-4527-933d-653b02439624","134bd178-1e30-43c9-995d-0158d8176372","uploaded vite.svg","2025-01-12 20:40:24"
-"891b8200-5207-45bc-870b-66b770d8c0ca","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","Build Started...","2025-01-12 20:47:32"
-"e0f79f3a-7420-45d8-a408-92b772be4b65","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","Build Complete","2025-01-12 20:47:47"
-"fd5eac73-c8ab-4015-9f12-ef2deeb457a4","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploading index.html","2025-01-12 20:47:47"
-"a9ac7380-1947-4523-9b8c-5dd09e5e8883","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","Starting to upload....","2025-01-12 20:47:47"
-"7137054e-03ce-4bff-bfc7-e87cf90bc984","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploading vite.svg","2025-01-12 20:47:47"
-"d25a96e7-dd6a-42b5-ab4c-c6358ccd13f8","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploaded index.html","2025-01-12 20:47:47"
-"9d657885-4933-4f91-8a7e-39ad4dba1c3d","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploading assets/index-BSn-hgr8.js","2025-01-12 20:47:48"
-"265b29e0-b191-42f2-8767-4ab22a681b54","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploaded vite.svg","2025-01-12 20:47:48"
-"79e6f7cf-64f5-4794-b787-8c504dd51554","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploading assets/index-DLYYcElR.css","2025-01-12 20:47:48"
-"557e61d2-f568-4c3a-a8e3-d365bd542b8b","2702bc43-1f0e-4c81-85e4-b5f6ba7948ce","uploaded assets/index-BSn-hgr8.js","2025-01-12 20:47:48"
-"04d79fcd-d48b-4cf4-ada3-15ed6093334e","3b2e86e6-36e9-4333-9878-859442134cf9","Build Started...","2025-01-12 20:27:56"
-"798869ac-a6b3-471d-807b-c6956e98d6a1","3b2e86e6-36e9-4333-9878-859442134cf9","Build Complete","2025-01-12 20:28:09"
-"5b64b620-52d9-4c75-bb24-fe63c1799f41","3b2e86e6-36e9-4333-9878-859442134cf9","uploading index.html","2025-01-12 20:28:11"
-"c9feac23-0ecf-463a-b454-28a2fd40f491","3b2e86e6-36e9-4333-9878-859442134cf9","Starting to upload....","2025-01-12 20:28:11"
-"d1a05139-0da9-4988-8a57-ef5beaf699c0","3b2e86e6-36e9-4333-9878-859442134cf9","uploading vite.svg","2025-01-12 20:28:11"
-"3adc32da-de2c-4f92-8b70-8eedefce7d5b","3b2e86e6-36e9-4333-9878-859442134cf9","uploaded index.html","2025-01-12 20:28:11"
-"3b21fd6a-246c-4b22-9e98-27182c5d47f2","3b2e86e6-36e9-4333-9878-859442134cf9","uploading assets/index-BSn-hgr8.js","2025-01-12 20:28:11"
-"41def978-aa6e-4b5b-acb4-9a50e4da2154","3b2e86e6-36e9-4333-9878-859442134cf9","uploaded vite.svg","2025-01-12 20:28:11"
-"f5ef9d88-8a7b-4c42-8fbe-1dc17943ec73","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","Build Started...","2025-01-15 19:21:21"
-"0c3209f9-dac2-4d6c-aca9-03aa0fec04ab","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","Build Complete","2025-01-15 19:21:21"
-"64ec51ae-5b69-487c-8224-a7a3ed85a938","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploading index.html","2025-01-15 19:21:21"
-"701270d8-7d00-408a-be83-df403d4f7b3a","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","Starting to upload....","2025-01-15 19:21:21"
-"47def11b-4b91-4455-97ec-c55baf5105f4","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploading vite.svg","2025-01-15 19:21:21"
-"fea0c3f8-a576-4f6f-9102-30b04b3e9cdb","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploaded index.html","2025-01-15 19:21:22"
-"78533f45-2cb3-458e-98c1-fd13f216ccf7","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploading assets/index-BSn-hgr8.js","2025-01-15 19:21:22"
-"43eb7c5b-56b2-41e1-9b24-7460fe6cf78b","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploaded vite.svg","2025-01-15 19:21:22"
-"26a8235c-3b26-41ce-9ce4-36afd96fdefb","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploading assets/index-DLYYcElR.css","2025-01-15 19:21:22"
-"e010533b-9618-478a-964c-dabe53c50758","5dcd5305-ce42-44b5-b1c6-869a7325ec0b","uploaded assets/index-BSn-hgr8.js","2025-01-15 19:21:22"
-"47429b64-c306-4d8f-a353-9cea4184b143","68eeec5a-4003-4a14-b820-5acd9b015dbe","Build Started...","2025-01-15 19:21:22"
-"33550e52-9aa4-4020-8701-8aa33f7d4ac9","68eeec5a-4003-4a14-b820-5acd9b015dbe","Build Complete","2025-01-15 19:21:23"
-"22face7c-b997-4c93-96b4-2c19e5c66078","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploading index.html","2025-01-15 19:21:23"
-"2c1eb21a-94e0-47d0-9c8f-36d693ceea4c","68eeec5a-4003-4a14-b820-5acd9b015dbe","Starting to upload....","2025-01-15 19:21:23"
-"78e6930e-a306-44f1-bc96-2e429e69c302","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploading vite.svg","2025-01-15 19:21:23"
-"182c383d-84ad-4186-9120-daf17305f383","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploaded index.html","2025-01-15 19:21:23"
-"1f92fd76-d636-41ba-a067-4f0bf56d76b3","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploading assets/index-BSn-hgr8.js","2025-01-15 19:21:24"
-"2ac2963e-9960-4e8e-869f-4fae59855854","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploaded vite.svg","2025-01-15 19:21:24"
-"f401ae22-23a0-415d-a558-2c31a213e822","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploading assets/index-DLYYcElR.css","2025-01-15 19:21:24"
-"121c157a-320c-4887-b235-96ca9332ca5b","68eeec5a-4003-4a14-b820-5acd9b015dbe","uploaded assets/index-BSn-hgr8.js","2025-01-15 19:21:24"
-"5253448b-affa-405c-b04f-c99e6ab7d38d","8ca2d6e5-157a-4939-99c7-0443c26525fd","Build Started...","2025-01-15 19:25:38"
-"5663a1e0-eb6a-407d-94f3-a384e3d7fa91","8ca2d6e5-157a-4939-99c7-0443c26525fd","Build Complete","2025-01-15 19:25:53"
-"84a03d6a-15a0-49de-8b62-0c2ae9d7c155","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploading index.html","2025-01-15 19:25:53"
-"8192440c-0b08-4d47-8e43-d7fbdb743368","8ca2d6e5-157a-4939-99c7-0443c26525fd","Starting to upload....","2025-01-15 19:25:53"
-"b548d413-c81b-499c-94da-0bc51821123a","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploading vite.svg","2025-01-15 19:25:53"
-"b8bab6a3-23c9-45af-bd1e-41620f0c3fa8","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploaded index.html","2025-01-15 19:25:54"
-"7b76ff6b-c1a2-4f19-869f-126511a5e538","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploading assets/index-BSn-hgr8.js","2025-01-15 19:25:54"
-"b1bd6b80-26e7-4ca2-a6aa-d872aacc467e","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploaded vite.svg","2025-01-15 19:25:54"
-"1cfc2593-c0fa-44f3-a0ea-f74c354e08fd","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploading assets/index-DLYYcElR.css","2025-01-15 19:25:54"
-"8c8a31ec-ca1e-4cab-b2e3-18c721bef070","8ca2d6e5-157a-4939-99c7-0443c26525fd","uploaded assets/index-BSn-hgr8.js","2025-01-15 19:25:54"
-"9d3560f0-12b4-4dec-8878-d2e7c031eaf3","aa1a4ca8-6601-455a-bff0-978fb3c869fc","Build Started...","2025-01-15 19:21:17"
-"bb12dca7-17eb-4d78-bc8f-7ea4e22c3cbd","aa1a4ca8-6601-455a-bff0-978fb3c869fc","Build Complete","2025-01-15 19:21:17"
-"697932f4-048b-470d-a56a-0e33f8e9dd14","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploading index.html","2025-01-15 19:21:17"
-"9e37a5c2-b522-4a80-95a0-8f5eb75c6a69","aa1a4ca8-6601-455a-bff0-978fb3c869fc","Starting to upload....","2025-01-15 19:21:18"
-"74f6bfb4-d2b8-4c0a-8220-3fed5da121e1","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploading vite.svg","2025-01-15 19:21:18"
-"f4af7f73-8c46-43ba-b879-006b59423046","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploaded index.html","2025-01-15 19:21:18"
-"6ac6f2ea-7d64-49f0-9f14-0c5947fab8b2","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploading assets/index-BSn-hgr8.js","2025-01-15 19:21:18"
-"941ad8c0-3641-4e91-a2e2-ac5534f88442","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploaded vite.svg","2025-01-15 19:21:18"
-"759cbdee-948f-4d7c-80c5-d1f6a75db701","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploading assets/index-DLYYcElR.css","2025-01-15 19:21:18"
-"cc2253b0-ae0d-4d6e-8a11-545606411ca1","aa1a4ca8-6601-455a-bff0-978fb3c869fc","uploaded assets/index-BSn-hgr8.js","2025-01-15 19:21:19"
-"c130feed-db2c-47fd-89b5-528844cd1537","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","Build Started...","2025-01-15 19:21:19"
-"7284a584-a61a-4a29-a263-cc0b291110c3","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","Build Complete","2025-01-15 19:21:19"
-"6aa4fcca-4bc5-4187-bb1c-715db47960eb","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploading index.html","2025-01-15 19:21:19"
-"521e30c2-3248-490b-af70-e76a37347d1b","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","Starting to upload....","2025-01-15 19:21:19"
-"a28879be-cd4a-4e78-8f06-025fbee98a68","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploading vite.svg","2025-01-15 19:21:19"
-"224b388c-66f1-4d5b-ba70-6bcf9c27d9d5","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploaded index.html","2025-01-15 19:21:20"
-"be363868-d173-4ab5-b5d4-c7a831da308b","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploading assets/index-BSn-hgr8.js","2025-01-15 19:21:20"
-"f745b5cd-f4a8-42b9-af2a-04f3d0b18320","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploaded vite.svg","2025-01-15 19:21:20"
-"77dc4a27-b26d-4224-b88a-b051c09f3081","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploading assets/index-DLYYcElR.css","2025-01-15 19:21:20"
-"397333b9-7476-4232-abd7-aef0d7c48e4b","d2cf641b-ba79-46e9-bf5f-0c61ec1bcb8a","uploaded assets/index-BSn-hgr8.js","2025-01-15 19:21:21"
-"d241a187-2f74-4316-82f7-4f76d9023b4c","deployment123","This is a test log message","2025-01-12 04:05:13"
+"event_id","project_id","deployment_id","log_message","timestamp","log_level","file_name","file_size","file_size_in_bytes","time_taken"
+"bb03bf02-844c-46e5-8011-291e3ec3a810","8888","4444","actual data","2025-01-18 21:59:35","info","index.html","464 B",464,0.046
+"b8ffb6ad-c5d1-470e-80fd-9cdba33cc5a1","8877","1112","actual data","2025-01-18 20:36:42","info","vite.svg","1.46 KB",1497,0.047
+"733afa27-f8d4-46eb-8173-fbd1108ba75f","8888","4444","Starting to upload files...","2025-01-18 21:59:34","info",\N,\N,\N,\N
+"6cbdb5ec-b84d-439c-8336-d567254d89b1","8877","1112","Build Started...","2025-01-18 20:36:30","info",\N,\N,\N,\N
+"c632f665-69c5-4f0e-840d-62201c77ac05","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","Build Complete","2025-01-18 22:07:07","info",\N,\N,\N,\N
+"b1cd5236-fe4c-4814-8576-6dd0f8532bc1","8877","1112","Uploading assets/index-DLYYcElR.css","2025-01-18 20:36:42","PROCESSING","assets/index-DLYYcElR.css","227.78 KB",233251,\N
+"5f7e0fc5-9188-402e-8831-7ac719a2a5b0","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploaded assets/index-BSn-hgr8.js","2025-01-18 22:07:09","info",\N,\N,\N,\N
+"c43354ba-ca3d-4032-8aa7-8e7fc0857836","8877","1112","Uploading vite.svg","2025-01-18 20:36:41","PROCESSING","vite.svg","1.46 KB",1497,\N
+"46c860fe-552a-4fbe-8b17-ca5ce6e1aeb7","8888","4444","actual data","2025-01-18 21:59:35","info","favicon.svg","1.49 KB",1524,0.25
+"b8795aab-0098-4eef-8b5e-996fc8b4a45c","8888","4444","Build Started...","2025-01-18 21:59:21","info",\N,\N,\N,\N
+"25aba8cf-a54d-495c-8c19-e9f24572fd2d","8888","4444","Build Complete","2025-01-18 21:59:34","success",\N,\N,\N,\N
+"31f29c85-c5c7-4c2c-8caf-64cf4a725fe6","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploaded index.html","2025-01-18 22:07:08","info",\N,\N,\N,\N
+"6171ed32-7f2d-4038-90e3-0f1a7798c24f","8877","1112","Uploading index.html","2025-01-18 20:36:41","PROCESSING","index.html","459 B",459,\N
+"425edc17-65fa-4041-921f-9800f9e94eaa","2222","2233","Build Complete","2025-01-18 21:35:07","success",\N,\N,\N,\N
+"511086ef-82c5-43b5-9af8-47cee8765bbd","889999","3333","Build Complete","2025-01-18 21:48:19","success",\N,\N,\N,\N
+"07ff9b22-e596-4841-9d72-c3dc8d307449","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploading index.html","2025-01-18 22:07:08","info",\N,\N,\N,\N
+"637940c8-c796-4628-a048-91f036ce622b","8888","4444","Uploading assets/index-veBXtDAI.css","2025-01-18 21:59:36","PROCESSING","assets/index-veBXtDAI.css","770 B",770,\N
+"4aeed8a7-e91b-411e-a23f-4fc5f7cfdca3","8888","4444","Uploading favicon.svg","2025-01-18 21:59:34","PROCESSING","favicon.svg","1.49 KB",1524,\N
+"c4052eb3-802c-4a94-a385-9d21f74d0144","8888","4444","Uploading robots.txt","2025-01-18 21:59:35","PROCESSING","robots.txt","67 B",67,\N
+"31640048-d85d-4cfc-a501-38961aef9e78","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploading vite.svg","2025-01-18 22:07:08","info",\N,\N,\N,\N
+"0cb80a12-4eba-472d-a7af-75e1b48910b3","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","Build Started...","2025-01-18 22:06:54","info",\N,\N,\N,\N
+"da5a2273-516f-463c-a8bb-c07390524c57","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploading assets/index-BSn-hgr8.js","2025-01-18 22:07:08","info",\N,\N,\N,\N
+"e9ff5a94-1adb-4a1f-a91c-9b9ac424d1b1","8877","1112","actual data","2025-01-18 20:36:42","info","assets/index-BSn-hgr8.js","199.84 KB",204641,0.136
+"cda627bf-8f06-4878-a975-aca8251bcc74","8888","4444","actual data","2025-01-18 21:59:36","info","robots.txt","67 B",67,0.034
+"4a5f10d2-53ce-496d-aa4f-5264dc2e677b","8877","1112","Build Complete","2025-01-18 20:36:41","success",\N,\N,\N,\N
+"f9fc82c1-9b99-4cda-ac2b-a9d66fe3ceb7","8888","4444","actual data","2025-01-18 21:59:36","info","assets/index-OK_fEDYh.js","143.18 KB",146614,0.141
+"76e7cdb4-84db-49f0-ad31-029c301884e0","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploaded vite.svg","2025-01-18 22:07:09","info",\N,\N,\N,\N
+"35b24623-3efa-4b10-ad62-359e6e1886fa","8888","4444","Uploading index.html","2025-01-18 21:59:34","PROCESSING","index.html","464 B",464,\N
+"60eb4956-08dc-4a78-adb7-c63f81f6bdca","8877","1112","actual data","2025-01-18 20:36:42","info","index.html","459 B",459,0.154
+"5f238a5d-dcc3-4fa0-ae5d-c5864e6dd77b","8888","4444","Uploading assets/index-OK_fEDYh.js","2025-01-18 21:59:36","PROCESSING","assets/index-OK_fEDYh.js","143.18 KB",146614,\N
+"e5524425-1a07-43aa-b261-5e89f304e209","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","uploading assets/index-DLYYcElR.css","2025-01-18 22:07:09","info",\N,\N,\N,\N
+"6fd38361-bd77-4ff4-b2d8-dea08a094376","8877","1112","Starting to upload files...","2025-01-18 20:36:41","info",\N,\N,\N,\N
+"387c07ed-0dde-47d9-b50d-906b11e328f5","3a985526-bd18-4102-bd2a-5777cea8b158","9ee29312-46b4-4c0f-be3d-48c9d4526972","Starting to upload....","2025-01-18 22:07:08","info",\N,\N,\N,\N
+"91bddc37-4f15-4db5-b89c-c5066a5d88da","8877","1112","Uploading assets/index-BSn-hgr8.js","2025-01-18 20:36:42","PROCESSING","assets/index-BSn-hgr8.js","199.84 KB",204641,\N
+"4af4d1e2-4a7d-4d4c-bd28-44db4dab52a9","889999","3333","Build Started...","2025-01-18 21:46:56","info",\N,\N,\N,\N
+"b004b098-f484-4f65-be30-31c2a4493c4c","2222","2233","Build Started...","2025-01-18 21:34:17","info",\N,\N,\N,\N
