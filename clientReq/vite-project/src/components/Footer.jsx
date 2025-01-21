@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className="bg-gray-900 text-white py-10 mt-16">
             <div className="container mx-auto px-4">
-                <div className="footer-content grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="footer-content grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                     {/* About Section */}
                     <div className="footer-section">
                         <h3 className="footer-title glowing-text text-xl font-bold mb-4">About</h3>
@@ -67,7 +67,7 @@ const Footer = () => {
                 {/* Footer Bottom */}
                 <div className="footer-bottom mt-8 text-center border-t border-gray-700 pt-4">
                     <p className="footer-text text-white/80">
-                    © {new Date().getFullYear()} Sahil Sadekar. All rights reserved.
+                        © {new Date().getFullYear()} Sahil Sadekar. All rights reserved.
                     </p>
                 </div>
             </div>

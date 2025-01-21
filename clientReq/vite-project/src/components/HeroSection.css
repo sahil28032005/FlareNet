@@ -1,121 +1,110 @@
-Example CSS reset
+/* Glowing Border Effect */
+.glowing-border {
+  position: relative;
+  border: none;
+  padding: 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
 
-  
-  /* Glowing Border Effect */
-  .glowing-border {
-    position: relative;
-    border: none;
-    padding: 0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  }
-  
-  .glowing-border:before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 10px; /* Match the rounded corner of the image */
-    padding: 4px;
-    background: linear-gradient(135deg, #42a5f5, #80d8ff, #42a5f5);
-    filter: blur(4px);
-    z-index: -1;
-    animation: glow 3s infinite alternate;
-  }
-  
-  .glowing-border:hover:before {
-    filter: blur(6px);
-  }
-  
-  /* Animation for glowing effect */
-  @keyframes glow {
-    0% {
-      box-shadow: 0 0 10px #42a5f5;
-    }
-    100% {
-      box-shadow: 0 0 20px #80d8ff;
-    }
-  }
+.glowing-border:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px; /* Match the rounded corner of the image */
+  padding: 4px;
+  background: linear-gradient(135deg, #42a5f5, #80d8ff, #42a5f5);
+  filter: blur(4px);
+  z-index: -1;
+  animation: glow 3s infinite alternate;
+}
 
-  /* after */
-  .glowing-border {
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0px 0px 20px 5px rgba(0, 150, 255, 0.7);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .glowing-border:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 0px 30px 10px rgba(0, 150, 255, 1);
-  }
+.glowing-border:hover:before {
+  filter: blur(6px);
+}
 
-  /* typing animation */
- 
-  
+/* Animation for glowing effect */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 10px #42a5f5;
+  }
+  100% {
+    box-shadow: 0 0 20px #80d8ff;
+  }
+}
 
-  
-  @keyframes blink-caret {
-    50% {
-      border-color: transparent;
-    }
-  }
-  .glowing-text {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5),
-      0 0 30px rgba(255, 255, 255, 0.3);
-  }
-  
-  .glowing-border {
-    border: 2px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-  }
-  
-  .glowing-border-red {
-    border: 2px solid rgba(255, 0, 0, 0.6);
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
-  }
-  
-  .transition-transform {
-    transition: transform 1s, opacity 1s;
-  }
-  .glowing-text {
-    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff9, 0 0 40px #ff9;
-  }
-  
-  .glowing-border {
-    box-shadow: 0 0 10px #fff, 0 0 20px #ff9, 0 0 30px #ff9, 0 0 40px #ff9;
-  }
-  
-  .glowing-border-red {
-    box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff3333, 0 0 30px #ff3333, 0 0 40px #ff3333;
-  }
-  
+/* Glow text styles */
+.glowing-text {
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+}
 
+/* Background Gradient */
+.bg-gradient-to-b {
+  background: linear-gradient(to bottom, #2a2a2a, #1a1a1a, #0a0a0a);
+}
 
+/* Transition effects */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
 
-  .glowing-text {
-    text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
   }
-  
-  .bg-gradient-to-b {
-    background: linear-gradient(to bottom, #2a2a2a, #1a1a1a, #0a0a0a);
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
   }
-  
-  .transition-all {
-    transition: all 0.3s ease-in-out;
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
   }
-  
-  @keyframes pulse {
-    0% {
-      transform: scale(1);
-      opacity: 0.7;
-    }
-    50% {
-      transform: scale(1.1);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 0.7;
-    }
-  }
-  
+}
 
-  
+/* Smooth moving circles animations */
+@keyframes move-circle {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-30px) translateX(20px);
+  }
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+}
+
+@keyframes rotate-effect {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animations for circles */
+.animate-move {
+  animation: move-circle 4s ease-in-out infinite;
+}
+
+.animate-move-slow {
+  animation: move-circle 6s ease-in-out infinite;
+}
+
+.animate-move-fast {
+  animation: move-circle 3s ease-in-out infinite;
+}
+
+/* 3D rotating effect */
+.animate-rotate {
+  animation: rotate-effect 10s infinite linear;
+}
+
+/* Hover effects */
+button:hover {
+  transform: scale(1.05) rotate(5deg);
+  transition: transform 0.3s ease-in-out;
+}
