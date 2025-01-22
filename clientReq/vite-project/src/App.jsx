@@ -41,7 +41,8 @@ function App() {
           {/* Define Route for users pages */}
           <Route path="/projects" element={<ProtectedRoute><ProjectLister /></ProtectedRoute>} />
         </Routes>
-        <Footer/>
+        {/* Conditionally render Footer */}
+        {location.pathname !== '/login' && <Footer />}
       </Router>
     </>
 

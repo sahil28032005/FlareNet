@@ -7,16 +7,7 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
 import { useUser } from "../context/userContext";
-
-const generateBubbles = () => {
-  return Array.from({ length: 25 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 80 + 20,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    delay: Math.random() * 5,
-  }));
-};
+import './LoginPage.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -25,16 +16,9 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [message, setMessage] = useState(null);
-  const [bubbles, setBubbles] = useState(generateBubbles());
-  const { setUserData } = useUser(); // Use context to set user data
+  const { setUserData } = useUser();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/auth";
-
-  useEffect(() => {
-    const handleResize = () => setBubbles(generateBubbles());
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,13 +41,11 @@ const LoginPage = () => {
           role: decodedToken.role,
         };
         setUserData(userData);
-        const expiryTime = new Date(decodedToken.exp * 1000); // `exp` is in seconds
-        
+        const expiryTime = new Date(decodedToken.exp * 1000);
+
         setTimeout(() => {
           localStorage.removeItem("authTokenLogin");
-          crossOriginIsolated.log("removed by stimeout login page");
-          setUserData(null); // Clear the user data when token expires
-          console.log("Token expired and removed.");
+          setUserData(null);
         }, expiryTime - Date.now());
 
         navigate("/");
@@ -81,152 +63,130 @@ const LoginPage = () => {
   };
 
   return (
-    <div
-      id="bubbles-container"
-      className="relative flex items-center justify-center min-h-screen bg-black text-yellow-400 overflow-hidden"
-    >
-      {bubbles.map((bubble) => (
+    <div className="relative flex min-h-screen">
+      {/* Left side image */}
+      <div className="flex-1 bg-cover bg-center" style={{ backgroundImage: 'url(/assects/images/LoginPage_asset.png)', height: '80vh' }}></div>
+
+      {/* Right side form */}
+      <div className="flex-1 bg-gradient-to-r from-black via-transparent to-black flex items-center justify-center px-6 py-8">
         <motion.div
-          key={bubble.id}
-          className="absolute rounded-full bg-gradient-to-r from-yellow-500 to-yellow-400 opacity-50"
-          style={{
-            width: `${bubble.size}px`,
-            height: `${bubble.size}px`,
-            top: `${bubble.y}%`,
-            left: `${bubble.x}%`,
-            zIndex: 0,
-          }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.6, scale: 1 }}
-          transition={{ duration: 2, delay: bubble.delay, repeat: Infinity, repeatType: "reverse" }}
-        />
-      ))}
-
-      <motion.div
-        className="z-10 w-full sm:w-[400px] p-8 rounded-xl shadow-2xl relative bg-gradient-to-br from-gray-900 to-gray-800 text-white"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-      >
-        <motion.h2
-          className="text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent"
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
+          className="w-full sm:w-[400px] p-8 rounded-lg shadow-lg bg-gray-800 text-white"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
         >
-          {isLogin ? "Welcome Back" : "Join Us"}
-        </motion.h2>
-
-        {message && (
-          <div
-            className={`text-center p-2 mb-4 rounded-lg ${
-              message.type === "success" ? "bg-yellow-500 text-black" : "bg-red-500 text-white"
-            }`}
+          <motion.h2
+            className="text-4xl font-bold text-center mb-8"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
           >
-            {message.text}
-          </div>
-        )}
+            {isLogin ? "Welcome Back" : "Create Your Account"}
+          </motion.h2>
 
-        <motion.form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.4 }}
-        >
-          {!isLogin && (
-            <div>
-              <Label htmlFor="name" className="text-sm font-medium">
-                Name
-              </Label>
-              <Input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-2 p-4 rounded-lg bg-gray-800 text-yellow-400 focus:ring-4 focus:ring-yellow-500"
-                placeholder="Enter your name"
-                required={!isLogin}
-              />
+          {message && (
+            <div
+              className={`text-center p-2 mb-4 rounded-lg ${message.type === "success" ? "bg-green-500 text-black" : "bg-red-600 text-white"}`}
+            >
+              {message.text}
             </div>
           )}
-          <div>
-            <Label htmlFor="email" className="text-sm font-medium">
-              Email Address
-            </Label>
-            <Input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 p-4 rounded-lg bg-gray-800 text-yellow-400 focus:ring-4 focus:ring-yellow-500"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="password" className="text-sm font-medium">
-              Password
-            </Label>
-            <Input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 p-4 rounded-lg bg-gray-800 text-yellow-400 focus:ring-4 focus:ring-yellow-500"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold rounded-lg hover:from-yellow-600 hover:to-yellow-500"
-          >
-            {isLogin ? "Login" : "Register"}
-          </Button>
-        </motion.form>
 
-        <div className="mt-6 text-center">
-          <motion.p
-            className="text-sm text-yellow-400"
+          <motion.form
+            onSubmit={handleSubmit}
+            className="space-y-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
+            transition={{ duration: 1, delay: 0.4 }}
           >
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <span
-              className="cursor-pointer hover:underline"
-              onClick={() => setIsLogin(!isLogin)}
+            {!isLogin && (
+              <div>
+                <Label htmlFor="name" className="text-lg font-medium">
+                  Name
+                </Label>
+                <Input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-2 p-4 rounded-lg bg-gray-700 text-gray-300 placeholder-gray-400 focus:ring-4 focus:ring-indigo-500"
+                  placeholder="Enter your full name"
+                  required={!isLogin}
+                />
+              </div>
+            )}
+            <div>
+              <Label htmlFor="email" className="text-lg font-medium">
+                Email Address
+              </Label>
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-2 p-4 rounded-lg bg-gray-700 text-gray-300 placeholder-gray-400 focus:ring-4 focus:ring-indigo-500"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="password" className="text-lg font-medium">
+                Password
+              </Label>
+              <Input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2 p-4 rounded-lg bg-gray-700 text-gray-300 placeholder-gray-400 focus:ring-4 focus:ring-indigo-500"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700"
             >
-              {isLogin ? "Register" : "Login"}
-            </span>
-          </motion.p>
-        </div>
+              {isLogin ? "Login" : "Register"}
+            </Button>
+          </motion.form>
 
-        <div className="mt-6 text-center space-y-3">
-          <p className="text-yellow-400">Or login with</p>
-          <div className="flex justify-center space-x-3">
-            <Button
-              onClick={() => handleOAuth("google")}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-4 py-2"
+          <div className="mt-6 text-center">
+            <motion.p
+              className="text-lg text-indigo-300"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
             >
-              Google
-            </Button>
-            <Button
-              onClick={() => handleOAuth("github")}
-              className="bg-gray-700 hover:bg-gray-800 text-yellow-400 rounded-lg px-4 py-2"
-            >
-              GitHub
-            </Button>
-            <Button
-              onClick={() => handleOAuth("bitbucket")}
-              className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg px-4 py-2"
-            >
-              Bitbucket
-            </Button>
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+              <span
+                className="cursor-pointer text-indigo-400 hover:underline"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Register" : "Login"}
+              </span>
+            </motion.p>
           </div>
-        </div>
-      </motion.div>
+
+          <div className="mt-6 text-center space-y-3">
+            <p className="text-indigo-400">Or login with</p>
+            <div className="flex justify-center space-x-3">
+              <Button
+                onClick={() => handleOAuth("google")}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-4 py-2"
+              >
+                Google
+              </Button>
+              <Button
+                onClick={() => handleOAuth("github")}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg px-4 py-2"
+              >
+                GitHub
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };

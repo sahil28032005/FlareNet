@@ -1,0 +1,26 @@
+/* General Layout */
+.bg-gradient-dark {
+    background: linear-gradient(to bottom, #2a2a2a, #1a1a1a, #0a0a0a);
+  }
+  
+  /* Modal Styling */
+  .glowing-border-dark {
+    box-shadow: none;
+  }
+  
+  /* Reduced Glow Effect */
+  .glowing-text-dark {
+    text-shadow: none;
+  }
+  
+  /* Button Hover Effects */
+  .button-glow-dark:hover {
+    transform: scale(1.05) rotate(5deg);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Added subtle blur effect */
+  .bg-black.bg-opacity-50 {
+    backdrop-filter: blur(5px);
+  }
+  

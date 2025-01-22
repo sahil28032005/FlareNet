@@ -108,3 +108,60 @@ button:hover {
   transform: scale(1.05) rotate(5deg);
   transition: transform 0.3s ease-in-out;
 }
+
+/* advetising */
+/* Advertising Section Styles */
+.advertising-section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Text Content Styles */
+.text-content h2 {
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+}
+
+.text-content ul li {
+  font-size: 1rem;
+  transition: color 0.3s ease-in-out;
+}
+
+.text-content ul li:hover {
+  color: #ffd700;
+  transform: scale(1.05);
+}
+
+/* Image Styles */
+.image-container {
+  position: relative;
+}
+
+.fancy-image {
+  border: 4px solid #ffffff30;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.fancy-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Glow Animation */
+.image-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  border: 4px solid linear-gradient(135deg, #42a5f5, #80d8ff, #42a5f5);
+  animation: glow-border 3s infinite alternate;
+}
+
+@keyframes glow-border {
+  0% {
+    box-shadow: 0 0 10px #42a5f5;
+  }
+  100% {
+    box-shadow: 0 0 20px #80d8ff;
+  }
+}
