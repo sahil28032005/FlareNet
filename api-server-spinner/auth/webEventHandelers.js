@@ -39,7 +39,7 @@ async function handlePushEvent(event) {
     console.log('deployment entry created successfully');
     // return;  breaker flag 
 
-    // Trigger the deployment workflow
+    // Trigger the deployment workflow this is done via workflowEnngine
     await runWorkflow('deploymentWorkflow', deployment.id, project.id, project.gitUrl);
     console.log(`Push event handled successfully via the following workflow steps`);
 
