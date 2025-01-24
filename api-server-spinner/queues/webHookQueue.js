@@ -1,9 +1,8 @@
 const { Queue } = require('bullmq');
-
+require('dotenv').config({ path: '../.env' });
 const webHookQueue = new Queue('webHookQueue', {
     connection: {
-        host: 'localhost', // Replace with your Redis host
-        port: 6379, // Replace with your Redis port
+        url: process.env.REDIS_HOST, // Use environment variable or fallback
     }
 });
 

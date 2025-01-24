@@ -1,6 +1,7 @@
 const { Worker } = require('bullmq');
 const { prisma } = require('../utils/prismaClient');
 const buildQueue = require('../queues/buildQueue');
+require('dotenv').config({ path: '../.env' });
 const failedQueueWorker = new Worker('failedBuildQueue', async (job) => {
     const { deploymentId, projectId, gitUrl, error } = job.data;
 
@@ -43,7 +44,9 @@ const failedQueueWorker = new Worker('failedBuildQueue', async (job) => {
     console.log(`Failed job logged for Deployment ID: ${deploymentId}`);
 
 }, {
-    connection: { host: 'localhost', port: 6379 },
+    connection: {
+        url: process.env.REDIS_HOST, // Use environment variable or fallback
+    },
 });
 
 failedQueueWorker.on('ready', () => {

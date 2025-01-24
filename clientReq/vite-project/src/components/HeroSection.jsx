@@ -7,23 +7,22 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
-  const [headline, setHeadline] = useState("");
+  const [headline, setHeadline] = useState('');
 
-  const fullHeadline = " Single-Click Deploy with FlareNet....";
+  const fullHeadline = "Single-Click Deploy with FlareNet....";
 
   // Typing effect for headline
   useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      setHeadline((prev) => prev + fullHeadline[index]);
-      index++;
-      
-      if (index === fullHeadline.length-1) {
-        clearInterval(interval);
+    const intervalId = setInterval(() => {
+      if (index < fullHeadline.length) { 
+        setHeadline((prev) => prev + fullHeadline[index]);
+        index++;
       }
-    }, 100);
+    }, 150);
 
-    return () => clearInterval(interval); // Cleanup interval on component unmount
+    let index = 0; 
+
+    return () => clearInterval(intervalId); 
   }, []);
 
   // Scroll-triggered animations

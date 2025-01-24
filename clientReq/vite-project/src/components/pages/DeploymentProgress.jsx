@@ -1,92 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import "./DeploymentProgress.css";
-import NavBar from '../NavBar';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'; // For graph visualization
-import axios from 'axios';
+import NavBar from "../NavBar";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import axios from "axios";
 
 const DeploymentProgress = () => {
-  const location = useLocation();//receives autoDeployment parameter
-  const { autoDeploy, gitUrl } = location.state || {};//retrive autoDeploy state
-  const [logs, setLogs] = useState([]); // Logs state
+  const location = useLocation();
+  const { autoDeploy, gitUrl } = location.state || {};
+  const [logs, setLogs] = useState([]);
   const [isDeploying, setIsDeploying] = useState(true);
-  const [progress, setProgress] = useState(0); // Deployment progress state
-  const [deploymentStats, setDeploymentStats] = useState({ success: 70, failure: 30, total: 100 }); // Demo stats
+  const [progress, setProgress] = useState(0);
+  const [deploymentStats, setDeploymentStats] = useState({ success: 70, failure: 30, total: 100 });
   const navigate = useNavigate();
-  const { id } = useParams(); // Assuming you pass deployment ID via URL params
+  const { id } = useParams();
 
-  //function to createWebHook request
+  const COLORS = ["#00FF00", "#FF4D4D"];
+
   const createWebhook = async () => {
     if (!gitUrl) {
-      console.error("GIT URL is not provided. cannot create webhook.");
-      alert("git url is required to create webhook");
+      alert("Git URL is required to create a webhook.");
       return;
     }
 
-    //exttract owner and repo from the git url usong regex
     const gitUrlPattern = /^(?:https?:\/\/|git@)github\.com[:/](?<owner>[^/]+)\/(?<repo>[^.]+)(?:\.git)?$/;
     const match = gitUrl.match(gitUrlPattern);
+    const oAuthToken = localStorage.getItem("github_token");
 
-    //retrievee Oauth githhub token from locastorage
-    const oAuthToken = localStorage.getItem('github_token');
-    if (!oAuthToken) {
-      console.error("OAuth token is not found in localStorage. Please login or provide a valid token.");
-      alert("OAuth token is missing. Please authenticate and try again.");
-      return;
-    }
-
-    if (!match || !match.groups) {
-      console.error("Invalid Git URL format. Unable to extract owner and repository.");
-      alert("Invalid Git URL. Please check and try again.");
+    if (!oAuthToken || !match?.groups) {
+      alert("Invalid Git URL or missing OAuth token.");
       return;
     }
 
     const { owner, repo } = match.groups;
-    if (!owner || !repo) {
-      console.error("Failed to extract owner or repository from the Git URL.");
-      alert("Failed to extract repository details from the Git URL. Please verify the URL.");
-      return;
-    }
-
-    const requestBody = {
-      repo,
-      oauthToken: oAuthToken,
-      owner,
-    };
-
-    console.log("requestbody", requestBody);
+    const requestBody = { repo, oauthToken: oAuthToken, owner };
 
     try {
-      // Check if the webhook has already been created (stored in localStorage)
-      const webhookCreated = localStorage.getItem('webhookCreated');
-      if (webhookCreated) {
-        console.log("Webhook already created. Skipping...");
-        return;
-      }
-      //make api call using axios
-      const response = await axios.post("http://localhost:5000/api/github/create-webhook", requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-        }
+      const webhookCreated = localStorage.getItem("webhookCreated");
+      if (webhookCreated) return;
+
+      await axios.post("http://localhost:5000/api/github/create-webhook", requestBody, {
+        headers: { "Content-Type": "application/json" },
       });
-      // If the request was successful, set the flag in localStorage
-      localStorage.setItem('webhookCreated', 'true');
-      console.log("Webhook created successfully:", response.data);
-    }
-    catch (err) {
+      localStorage.setItem("webhookCreated", "true");
+    } catch (err) {
       console.error(err.message);
     }
-  }
+  };
 
-  //  for webhook and auto deployment call
   useEffect(() => {
-    if (autoDeploy) {
-      console.log("AutoDeploy is enabled. Creating webhook...");
-      createWebhook();
-    }
+    if (autoDeploy) createWebhook();
   }, []);
 
   useEffect(() => {
@@ -95,149 +59,115 @@ const DeploymentProgress = () => {
         const response = await fetch(`http://localhost:5000/getLogs/${id}`);
         if (response.ok) {
           const data = await response.json();
-          const newLogs = data.logs.map(log => `Log Entry ${log.event_id}: ${log.log}`);
-          setLogs(prevLogs => Array.from(new Set([...prevLogs, ...newLogs]))); // Avoid duplicates
-          setProgress(data.progress || progress); // Update progress if provided
-          setDeploymentStats(data.stats || deploymentStats); // Update analytics
-        } else {
-          console.error("Failed to fetch logs");
+          setLogs((prevLogs) =>
+            Array.from(new Set([...prevLogs, ...data.logs.map((log) => `Log ${log.event_id}: ${log.log}`)]))
+          );
+          setProgress(data.progress || progress);
+          setDeploymentStats(data.stats || deploymentStats);
         }
       } catch (error) {
         console.error("Error fetching logs:", error.message);
       }
     };
 
-    // Polling every 2 seconds
-    const interval = setInterval(() => {
-      fetchLogs();
-    }, 2000);
-
-    // Clear interval when logs are completed or component unmounts
+    const interval = setInterval(fetchLogs, 2000);
     return () => clearInterval(interval);
   }, [id, progress, deploymentStats]);
 
   const handleCancel = () => {
     setIsDeploying(false);
-    navigate("/service"); // Navigate back to the service page
+    navigate("/service");
   };
 
-  const COLORS = ['#00FF00', '#FF4D4D'];
-
   return (
-    <>
+    <div className="deploy-progress-container">
       <NavBar />
-      <div className="deploy-progress-container">
-        <div className="progress-header">
-          <h2 className="text-5xl font-bold text-cyan-400 animate-glow">Deployment Progress</h2>
-          <p className="text-lg text-gray-300">Live deployment logs, real-time analytics, and more...</p>
+
+      <div className="progress-header">
+        <h2 className="text-5xl font-bold text-cyan-400 animate-glow">Deployment Progress</h2>
+        <p className="text-lg text-gray-300">Live deployment logs and real-time analytics.</p>
+      </div>
+
+      <div className="progress-body">
+        <div className="analytics-section">
+          {["Total Deployments", "Success Rate", "Failure Rate"].map((label, index) => (
+            <div className="stats-card" key={index}>
+              <h3 className="text-xl text-cyan-400">{label}</h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: "Success", value: deploymentStats.success },
+                      { name: "Failure", value: deploymentStats.failure },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={70}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {COLORS.map((color, idx) => (
+                      <Cell key={idx} fill={color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
         </div>
 
-        <div className="progress-body">
-          {/* Analytics Section with Circular Progress */}
-          <div className="analytics-section">
-            <div className="stats-card">
-              <h3 className="text-xl text-cyan-400">Total Deployments</h3>
-              <p className="text-4xl">{deploymentStats.total}</p>
-            </div>
-            <div className="stats-card">
-              <h3 className="text-xl text-cyan-400">Success Rate</h3>
-              <div className="circular-progress">
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Success', value: deploymentStats.success },
-                        { name: 'Failure', value: deploymentStats.failure }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value" // This ensures the correct value is displayed
-                    >
-                      {['#00FF00', '#FF4D4D'].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+        <div className="log-area">
+          <div className="terminal">
+            <div className="terminal-live-badge">LIVE</div>
+            {logs.map((log, index) => (
+              <div key={index} className={`log-line log-level-${index % 2 === 0 ? "success" : "error"}`}>
+                {log}
               </div>
-            </div>
-            <div className="stats-card">
-              <h3 className="text-xl text-cyan-400">Failure Rate</h3>
-              <div className="circular-progress">
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Failure', value: deploymentStats.failure },
-                        { name: 'Success', value: deploymentStats.success }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value" // This ensures the correct value is displayed
-                    >
-                      {['#FF4D4D', '#00FF00'].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Log Area */}
-          <div className="log-area">
-            <Label className="text-white">Logs</Label>
-            <Textarea
-              className="log-textarea"
-              value={logs.join("\n")}
-              readOnly
-              style={{
-                color: '#dcdcdc',
-                fontFamily: 'Courier New, monospace',
-                fontSize: '14px',
-                lineHeight: '1.5',
-                letterSpacing: '1px',
-                wordWrap: 'break-word',
-              }}
-            />
-          </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+        </div>
 
-          {/* Progress Bar */}
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-          </div>
-
-          {/* Action Buttons */}
+        <div className="action-buttons">
           {isDeploying ? (
-            <div className="action-buttons">
-              <Button onClick={handleCancel} className="btn-cancel">Cancel Deployment</Button>
-              <Button onClick={() => navigate("/dashboard")} className="btn-dashboard">View Dashboard</Button>
-            </div>
+            <>
+              <Button onClick={handleCancel} className="btn-cancel">
+                Cancel Deployment
+              </Button>
+              <Button onClick={() => navigate("/dashboard")} className="btn-dashboard">
+                View Dashboard
+              </Button>
+            </>
           ) : (
-            <Button onClick={() => navigate("/")} className="btn-home">Go Back Home</Button>
+            <Button onClick={() => navigate("/")} className="btn-home">
+              Go Back Home
+            </Button>
           )}
         </div>
-
-        {/* Advertisements Section */}
-        <div className="advertisement-section">
-          <div className="advertisement-card">
-            <h4>🚀 Try Our Cloud Services Today!</h4>
-            <p>Experience seamless deployments with low latency and high performance. Sign up now and get 20% off your first 3 months!</p>
-            <Button onClick={() => navigate("/cloud-services")} className="btn-signup">Sign Up</Button>
-          </div>
-          <div className="advertisement-card">
-            <h4>🔒 Secure Your Applications</h4>
-            <p>Ensure your deployment is always safe and secure. Learn how our service protects you from threats.</p>
-            <Button onClick={() => navigate("/security")} className="btn-signup">Learn More</Button>
-          </div>
-        </div>
       </div>
-    </>
+
+      <div className="advertisement-section">
+        {["/assects/images/photoShowcase.png", "/assects/images/showCase.png"].map((img, idx) => (
+          <div
+            className={`advertisement-card floating-${idx % 2 === 0 ? "right" : "left"}`}
+            key={idx}
+          >
+            <img src={img} alt="Ad" className="ad-image" />
+            <h4 className="ad-title">{idx === 0 ? "🚀 Try Our Cloud Services!" : "🔒 Secure Your Applications!"}</h4>
+            <p className="ad-description">
+              {idx === 0
+                ? "Experience seamless deployments. Sign up now for 20% off!"
+                : "Ensure your applications stay secure. Learn more."}
+            </p>
+            <Button className="btn-signup">{idx === 0 ? "Sign Up" : "Learn More"}</Button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

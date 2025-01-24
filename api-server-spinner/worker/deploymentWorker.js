@@ -3,6 +3,7 @@ const { RunTaskCommand } = require('@aws-sdk/client-ecs');
 const { client } = require('../utils/awsClient');
 const { prisma } = require('../utils/prismaClient');
 const failedQueue = require('../queues/failedQueue');
+require('dotenv').config({ path: '../.env' });
 //cluster/aws configs object
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
@@ -71,8 +72,7 @@ const deploymentWorker = new Worker('buildQueue', async (job) => {
 
 }, {
     connection: {
-        host: 'localhost',
-        port: 6379,
+        url: process.env.REDIS_HOST, // Use environment variable or fallback
     }
 });
 deploymentWorker.on('ready', () => {

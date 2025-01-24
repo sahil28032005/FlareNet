@@ -1,10 +1,9 @@
 const { Queue } = require('bullmq');
-
+require('dotenv').config({ path: '../.env' });
 const buildQueue = new Queue('buildQueue', {
     connection: {
-        host: 'localhost', // Replace with your Redis host
-        port: 6379, // Replace with your Redis port
-    },
+        url: process.env.REDIS_HOST, // Use environment variable or fallback
+    }
 });
 
 module.exports = buildQueue;

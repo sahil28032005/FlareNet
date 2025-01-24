@@ -2,7 +2,7 @@ const { Worker } = require('bullmq');
 const triggerBuild = require('../tasks/triggerBuild');
 const runTests = require('../tasks/runTests');
 const sendNotification = require('../tasks/sendNotifications');
-
+require('dotenv').config({ path: '../.env' });
 
 //task handeler mapping
 const taskHandelers = {
@@ -54,8 +54,7 @@ const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {
     }
 }, {
     connection: {
-        host: 'localhost',
-        port: 6379,
+        url: process.env.REDIS_HOST, // Use environment variable or fallback
     }
 });
 

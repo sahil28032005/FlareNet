@@ -24,13 +24,6 @@ app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
 
 const PORT = 5000;
 
-//applied tree shaking checkpoint commit
-//clickhouse congigs
-
-// console.log("AWS Access Key:", process.env.AWS_ACCESSKEY);
-// console.log("AWS Secret Key:", process.env.AWS_SECRETACCESSKEY);
-// console.log("AWS Region:", process.env.AWS_REGION);
-
 const clickHouseClient = createClient({
     host: process.env.CH_HOST,
     database: process.env.CH_DB,
@@ -41,19 +34,7 @@ const clickHouseClient = createClient({
     // password: process.env.CH_PASSWORD
 });
 
-//kafka config instance of aiven
-// const kafka = new Kafka({
-//     clientId: `api-server-receiver_side`,
-//     brokers: [`${process.env.KAFKA_BROKER}`],
-//     ssl: {
-//         ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')]
-//     },
-//     sasl: {
-//         username: process.env.KAFKA_USERNAME,
-//         password: process.env.KAFKA_PASSWORD,
-//         mechanism: 'plain'
-//     }
-// });
+
 
 //updated kafka configuration
 const kafka = new Kafka({
@@ -72,7 +53,7 @@ const kafka = new Kafka({
 const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
 //create new socket srever for logs subscribing and pushing
-const io = new Server({ cors: '*' }); // listens all origins
+// const io = new Server({ cors: '*' }); // listens all origins
 
 //middlewares
 
@@ -190,27 +171,27 @@ const startWorkerThreads = () => {
 //start workers from here by paraller multithreading
 
 
-io.on('connection', (socket) => {
-    socket.on('suscribe', function (channel) {
-        socket.join(channel);
-        socket.emit('message', `joined for ${channel}`);
-    });
-});
+// io.on('connection', (socket) => {
+//     socket.on('suscribe', function (channel) {
+//         socket.join(channel);
+//         socket.emit('message', `joined for ${channel}`);
+//     });
+// });
 // const suscriber = new Redis(process.env.REDDIS_HOST);
 
 //function which suscribes to logs and send user specific logs to their own data
-async function emitMessages() {
-    console.log("Suscribed to logs....");
-    //her we will suscribe all logs whic are in format logs:* as we have published that using this as channel name
-    suscriber.psubscribe('logs:*');
-    console.log("Suscribed to pattern logs:*");
-    suscriber.on('pmessage', (pattern, channel, message) => {
-        console.log("chname: " + channel);
-        io.to(channel).emit('message', message);
-    })
-}
+// async function emitMessages() {
+//     console.log("Suscribed to logs....");
+//     //her we will suscribe all logs whic are in format logs:* as we have published that using this as channel name
+//     suscriber.psubscribe('logs:*');
+//     console.log("Suscribed to pattern logs:*");
+//     suscriber.on('pmessage', (pattern, channel, message) => {
+//         console.log("chname: " + channel);
+//         io.to(channel).emit('message', message);
+//     })
+// }
 
-io.listen(9001, () => console.log("listening on port 9002"));
+// io.listen(9001, () => console.log("listening on port 9002"));
 
 
 
@@ -455,18 +436,6 @@ app.post('/deploy-project', async function (req, res) {
 });
 // emitMessages();  //manager kogs emitting service from redddis pub sub
 
-//prisma caller
-// main()
-//     .catch(e => {
-//         // Log error if the async main function fails
-//         console.error('An unexpected error occurred in the main function:', e);
-//     })
-//     .finally(async () => {
-//         // Ensure disconnection
-//         console.log('Disconnecting from the database...');
-//         await prisma.$disconnect();
-//         console.log('Disconnected from the database.');
-//     });
 logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
 
 //for getting logs using deployment id
