@@ -75,14 +75,12 @@ const ProjectLister = () => {
                             </div>
                             <p className="project-description">{project.description}</p>
                             <div className="project-card-footer">
-                                <a
-                                    href={project.gitUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <button
+                                    onClick={()=>{navigate('/projectDetails/${project.id}')}}   //navigate to project description page which is already created or deployed on this page plan to show users previous deployents,rollbaack,commmit,etc features in future scope and showw current depployement triggerd throuugh webHook worker
                                     className="project-action-button view-button"
                                 >
                                     View on GitHub <FaGithub />
-                                </a>
+                                </button>
                                 <button
                                     onClick={() => navigate(`/service/${project.id}`)}
                                     className="project-action-button deploy-button"

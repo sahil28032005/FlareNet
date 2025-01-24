@@ -39,7 +39,8 @@ function App() {
           <Route path="/service/:id" element={<ProtectedRoute><DeployForm /></ProtectedRoute>} />
 
           {/* Define Route for users pages */}
-          <Route path="/projects" element={<ProtectedRoute><ProjectLister /></ProtectedRoute>} />
+          {/* <Route path="/projects" element={<ProtectedRoute><ProjectLister /></ProtectedRoute>} /> */}
+          <Route path="/projects" element={<ProjectLister />} />
         </Routes>
         {/* Conditionally render Footer */}
         {location.pathname !== '/login' && <Footer />}
