@@ -29,13 +29,7 @@ const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID;
 // Kafka configuration
 const kafka = new Kafka({
     clientId: `docker-build-server-${DEPLOYMENT_ID}`,
-    brokers: [`${process.env.KAFKA_BROKER}`],
-    ssl: {
-        rejectUnauthorized: false, // Use true for strict verification
-        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
-        cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
-        key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
-    },
+    brokers: ['13.232.133.39:9092'],
 });
 
 // Kafka producer setup
@@ -52,7 +46,7 @@ async function publishLog(log, logLevel = 'info', fileDetails = {}) {
     };
 
     await producer.send({
-        topic: 'builder-logs',
+        topic: 'MSKTutorialTopic',
         messages: [{
             key: 'log',
             value: JSON.stringify(logMessage)
@@ -65,6 +59,7 @@ async function publishLog(log, logLevel = 'info', fileDetails = {}) {
 async function init() {
     await producer.connect();
     console.log("Producer connection successful, will be able to publish logs.");
+    return; //for debug
     console.log("Executing script.js...");
     publishLog('Build Started...', 'info');
 
