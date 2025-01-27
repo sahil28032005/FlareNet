@@ -1,10 +1,29 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const AWS = require('aws-sdk');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const mime = require('mime-types');
 require('dotenv').config();
 const { Kafka } = require('kafkajs');
+
+//getting kafka broker information securely from managers \
+async function getKafkaBroker() {
+    const ssm = new AWS.SSM();
+    const params = {
+        Name: 'KAFKA_BROKER',
+        WithDecryption: true
+    };
+
+    try {
+        const data = await ssm.getParameter(params).promise();
+        return data.Parameter.Value; // Kafka broker IP:port
+
+    } catch (e) {
+        console.error('Error getting Kafka broker information:', e);
+        return null;
+    }
+}
 
 // Helper function to format file size
 function formatFileSize(bytes) {
@@ -27,13 +46,12 @@ const PROJECT_ID = process.env.PROJECT_ID;
 const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID;
 
 // Kafka configuration
-const kafka = new Kafka({
-    clientId: `docker-build-server-${DEPLOYMENT_ID}`,
-    brokers: ['13.232.133.39:9092'],
-});
+// const kafka = new Kafka({
+//     clientId: `docker-build-server-${DEPLOYMENT_ID}`,
+//     brokers: [await getKafkaBroker()],
+// });
 
-// Kafka producer setup
-const producer = kafka.producer();
+
 
 // Log publisher function
 async function publishLog(log, logLevel = 'info', fileDetails = {}) {
@@ -46,7 +64,7 @@ async function publishLog(log, logLevel = 'info', fileDetails = {}) {
     };
 
     await producer.send({
-        topic: 'MSKTutorialTopic',
+        topic: 'builder-logs',
         messages: [{
             key: 'log',
             value: JSON.stringify(logMessage)
@@ -57,6 +75,20 @@ async function publishLog(log, logLevel = 'info', fileDetails = {}) {
 
 // Main function
 async function init() {
+    // Initialize Kafka with the correct broker information
+    const kafkaBroker = await getKafkaBroker();
+    if (!kafkaBroker) {
+        console.error('Kafka broker information not found!');
+        return;
+    }
+
+    const kafka = new Kafka({
+        clientId: `docker-build-server-${DEPLOYMENT_ID}`,
+        brokers: [kafkaBroker],
+    });
+    // Kafka producer setup
+    const producer = kafka.producer();
+
     await producer.connect();
     console.log("Producer connection successful, will be able to publish logs.");
     return; //for debug
