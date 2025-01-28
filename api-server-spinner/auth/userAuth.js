@@ -51,8 +51,6 @@ const loginUser = async (req, res) => {
     try {
         // Find user by email
         const user = await prisma.user.findUnique({ where: { email } });
-        console.log("user",user);
-        console.log("userId",user.id);
         if (!user) {
             return res.status(401).json({ error: "Invalid credentials" });
         }

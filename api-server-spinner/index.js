@@ -52,9 +52,6 @@ const kafka = new Kafka({
 //create kafka consumer instance and try to consume logs by initializing them
 const consumer = kafka.consumer({ groupId: 'builder-logs-consumer' });
 
-//create new socket srever for logs subscribing and pushing
-// const io = new Server({ cors: '*' }); // listens all origins
-
 //middlewares
 
 app.use(express.json());
@@ -168,51 +165,13 @@ const startWorkerThreads = () => {
         });
     });
 }
-//start workers from here by paraller multithreading
 
 
-// io.on('connection', (socket) => {
-//     socket.on('suscribe', function (channel) {
-//         socket.join(channel);
-//         socket.emit('message', `joined for ${channel}`);
-//     });
-// });
-// const suscriber = new Redis(process.env.REDDIS_HOST);
-
-//function which suscribes to logs and send user specific logs to their own data
-// async function emitMessages() {
-//     console.log("Suscribed to logs....");
-//     //her we will suscribe all logs whic are in format logs:* as we have published that using this as channel name
-//     suscriber.psubscribe('logs:*');
-//     console.log("Suscribed to pattern logs:*");
-//     suscriber.on('pmessage', (pattern, channel, message) => {
-//         console.log("chname: " + channel);
-//         io.to(channel).emit('message', message);
-//     })
-// }
-
-// io.listen(9001, () => console.log("listening on port 9002"));
-
-
-
-//inttialize ecs client here
-// const client = new ECSClient({
-//     region: process.env.AWS_REGION,
-//     credentials: {
-//         accessKeyId: process.env.AWS_ACCESSKEY,
-//         secretAccessKey: process.env.AWS_SECRETACCESSKEY
-//     }
-// });
-//make con=figuration object for task and cluster
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
     TASK: 'git_project_cloner_task:4'
 }
 
-//my subnets
-// subnet-0e0c97b6f83bfc538
-// subnet-08a60214836f38b79
-// subnet-0c4be927b2f4c3790
 
 //for creating project this route wil be used
 app.post('/create-project', async function (req, res) {
@@ -259,25 +218,6 @@ app.post('/create-project', async function (req, res) {
     }
 });
 
-//tester functin for creating user
-async function createUser() {
-    try {
-        //creation query 
-        const newUser = await prisma.user.create({
-            data: {
-                email: "example@example.com", // Replace with the user's email
-                name: "John Doe", // Optional, can be `null`
-                role: "USER", // Replace if you have other roles like ADMIN
-            },
-        });
-
-        console.log('Created User:', newUser);
-
-    }
-    catch (e) {
-        console.log('Error creating user internal error:', e.message);
-    }
-}
 
 //for getting user projects using ownerId as an unique foreign key realtion
 app.get("/projects/:ownerId", async function (req, res) {
@@ -400,42 +340,6 @@ app.get("/api/project/:id", async (req, res) => {
 });
 
 
-//this will make deployment of the project
-app.post('/deploy-project', async function (req, res) {
-    const { gitUrl, slug } = req.body;
-    const projectSlug = slug ? slug : generateSlug();
-
-    //spin container as docker task
-    const command = new RunTaskCommand({
-        cluster: config.CLUSTER,
-        taskDefinition: config.TASK,
-        launchType: 'FARGATE',
-        count: 1,
-        networkConfiguration: {
-            awsvpcConfiguration: {
-                assignPublicIp: 'ENABLED',
-                subnets: ['subnet-0e0c97b6f83bfc538', 'subnet-08a60214836f38b79', 'subnet-0c4be927b2f4c3790'],
-                securityGroups: ['sg-0bf9e7e682e1bed1a ']
-            }
-        },
-        overrides: {
-            containerOverrides: [
-                {
-                    name: 'task_cloner_image',
-                    environment: [
-                        { name: 'GIT_REPOSITORY__URL', value: gitUrl },
-                        { name: 'PROJECT_ID', value: projectSlug }
-                    ]
-                }
-            ]
-        }
-    })
-
-    await client.send(command);
-    return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.localhost:9000` } });
-});
-// emitMessages();  //manager kogs emitting service from redddis pub sub
-
 logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
 
 //for getting logs using deployment id
@@ -466,31 +370,6 @@ app.get('/getLogs/:id', async function (req, res) {
     }
 });
 
-// Function to check the connection
-async function testClickHouseConnection() {
-    try {
-        const result = await clickHouseClient.query({
-            query: 'SELECT version()',  // Basic query to check the server version
-            format: 'JSONEachRow',
-        }).then(response => {
-            if (response.data && response.data.length > 0) {
-                console.log('ClickHouse connected successfully! Server version:', response.data[0].version);
-            } else {
-                console.log('No data returned from ClickHouse.');
-            }
-        });
-    } catch (error) {
-        console.error('Failed to connect to ClickHouse:', error.message);
-    }
-}
-(async () => {
-    const jobCounts = await buildQueue.getJobCounts();
-    console.log('Job counts:', jobCounts);
-})();
-
 //start worker thread here to hit  our woorker in acitive mode
 startWorkerThreads();
-
-// Call the function
-// testClickHouseConnection();
 app.listen(PORT, () => console.log(`API Server Running..${PORT}`));

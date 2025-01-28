@@ -64,7 +64,7 @@ async function saveAccessToken(userId, accessToken) {
                 where: { userId },
                 data: { token: encryptedData },
             });
-            console.log('Access token updated:', updatedToken);
+           
             return updatedToken;
         } else {
             // Create a new token entry
@@ -74,7 +74,7 @@ async function saveAccessToken(userId, accessToken) {
                     token: encryptedData,
                 },
             });
-            console.log('Access token saved:', newToken);
+            
             return newToken;
         }
     }
@@ -108,7 +108,7 @@ async function githubCallback(req, res) {
     try {
         const accessToken = await exchangeCodeForToken(code);
         // res.json({ message: 'Access token received', accessToken });
-        console.log(accessToken);
+       
 
         //needs to be saved in database
 

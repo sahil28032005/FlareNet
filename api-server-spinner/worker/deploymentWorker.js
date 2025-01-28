@@ -10,8 +10,6 @@ const config = {
     TASK: 'git_project_cloner_task:6'
 }
 
-console.log("worker file");
-console.log('cluster name: ' + client.config.credentials.accessKeyId);
 //define worker to process jobs
 const deploymentWorker = new Worker('buildQueue', async (job) => {
     const { deploymentId, projectId, environment="DEVELOPMENT", gitUrl, version="v1.0.0" } = job.data;
