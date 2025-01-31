@@ -54,7 +54,7 @@ const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID;
 
 
 // Log publisher function
-async function publishLog(log, logLevel = 'info', fileDetails = {}) {
+async function publishLog(log, producer, logLevel = 'info', fileDetails = {}) {
     const logMessage = {
         PROJECT_ID,
         DEPLOYMENT_ID,
@@ -76,24 +76,24 @@ async function publishLog(log, logLevel = 'info', fileDetails = {}) {
 // Main function
 async function init() {
     // Initialize Kafka with the correct broker information
-    const kafkaBroker = await getKafkaBroker();
-    if (!kafkaBroker) {
-        console.error('Kafka broker information not found!');
-        return;
-    }
+    // const kafkaBroker = await getKafkaBroker();
+    // if (!kafkaBroker) {
+    //     console.error('Kafka broker information not found!');
+    //     return;
+    // }
 
     const kafka = new Kafka({
         clientId: `docker-build-server-${DEPLOYMENT_ID}`,
-        brokers: [kafkaBroker],
+        brokers: [`${ process.env.KAFKA_BROKER}`],
     });
     // Kafka producer setup
     const producer = kafka.producer();
 
     await producer.connect();
     console.log("Producer connection successful, will be able to publish logs.");
-    return; //for debug
+    // return; //for debug
     console.log("Executing script.js...");
-    publishLog('Build Started...', 'info');
+    publishLog('Build Started...', producer, 'info');
 
     const projectDir = path.join(__dirname, 'output');
 
@@ -102,23 +102,23 @@ async function init() {
 
     processInstance.on('data', function (data) {
         console.log(data.toString());
-        publishLog(data.toString(), 'info');
+        publishLog(data.toString(), producer, 'info');
     });
 
     processInstance.on('error', function (data) {
         console.log('Error: ' + data.toString());
-        publishLog(`Error: ${data.toString()}`, 'error');
+        publishLog(`Error: ${data.toString()}`, producer, 'error');
     });
 
     processInstance.on('close', async function () {
         console.log("Build completed successfully!");
-        publishLog('Build Complete', 'success');
+        publishLog('Build Complete', producer, 'success');
 
         // Upload built files to S3
         const distFolderPath = path.join(__dirname, 'output', 'dist');
         const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true });
 
-        publishLog('Starting to upload files...', 'info');
+        publishLog('Starting to upload files...', producer, 'info');
 
         for (const file of distFolderContents) {
             const filePath = path.join(distFolderPath, file);
@@ -128,7 +128,7 @@ async function init() {
             const startTime = Date.now();
 
             console.log('Uploading', filePath);
-            publishLog(`Uploading ${file}`, 'PROCESSING', {
+            publishLog(`Uploading ${file}`, producer, 'PROCESSING', {
                 fileName: file,
                 fileSize: readableFileSize,
                 fileSizeInBytes: fileSize,
@@ -167,15 +167,15 @@ async function init() {
                     message: `File uploaded successfully to S3`
                 };
 
-                publishLog('actual data', 'info', logMessage);
+                publishLog('actual data', producer, 'info', logMessage);
             } catch (error) {
                 console.log('Error uploading file:', error.message);
-                publishLog(`Error uploading ${file}: ${error.message}`, 'error');
+                publishLog(`Error uploading ${file}: ${error.message}`, producer, 'error');
             }
         }
 
         console.log('All files uploaded!');
-        publishLog('All files uploaded!', 'success');
+        publishLog('All files uploaded!', producer, 'success');
         process.exit(0);
     });
 }

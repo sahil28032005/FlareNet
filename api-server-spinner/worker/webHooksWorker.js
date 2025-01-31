@@ -1,14 +1,10 @@
 const { Worker } = require('bullmq');
 const triggerBuild = require('../tasks/triggerBuild');
-const runTests = require('../tasks/runTests');
-const sendNotification = require('../tasks/sendNotifications');
 require('dotenv').config({ path: '../.env' });
 
 //task handeler mapping
 const taskHandelers = {
     triggerBuild,
-    // runTests,  (not builded yet hence commented)
-    // sendNotification
 }
 
 const webHookTaskBuilder = new Worker('webHookQueue', async (job) => {

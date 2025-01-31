@@ -54,25 +54,44 @@ const DeploymentProgress = () => {
   }, []);
 
   useEffect(() => {
+    let lastFetchedTimestamp = null;
+  
     const fetchLogs = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/getLogs/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setLogs((prevLogs) =>
-            Array.from(new Set([...prevLogs, ...data.logs.map((log) => `Log ${log.event_id}: ${log.log}`)]))
-          );
-          setProgress(data.progress || progress);
-          setDeploymentStats(data.stats || deploymentStats);
+        const url = lastFetchedTimestamp
+          ? `http://localhost:5000/getLogs/${id}?since=${lastFetchedTimestamp}`
+          : `http://localhost:5000/getLogs/${id}`;
+  
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  
+        const data = await response.json();
+  
+        if (data.logs?.length) {
+          lastFetchedTimestamp = data.logs[data.logs.length - 1].created_at; // Track last log timestamp
+  
+          setLogs((prevLogs) => {
+            const newLogs = data.logs.map(
+              (log) =>
+                `Log ${log.event_id}: ${log.log_message} | Level: ${log.log_level} | File: ${log.file_name || 'N/A'} | ` +
+                `Size: ${log.file_size || 'N/A'} (${log.file_size_in_bytes || 'N/A'} bytes) | ` +
+                `Time Taken: ${log.time_taken || 'N/A'}s | Created At: ${log.created_at}`
+            );
+            return Array.from(new Set([...prevLogs, ...newLogs]));
+          });
         }
+  
+        setProgress(data.progress || progress);
+        setDeploymentStats(data.stats || deploymentStats);
       } catch (error) {
         console.error("Error fetching logs:", error.message);
       }
     };
-
+  
     const interval = setInterval(fetchLogs, 2000);
     return () => clearInterval(interval);
-  }, [id, progress, deploymentStats]);
+  }, [id]);
+  
 
   const handleCancel = () => {
     setIsDeploying(false);

@@ -57,7 +57,7 @@ enum Environment {
 model Project {
   id          String       @id @default(uuid()) @db.Uuid
   name        String
-  gitUrl      String       @unique
+  gitUrl      String      
   description String?
   ownerId     Int
   owner       User         @relation(fields: [ownerId], references: [id])

@@ -17,6 +17,7 @@ const { client } = require('./utils/awsClient');
 const { version } = require('os');
 const githubRoutes = require('./routes/githubRoutes');
 const authRoutes = require('./routes/autthRoutes');
+const deploymentValidationRoutes = require('./routes/deploymentValidationRoutes');
 const { Worker: ThreadWorker } = require('worker_threads');
 
 const app = express();
@@ -30,8 +31,8 @@ const clickHouseClient = createClient({
     protocol: 'http',
     compression: true,
     timeout: 10000, // Timeout in milliseconds
-    // username: process.env.CH_USERNAME,
-    // password: process.env.CH_PASSWORD
+    username: process.env.CH_USERNAME,
+    password: process.env.CH_PASSWORD
 });
 
 
@@ -40,12 +41,12 @@ const clickHouseClient = createClient({
 const kafka = new Kafka({
     clientId: `api-server-receiver_side`,
     brokers: [`${process.env.KAFKA_BROKER}`],
-    ssl: {
-        rejectUnauthorized: false, // Use true for strict verification
-        ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
-        cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
-        key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
-    },
+    // ssl: {
+    //     rejectUnauthorized: false, // Use true for strict verification
+    //     ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
+    //     cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
+    //     key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
+    // },
 })
 
 
@@ -59,6 +60,7 @@ app.use(express.urlencoded({ extended: true }));
 //routes
 app.use('/api/github', githubRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/validdeployment', deploymentValidationRoutes);
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
@@ -328,7 +330,7 @@ app.get("/api/project/:id", async (req, res) => {
     console.log("arrived id", id);
     try {
         const project = await prisma.project.findUnique({
-            where: { id: id },
+            where: { deployment_id: id },
         });
         if (!project) {
             return res.status(404).json({ error: "Project not found" });
@@ -347,9 +349,11 @@ app.get('/getLogs/:id', async function (req, res) {
     try {
         const id = req.params.id;
 
-        //finder query
+        // Query ClickHouse for logs based on deployment_id
         const logs = await clickHouseClient.query({
-            query: `SELECT event_id, deployment_id, log, created_at from log_events where deployment_id = {deployment_id:String}`,
+            query: `SELECT event_id, deployment_id, log_message, log_level, file_name, file_size, file_size_in_bytes, time_taken, created_at 
+                    FROM log_events 
+                    WHERE deployment_id = {deployment_id:String}`,
             query_params: {
                 deployment_id: id
             },
@@ -358,17 +362,17 @@ app.get('/getLogs/:id', async function (req, res) {
 
         const rawLogs = await logs.json();
 
-        return res.json({ logs: rawLogs });
+        return res.json({ success: true, logs: rawLogs });
 
-    }
-    catch (e) {
-        res.status(401).send({
+    } catch (e) {
+        res.status(500).json({
             success: false,
-            message: 'internal error',
+            message: 'Internal error',
             error: e.message
         });
     }
 });
+
 
 //start worker thread here to hit  our woorker in acitive mode
 startWorkerThreads();

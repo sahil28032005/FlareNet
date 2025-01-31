@@ -7,7 +7,7 @@ require('dotenv').config({ path: '../.env' });
 //cluster/aws configs object
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
-    TASK: 'git_project_cloner_task:6'
+    TASK: 'git_project_cloner_task:7'
 }
 
 //define worker to process jobs
