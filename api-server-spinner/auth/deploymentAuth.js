@@ -2,8 +2,8 @@ const axios = require('axios');
 const { Octokit } = require("@octokit/core"); // Import Octokit
 //use octakit as github officials siuggest that
 const validateReactProject = async (req, res) => {
-    const { owner, repo } = req.query;  // Get repo details from query params
-    const githubToken = req.headers.authorization; // Extract token from headers
+    const { owner, repo } = req.query;
+    const githubToken = req.headers.authorization;
 
     if (!githubToken) {
         return res.status(401).json({ message: "GitHub token is required!" });
@@ -11,40 +11,40 @@ const validateReactProject = async (req, res) => {
     if (!owner || !repo) {
         return res.status(400).json({ message: "Owner and repo are required!" });
     }
+
     try {
         const packageJson = await getPackageJson(owner, repo, githubToken);
-        console.log("packageJson", packageJson);
         if (!packageJson) {
             return res.status(404).json({ message: "package.json not found" });
         }
 
         const isReact = packageJson.dependencies?.react || packageJson.devDependencies?.react;
-        const framework = detectReactFramework(packageJson);
-
         if (!isReact) {
             return res.status(400).json({ message: "This is not a React project!" });
         }
 
-        res.json({ message: "Valid React project", framework });
+        const { framework, buildCommand } = detectReactFramework(packageJson);
+        res.json({ message: "Valid React project", framework, buildCommand });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
 
-}
 //detect as subSection of which type of react project is this vie/next/create-react/etc.
 const detectReactFramework = (packageJson) => {
     if (packageJson.dependencies?.vite || packageJson.devDependencies?.vite) {
-        return "vite";
+        return { framework: "Vite", buildCommand: "npm run build" };
     } else if (packageJson.dependencies?.["react-scripts"]) {
-        return "create-react-app";
+        return { framework: "Create React App", buildCommand: "npm run build" };
     } else if (packageJson.dependencies?.next) {
-        return "next.js";
+        return { framework: "Next.js", buildCommand: "npm run build" };
     } else if (packageJson.dependencies?.gatsby) {
-        return "gatsby";
+        return { framework: "Gatsby", buildCommand: "npm run build" };
     } else {
-        return "unknown";
+        return { framework: "Unknown", buildCommand: "npm run build" };
     }
 };
+
 
 //helper methodsfo github api and shnnc with auth tookens
 const getPackageJson = async (owner, repo, githubToken) => {

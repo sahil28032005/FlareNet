@@ -330,14 +330,14 @@ app.get("/api/project/:id", async (req, res) => {
     console.log("arrived id", id);
     try {
         const project = await prisma.project.findUnique({
-            where: { deployment_id: id },
+            where: { id: id },
         });
         if (!project) {
             return res.status(404).json({ error: "Project not found" });
         }
         res.json(project);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch project" });
+        return res.status(500).json({ error: 'Failed to fetch project' ,'msg': error.message});
     }
 });
 

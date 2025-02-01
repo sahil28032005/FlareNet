@@ -13,8 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import NavBar from "../NavBar";
 import Footer from "../Footer";
+import axios from "axios";
 
 import "./DeployForm.css";
+
+//we are coming on the basis of project id on this page
 
 const DeployForm = () => {
     const navigate = useNavigate();
@@ -25,6 +28,10 @@ const DeployForm = () => {
     const [envVariables, setEnvVariables] = useState([{ key: "", value: "" }]);
     const [framework, setFramework] = useState("");
     const [autoDeploy, setAutoDeploy] = useState(false); //state for toggle which takee decision about webhook state
+    const [isReactProject, setIsReactProject] = useState(false);
+    const [validationError, setValidationError] = useState("");
+    const [detectedFramework, setDetectedFramework] = useState("");
+    const [customBuildCommand, setCustomBuildCommand] = useState(detectedFramework.buildCommand);
 
     const handleAddEnvVariable = () => {
         setEnvVariables([...envVariables, { key: "", value: "" }]);
@@ -45,6 +52,53 @@ const DeployForm = () => {
         setAutoDeploy(!autoDeploy);
     };
 
+    //function to validate react project
+    const fetchProjectDetails = async () => {
+        try {
+            if (!gitUrl) return;
+
+            // Extract owner and repo from Git URL
+            const urlParts = gitUrl.split('/');
+            const owner = urlParts[urlParts.length - 2];
+            const repo = urlParts[urlParts.length - 1].replace('.git', '');
+
+            //get token from database
+            const githubToken = localStorage.getItem('github_token');
+            if (!githubToken) {
+                throw new Error('GitHub token not found in localStorage');
+            }
+
+            //call api to validate react project
+            const response = await axios.get("http://localhost:5000/api/validdeployment/validate-react", {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${githubToken}`
+                },
+                params: {
+                    owner,
+                    repo
+                }
+            });
+
+            if (response.data.message === "Valid React project") {
+                setIsReactProject(true);
+                setDetectedFramework(response.data.framework);
+                setValidationError("");
+            } else {
+                setIsReactProject(false);
+                setValidationError(response.data.message);
+            }
+        }
+        catch (error) {
+            console.error("Error validating project:", error);
+            setValidationError("Error validating project. Please check the Git URL and token.", error.message);
+        }
+
+    }
+    // useEffect to validate project when Git URL changes
+    useEffect(() => {
+        fetchProjectDetails();
+    }, [gitUrl]);
 
     //main deployer function
     const handleSubmit = async (e) => {
@@ -121,7 +175,6 @@ const DeployForm = () => {
 
     return (
         <>
-            <NavBar />
             <div
                 style={{
                     width: "100vw",
@@ -150,6 +203,25 @@ const DeployForm = () => {
                         Deploy Your Project
                     </h2>
                     <form onSubmit={handleSubmit}>
+                        {/* Validation Status Section */}
+                        <div className="mb-6">
+                            {validationError && (
+                                <div className="text-red-500 mb-4">{validationError}</div>
+                            )}
+                            {isReactProject && (
+                                <div className="text-green-500 mb-4">
+                                    <p>✅ Valid React Project - Detected Framework: {detectedFramework.framework}</p>
+                                    <label className="block mt-2 font-semibold">Build Command:</label>
+                                    <input
+                                        type="text"
+                                        className="border p-2 rounded w-full text-black"
+                                        value={customBuildCommand}
+                                        onChange={(e) => setCustomBuildCommand(e.target.value)}
+                                    />
+                                </div>
+
+                            )}
+                        </div>
                         <div className="mb-6">
                             <Label htmlFor="git-url" className="text-sm font-semibold">
                                 Git Repository URL
@@ -257,9 +329,11 @@ const DeployForm = () => {
                         <Button
                             type="submit"
                             className="w-full bg-yellow-500 text-black hover:bg-yellow-600"
+                            disabled={!isReactProject} // Disable button if not a React project
                         >
                             Deploy
                         </Button>
+
                     </form>
                 </div>
             </div>
