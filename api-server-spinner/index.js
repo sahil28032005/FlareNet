@@ -261,6 +261,12 @@ app.get("/projects/:ownerId", async function (req, res) {
 app.post('/deploy', async (req, res) => {
     //all is dependent on just projectId
     try {
+
+        //seperate schema for env vars sent through cutom deployment env form fields
+        const envVariablesSchema = z.array(z.object({
+            key: z.string().min(1, "Key is required"),
+            value: z.string().min(1, "Value is required")
+        }));
         //make zod schema for deployment validation
         const deploymentSchema = z.object({
             projectId: z.string().uuid("Invalid project ID"),  // Ensure it matches UUID format
@@ -269,12 +275,20 @@ app.post('/deploy', async (req, res) => {
             version: z.string().optional(),  // Optional version or tag
             autoDeploy: z.boolean().optional().default(false),  // Auto-deploy feature
             buildCommand: z.string().min(1, "Build command is required").optional(), // Ensure buildCommand is a non-empty string if provided
+            envVariables: envVariablesSchema.optional(), //optinam env vars
         });
 
 
         // Step 1: Validate input
         const validatedData = deploymentSchema.parse(req.body);
-
+        //extract env variables from validated data
+        const { envVariables } = validatedData;  // Extract envVariables from the validated data
+        // Prepare the environment variables in the correct format for Docker container
+        // Prepare ECS environment variables in the correct format
+        const envVars = envVariables ? envVariables.map(({ key, value }) => ({
+            name: key,
+            value
+        })) : [];
         //generate url if user provided custom uri handle logic for it otherwiswe make use of default name
         const generatedUri = validatedData.url || `http://${validatedData.projectId}.localhost:9000`;
 
@@ -312,7 +326,7 @@ app.post('/deploy', async (req, res) => {
         console.log("deployment added in prisma for deployment id", newDeployment.id);
         //here add job to the deployment queue inseted of deploying it directly
         await buildQueue.add('deploy', {
-            deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0", buildCommand: validatedData.buildCommand || "npm run build"
+            deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0", buildCommand: validatedData.buildCommand || "npm run build", envVars,
         });
         console.log("Job added to queue with build command:", validatedData.buildCommand);
 

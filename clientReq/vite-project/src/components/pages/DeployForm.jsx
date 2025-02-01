@@ -31,8 +31,14 @@ const DeployForm = () => {
     const [isReactProject, setIsReactProject] = useState(false);
     const [validationError, setValidationError] = useState("");
     const [detectedFramework, setDetectedFramework] = useState("");
-    const [customBuildCommand, setCustomBuildCommand] = useState(detectedFramework.buildCommand);
+    const [customBuildCommand, setCustomBuildCommand] = useState("");
 
+
+    useEffect(() => {
+        if (detectedFramework.buildCommand) {
+            setCustomBuildCommand(detectedFramework.buildCommand);
+        }
+    }, [detectedFramework]);
     const handleAddEnvVariable = () => {
         setEnvVariables([...envVariables, { key: "", value: "" }]);
     };
@@ -58,9 +64,10 @@ const DeployForm = () => {
             if (!gitUrl) return;
 
             // Extract owner and repo from Git URL
-            const urlParts = gitUrl.split('/');
-            const owner = urlParts[urlParts.length - 2];
-            const repo = urlParts[urlParts.length - 1].replace('.git', '');
+            const match = gitUrl.match(/github\.com\/([^/]+)\/([^/.]+)(?:\.git)?/);
+            const owner = match ? match[1] : null;
+            const repo = match ? match[2] : null;
+
 
             //get token from database
             const githubToken = localStorage.getItem('github_token');
@@ -110,15 +117,15 @@ const DeployForm = () => {
             return;
         }
 
-       // Prepare the request body
-    const requestBody = {
-        projectId: id,
-        gitUrl,
-        framework,
-        autoDeploy,
-        envVariables,
-        buildCommand: customBuildCommand,  // Send the build command
-    };
+        // Prepare the request body
+        const requestBody = {
+            projectId: id,
+            gitUrl,
+            framework,
+            autoDeploy,
+            envVariables,
+            buildCommand: customBuildCommand,  // Send the build command
+        };
 
         try {
             // Make the POST request to deploy the project
