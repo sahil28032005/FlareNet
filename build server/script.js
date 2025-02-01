@@ -72,6 +72,19 @@ async function publishLog(log, producer, logLevel = 'info', fileDetails = {}) {
     });
 }
 
+//helper function to detect output dir
+function detectBuildFolder(projectDir) {
+    const possibleFolders = ['build', 'dist', '.next', 'out', 'public']; // Common build folders
+    for (const folder of possibleFolders) {
+        const fullPath = path.join(projectDir, folder);
+        if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isDirectory()) {
+            return fullPath;
+        }
+    }
+    return null; // No build folder found
+}
+
+
 
 // Main function
 async function init() {
@@ -84,7 +97,7 @@ async function init() {
 
     const kafka = new Kafka({
         clientId: `docker-build-server-${DEPLOYMENT_ID}`,
-        brokers: [`${ process.env.KAFKA_BROKER}`],
+        brokers: [`${process.env.KAFKA_BROKER}`],
     });
     // Kafka producer setup
     const producer = kafka.producer();
@@ -96,9 +109,12 @@ async function init() {
     publishLog('Build Started...', producer, 'info');
 
     const projectDir = path.join(__dirname, 'output');
-
+    // Get build command from environment variable
+    const buildCommand = process.env.BUILD_COMMAND || 'npm install && npm run build'; // Default if not set
+    console.log(`Executing build command: ${buildCommand}`);
+    publishLog(`Executing build command: ${buildCommand}`, producer, 'info');
     // Create process instance
-    const processInstance = exec(`cd ${projectDir} && npm install && npm run build`);
+    const processInstance = exec(`cd ${projectDir} && ${buildCommand}`);
 
     processInstance.on('data', function (data) {
         console.log(data.toString());
@@ -115,8 +131,16 @@ async function init() {
         publishLog('Build Complete', producer, 'success');
 
         // Upload built files to S3
-        const distFolderPath = path.join(__dirname, 'output', 'dist');
-        const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true });
+        const buildFolder =  detectBuildFolder(projectDir);
+        if (!buildFolder) {
+            console.error("Error: No valid build folder detected.");
+            publishLog("Error: No valid build folder detected.", producer, 'error');
+            process.exit(1);
+        }
+        console.log(`Detected build folder: ${buildFolder}`);
+        publishLog(`Detected build folder: ${buildFolder}`, producer, 'info');
+
+        const distFolderContents = fs.readdirSync(buildFolder, { recursive: true });
 
         publishLog('Starting to upload files...', producer, 'info');
 

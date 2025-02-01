@@ -12,7 +12,7 @@ const config = {
 
 //define worker to process jobs
 const deploymentWorker = new Worker('buildQueue', async (job) => {
-    const { deploymentId, projectId, environment="DEVELOPMENT", gitUrl, version="v1.0.0" } = job.data;
+    const { deploymentId, projectId, environment = "DEVELOPMENT", gitUrl, version = "v1.0.0", buildCommand } = job.data;
     try {
         console.log(`Worker is Processing deployment for ${projectId} - Deployment ID: ${deploymentId}`);
         //mark deployment status as active in  prisma database
@@ -42,6 +42,7 @@ const deploymentWorker = new Worker('buildQueue', async (job) => {
                             { name: 'GIT_REPOSITORY__URL', value: gitUrl },
                             { name: 'PROJECT_ID', value: projectId },
                             { name: 'DEPLOYMENT_ID', value: deploymentId },
+                            { name: 'BUILD_COMMAND', value: buildCommand || "npm run build" } // Send build command
                         ]
                     }
                 ]

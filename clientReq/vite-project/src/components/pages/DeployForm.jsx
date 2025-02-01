@@ -110,11 +110,15 @@ const DeployForm = () => {
             return;
         }
 
-        // Prepare the request body
-        const requestBody = {
-            projectId: id,
-            autoDeploy, // Include the autoDeploy state here
-        };
+       // Prepare the request body
+    const requestBody = {
+        projectId: id,
+        gitUrl,
+        framework,
+        autoDeploy,
+        envVariables,
+        buildCommand: customBuildCommand,  // Send the build command
+    };
 
         try {
             // Make the POST request to deploy the project

@@ -263,12 +263,14 @@ app.post('/deploy', async (req, res) => {
     try {
         //make zod schema for deployment validation
         const deploymentSchema = z.object({
-            projectId: z.string().uuid("Invalid project ID"), // Ensure it matches UUID format
-            environment: z.enum(["DEV", "STAGING", "PROD"], "Invalid environment").default("STAGING"),
+            projectId: z.string().uuid("Invalid project ID"),  // Ensure it matches UUID format
+            environment: z.enum(["DEV", "STAGING", "PROD"], { message: "Invalid environment" }).default("STAGING"),
             status: z.enum(["INACTIVE", "ACTIVE", "FAILED"]).optional().default("INACTIVE"),
-            version: z.string().optional(), // Optional version or tag
-            autoDeploy: z.boolean().optional().default(false), // Add autoDeploy to the schema
+            version: z.string().optional(),  // Optional version or tag
+            autoDeploy: z.boolean().optional().default(false),  // Auto-deploy feature
+            buildCommand: z.string().min(1, "Build command is required").optional(), // Ensure buildCommand is a non-empty string if provided
         });
+
 
         // Step 1: Validate input
         const validatedData = deploymentSchema.parse(req.body);
@@ -309,8 +311,10 @@ app.post('/deploy', async (req, res) => {
         });
         console.log("deployment added in prisma for deployment id", newDeployment.id);
         //here add job to the deployment queue inseted of deploying it directly
-        await buildQueue.add('deploy', { deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0" });
-        console.log("job added in queue");
+        await buildQueue.add('deploy', {
+            deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0", buildCommand: validatedData.buildCommand || "npm run build"
+        });
+        console.log("Job added to queue with build command:", validatedData.buildCommand);
 
         return res.json({ status: 'queued', data: { deploymentId: newDeployment.id, domain: newDeployment.url } })
 
@@ -337,7 +341,7 @@ app.get("/api/project/:id", async (req, res) => {
         }
         res.json(project);
     } catch (error) {
-        return res.status(500).json({ error: 'Failed to fetch project' ,'msg': error.message});
+        return res.status(500).json({ error: 'Failed to fetch project', 'msg': error.message });
     }
 });
 
