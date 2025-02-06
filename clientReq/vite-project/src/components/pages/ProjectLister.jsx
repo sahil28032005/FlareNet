@@ -35,7 +35,7 @@ const ProjectLister = () => {
 
     return (
         <>
-            <NavBar />
+            {/* <NavBar /> */}
             <div className="project-lister-page">
                 <motion.header
                     className="page-header"

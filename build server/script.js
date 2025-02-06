@@ -77,6 +77,8 @@ function detectBuildFolder(projectDir) {
     const possibleFolders = ['build', 'dist', '.next', 'out', 'public']; // Common build folders
     for (const folder of possibleFolders) {
         const fullPath = path.join(projectDir, folder);
+        console.log('Checking folder:', fullPath);
+        
         if (fs.existsSync(fullPath) && fs.lstatSync(fullPath).isDirectory()) {
             return fullPath;
         }
@@ -88,13 +90,6 @@ function detectBuildFolder(projectDir) {
 
 // Main function
 async function init() {
-    // Initialize Kafka with the correct broker information
-    // const kafkaBroker = await getKafkaBroker();
-    // if (!kafkaBroker) {
-    //     console.error('Kafka broker information not found!');
-    //     return;
-    // }
-
     const kafka = new Kafka({
         clientId: `docker-build-server-${DEPLOYMENT_ID}`,
         brokers: [`${process.env.KAFKA_BROKER}`],
@@ -129,9 +124,11 @@ async function init() {
     processInstance.on('close', async function () {
         console.log("Build completed successfully!");
         publishLog('Build Complete', producer, 'success');
-
+        // List the contents of the projectDir for debugging
+        const filesInProjectDir = fs.readdirSync(projectDir);
+        console.log('Contents of projectDir:', filesInProjectDir);
         // Upload built files to S3
-        const buildFolder =  detectBuildFolder(projectDir);
+        const buildFolder = detectBuildFolder(projectDir);
         if (!buildFolder) {
             console.error("Error: No valid build folder detected.");
             publishLog("Error: No valid build folder detected.", producer, 'error');
@@ -145,7 +142,7 @@ async function init() {
         publishLog('Starting to upload files...', producer, 'info');
 
         for (const file of distFolderContents) {
-            const filePath = path.join(distFolderPath, file);
+            const filePath = path.join(buildFolder, file);
             if (fs.lstatSync(filePath).isDirectory()) continue;
             const fileSize = fs.statSync(filePath).size;
             const readableFileSize = formatFileSize(fileSize);

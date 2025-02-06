@@ -261,12 +261,6 @@ app.get("/projects/:ownerId", async function (req, res) {
 app.post('/deploy', async (req, res) => {
     //all is dependent on just projectId
     try {
-
-        //seperate schema for env vars sent through cutom deployment env form fields
-        const envVariablesSchema = z.array(z.object({
-            key: z.string().min(1, "Key is required"),
-            value: z.string().min(1, "Value is required")
-        }));
         //make zod schema for deployment validation
         const deploymentSchema = z.object({
             projectId: z.string().uuid("Invalid project ID"),  // Ensure it matches UUID format
@@ -274,13 +268,22 @@ app.post('/deploy', async (req, res) => {
             status: z.enum(["INACTIVE", "ACTIVE", "FAILED"]).optional().default("INACTIVE"),
             version: z.string().optional(),  // Optional version or tag
             autoDeploy: z.boolean().optional().default(false),  // Auto-deploy feature
-            buildCommand: z.string().min(1, "Build command is required").optional(), // Ensure buildCommand is a non-empty string if provided
-            envVariables: envVariablesSchema.optional(), //optinam env vars
+            buildCommand: z.string().min(1, "Build command is required").optional().or(z.literal("")), // Allow empty string
+            envVariables: z.array(z.object({
+                key: z.string().min(1, "Key is required"),
+                value: z.string().min(1, "Value is required")
+            })).optional().default([]), // Default empty array if not provided
         });
 
 
         // Step 1: Validate input
+        // Remove empty env vars before validation
+        if (req.body.envVariables) {
+            req.body.envVariables = req.body.envVariables.filter(env => env.key.trim() !== "" && env.value.trim() !== "");
+        }
+
         const validatedData = deploymentSchema.parse(req.body);
+
         //extract env variables from validated data
         const { envVariables } = validatedData;  // Extract envVariables from the validated data
         // Prepare the environment variables in the correct format for Docker container
@@ -326,7 +329,8 @@ app.post('/deploy', async (req, res) => {
         console.log("deployment added in prisma for deployment id", newDeployment.id);
         //here add job to the deployment queue inseted of deploying it directly
         await buildQueue.add('deploy', {
-            deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0", buildCommand: validatedData.buildCommand || "npm run build", envVars,
+            deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0", buildCommand: validatedData.buildCommand && validatedData.buildCommand.trim() !== "" ? validatedData.buildCommand : "npm install && npm run build",
+            envVars: validatedData.envVariables?.length ? validatedData.envVariables : [],
         });
         console.log("Job added to queue with build command:", validatedData.buildCommand);
 
@@ -369,7 +373,7 @@ app.get('/getLogs/:id', async function (req, res) {
 
         // Query ClickHouse for logs based on deployment_id
         const logs = await clickHouseClient.query({
-            query: `SELECT event_id, deployment_id, log_message, log_level, file_name, file_size, file_size_in_bytes, time_taken, created_at 
+            query: `SELECT event_id, deployment_id, log_message, log_level, file_name, file_size, file_size_in_bytes, time_taken, timestamp  
                     FROM log_events 
                     WHERE deployment_id = {deployment_id:String}`,
             query_params: {

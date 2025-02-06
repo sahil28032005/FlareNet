@@ -7,7 +7,7 @@ require('dotenv').config({ path: '../.env' });
 //cluster/aws configs object
 const config = {
     CLUSTER: process.env.AWS_CLUSTER_NAME,
-    TASK: 'git_project_cloner_task:7'
+    TASK: 'git_project_cloner_task:15'
 }
 
 //define worker to process jobs
@@ -39,10 +39,10 @@ const deploymentWorker = new Worker('buildQueue', async (job) => {
                     {
                         name: 'task_cloner_image',
                         environment: [
-                            { name: 'GIT_REPOSITORY__URL', value: gitUrl },
+                            { name: 'GIT_URI', value: gitUrl },
                             { name: 'PROJECT_ID', value: projectId },
                             { name: 'DEPLOYMENT_ID', value: deploymentId },
-                            { name: 'BUILD_COMMAND', value: buildCommand || "npm run build" }, // Send build command
+                            { name: 'BUILD_COMMAND', value: buildCommand || "npm install && npm run build" }, // Send build command
                             ...envVars // Add custom environment variables her
                         ]
                     }
