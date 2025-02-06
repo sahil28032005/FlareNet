@@ -6,7 +6,7 @@
 [![Kafka](https://img.shields.io/badge/Apache-Kafka-231F20)](https://kafka.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
-![FlareNet Banner](media/thumbnail.png) <!-- Add your platform visual here -->
+![FlareNet Banner](Media/thumbnail.PNG) <!-- Add your platform visual here -->
 
 ## 🌟 Features  
 **Enterprise-Grade Deployment Infrastructure**
