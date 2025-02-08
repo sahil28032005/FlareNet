@@ -17,6 +17,7 @@ const { client } = require('./utils/awsClient');
 const { version } = require('os');
 const githubRoutes = require('./routes/githubRoutes');
 const authRoutes = require('./routes/autthRoutes');
+const chatbotRoutes = require("./routes/chatBotRoutes");
 const deploymentValidationRoutes = require('./routes/deploymentValidationRoutes');
 const { Worker: ThreadWorker } = require('worker_threads');
 
@@ -61,6 +62,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/github', githubRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/validdeployment', deploymentValidationRoutes);
+
+//chatBot rouutes
+app.use('/api/llm', chatbotRoutes);
 async function main() {
     // Log to indicate the connection attempt
     console.log('Attempting to connect to the database...');
