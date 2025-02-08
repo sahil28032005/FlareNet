@@ -399,3 +399,6 @@ app.get('/getLogs/:id', async function (req, res) {
 //start worker thread here to hit  our woorker in acitive mode
 startWorkerThreads();
 app.listen(PORT, () => console.log(`API Server Running..${PORT}`));
+
+//exporting app
+module.exports = app;  // Export the app for testing purposes
