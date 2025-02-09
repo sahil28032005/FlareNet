@@ -26,15 +26,15 @@ app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
 
 const PORT = 5000;
 
-const clickHouseClient = createClient({
-    host: process.env.CH_HOST,
-    database: process.env.CH_DB,
-    protocol: 'http',
-    compression: true,
-    timeout: 10000, // Timeout in milliseconds
-    username: process.env.CH_USERNAME,
-    password: process.env.CH_PASSWORD
-});
+// const clickHouseClient = createClient({
+//     host: process.env.CH_HOST,
+//     database: process.env.CH_DB,
+//     protocol: 'http',
+//     compression: true,
+//     timeout: 10000, // Timeout in milliseconds
+//     username: process.env.CH_USERNAME,
+//     password: process.env.CH_PASSWORD
+// });
 
 
 
@@ -367,8 +367,8 @@ app.get("/api/project/:id", async (req, res) => {
     }
 });
 
-
-logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
+//stopped temprorily 
+// logsConsumer(); //this will display logs that are received by consumer and going to store in clickhouse
 
 //for getting logs using deployment id
 app.get('/getLogs/:id', async function (req, res) {

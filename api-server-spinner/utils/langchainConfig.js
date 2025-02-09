@@ -21,7 +21,7 @@ const memory = new BufferMemory({
 module.exports = {
     llm,
     memory,
-    createAgent: createAdvancedAgent(llm, memory)
+    createAgent:createAdvancedAgent
 };
 
 
