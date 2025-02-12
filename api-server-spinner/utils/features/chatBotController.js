@@ -1,5 +1,8 @@
 const { llm, memory } = require("../langchainConfig");
 const { createAgent } = require("../langchainConfig");
+const { runDeploymentWorkflow } = require("./langGraphController");
+
+//in this file before creating deployment verifit user has necessary permsiions to create deployments and halt user heree itself instde of going further setup
 
 const chatbotController = async (req, res) => {
     try {
@@ -10,24 +13,35 @@ const chatbotController = async (req, res) => {
         const prevChatHistory = await memory.loadMemoryVariables({});
         console.log("Chat History Before:", prevChatHistory);
 
-        console.log("creating agent");
+        console.log("🔍 Creating LLM Agent...");
         const agent = await createAgent(llm, memory);
         console.log("agent created", agent);
+
+        console.log("🧠 Processing User Input...");
         const result = await agent.invoke({
-            input: message,
-            // userContext: {
-            //     projects: user.projects,
-            //     permissions: user.accessLevel
-            // }
+            input: message,  // Process user message
         });
-        
+
+        console.log("💬 LLM Response:", result.output);
+
+        // return;
         // Load memory after message processing
         const updatedChatHistory = await memory.loadMemoryVariables({});
         console.log("Chat History After:", updatedChatHistory);
 
+        // Simulate user permissions (fetch from DB in real case)
+        const user = { id: userId, hasDeploymentAccess: true };
+
+        console.log("going to workflow....");
+        // Run the LangGraph Workflow with LLM response
+        const workflowResult = await runDeploymentWorkflow(user, result.output);
+
+        console.log("sorkflow executed successfully...");
+
         res.json({
-            reply: result.output,
-            actions: result.intermediateSteps
+            reply: `Deployment ${workflowResult.deployment_status}`,
+            chatHistory: workflowResult.chat_history,
+            aiReply: result.output
         });
 
     } catch (error) {

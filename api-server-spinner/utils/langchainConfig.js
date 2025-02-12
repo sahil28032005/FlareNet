@@ -1,7 +1,7 @@
 require('dotenv').config({ path: '../.env' });
 const { ChatGroq } = require("@langchain/groq");
 const { createAdvancedAgent } = require("../services/llm/agent.service");
-const { BufferMemory } = require("langchain/memory");
+const { BufferMemory } = require("langchain/memory");// Import MemorySaver
 
 console.log(process.env.GROQ_API_KEY);
 //llm configuration
@@ -17,6 +17,7 @@ const memory = new BufferMemory({
     inputKey: "input",
     outputKey: "output",
 });
+
 
 module.exports = {
     llm,

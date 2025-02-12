@@ -3,6 +3,7 @@ const { ChatPromptTemplate, MessagesPlaceholder } = require("@langchain/core/pro
 const { createOpenAIFunctionsAgent, AgentExecutor } = require("langchain/agents");
 const { deploymentTool } = require("../chat/tools/deployment.tool");
 
+let agentExecutor; // Store agentExecutor for reuse
 const createAdvancedAgent = async (llm, memory) => {
     if (!llm || !memory) {
         throw new Error("LLM or Memory is not properly initialized.");
@@ -20,20 +21,22 @@ const createAdvancedAgent = async (llm, memory) => {
         ["human", "{input}"],
         new MessagesPlaceholder("agent_scratchpad"),
     ]);
-
-    // Create agent using the new OpenAI function-based approach
+    
     const agent = await createOpenAIFunctionsAgent({
         llm,
         tools,
         prompt,
     });
 
-    return new AgentExecutor({
+    // Create agent using the new OpenAI function-based approach
+    agentExecutor = new AgentExecutor({
         agent,
         tools,
         memory,
         returnIntermediateSteps: true,
     });
+
+    return agentExecutor;
 };
 
 module.exports = { createAdvancedAgent };
