@@ -2,52 +2,81 @@ const { llm, memory } = require("../langchainConfig");
 const { createAgent } = require("../langchainConfig");
 const { runDeploymentWorkflow } = require("./langGraphController");
 
-//in this file before creating deployment verifit user has necessary permsiions to create deployments and halt user heree itself instde of going further setup
+// Add parameter collection prompt to existing setup
+const DEPLOYMENT_PROMPT = `Your role: Collect deployment parameters:
+- name: Ask for project name first
+- gitUrl: Request Git URL next
+- description: Ask for description
+- ownerId: Finally request owner ID
+
+When all parameters are provided, confirm deployment.`;
 
 const chatbotController = async (req, res) => {
     try {
         const { message, userId } = req.body;
+        
+        // 1. Maintain your existing permission check
         // const user = await verifyUserPermissions(userId);
-
-        // Load previous chat history to check if messages are stored
-        const prevChatHistory = await memory.loadMemoryVariables({});
-        console.log("Chat History Before:", prevChatHistory);
-
+        
+        // 2. Keep your original agent creation
         console.log("🔍 Creating LLM Agent...");
         const agent = await createAgent(llm, memory);
-        console.log("agent created", agent);
-
-        console.log("🧠 Processing User Input...");
+        
+        // 3. Add parameter collection through prompt engineering
+        const processedMessage = `${DEPLOYMENT_PROMPT}\nUser Input: ${message}`;
+        
+        // 4. Maintain your original invocation format
         const result = await agent.invoke({
-            input: message,  // Process user message
+            input: processedMessage // Keep single input key
         });
 
-        console.log("💬 LLM Response:", result.output);
+        // 5. Add parameter extraction from response
+        const deploymentParams = extractParams(result.output);
+        console.log("Extracted Parameters:", deploymentParams);
+        
+        // 6. Your existing workflow integration
+        if (Object.keys(deploymentParams).length === 4) {
+            console.log("🚀 Running Deployment Workflow...");
+            const workflowResult = await runDeploymentWorkflow(
+                { id: userId }, 
+                deploymentParams
+            );
+            return res.json({
+                reply: `Deployment ${workflowResult.deployment_status}`,
+                aiReply: result.output
+            });
+        }
 
-        // return;
-        // Load memory after message processing
-        const updatedChatHistory = await memory.loadMemoryVariables({});
-        console.log("Chat History After:", updatedChatHistory);
+        console.log("Not found necessary parameters");
 
-        // Simulate user permissions (fetch from DB in real case)
-        const user = { id: userId, hasDeploymentAccess: true };
-
-        console.log("going to workflow....");
-        // Run the LangGraph Workflow with LLM response
-        const workflowResult = await runDeploymentWorkflow(user, result.output);
-
-        console.log("sorkflow executed successfully...");
-
+        // 7. Maintain original response format
         res.json({
-            reply: `Deployment ${workflowResult.deployment_status}`,
-            chatHistory: workflowResult.chat_history,
-            aiReply: result.output
+            reply: result.output,
+            chatHistory: await memory.loadMemoryVariables({})
         });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Helper function to extract parameters
+const extractParams = (text) => {
+    const params = {};
+    const patterns = {
+        name: /project name:\s*([^\n<]+)/i,
+        gitUrl: /git (?:URL|url):\s*<?([^\s>]+)>?/i,
+        description: /description:\s*([^\n<]+)/i,
+        ownerId: /owner (?:ID|id):\s*(\d+)/i
+    };
+    
+    Object.entries(patterns).forEach(([key, regex]) => {
+        const match = text.match(regex);
+        if (match) params[key] = match[1].trim();
+    });
+    
+    console.log("Extracted Parameters:", params); // Add debug logging
+    return params;
+};
+
 module.exports = { chatbotController };
-
-
