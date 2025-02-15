@@ -35,11 +35,15 @@ const chatbotController = async (req, res) => {
         console.log("Extracted Parameters:", deploymentParams);
         
         // 6. Your existing workflow integration
-        if (Object.keys(deploymentParams).length === 4) {
+        if (1) {
             console.log("🚀 Running Deployment Workflow...");
             const workflowResult = await runDeploymentWorkflow(
-                { id: userId }, 
-                deploymentParams
+                { id: 1 }, 
+                {
+                  name: 'test',
+                  gitUrl: 'https://github.com/valid/repo',
+                  ownerId: '123'
+                }
             );
             return res.json({
                 reply: `Deployment ${workflowResult.deployment_status}`,
@@ -65,7 +69,7 @@ const extractParams = (text) => {
     const params = {};
     const patterns = {
         name: /project name:\s*([^\n<]+)/i,
-        gitUrl: /git (?:URL|url):\s*<?([^\s>]+)>?/i,
+        gitUrl:/git\s*(?:URL|url):\s*<?\s*(https?:\/\/(?:www\.)?github\.com\/[^\s\/>]+\/[^\s\/>]+(?:\.git)?)\/*>\s*>?/i,
         description: /description:\s*([^\n<]+)/i,
         ownerId: /owner (?:ID|id):\s*(\d+)/i
     };

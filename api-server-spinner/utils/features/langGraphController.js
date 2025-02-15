@@ -1,105 +1,87 @@
-const { StateGraph } = require("@langchain/langgraph");
+const { StateGraph, MessagesAnnotation } = require("@langchain/langgraph");
 const { createAgent, llm, memory } = require("../langchainConfig");
+const { HumanMessage } = require("@langchain/core/messages");
 const axios = require("axios");
-// const { Queue } = require("bullmq");
 
 
-
-// Define State Schema
-const workflowState = {
-  messages: {
-    value: (x) => x || [],
-    merge: (a, b) => [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])],
-    default: () => [],
-  },
-  deployment_status: {
-    value: (x) => x || "pending",
-    default: () => "pending",
-  },
-  projectId: {
-    value: (x) => x,
-    default: () => null,
-  },
-  gitUri: {
-    value: (x) => x,
-    default: () => null,
-  },
-  error: {
-    value: (x) => x || null,
-    default: () => null,
-  },
-};
-
-// Process User Message and Extract Git URL
 const processMessage = async (state) => {
-  console.log("Full state:", JSON.stringify(state, null, 2)); // Better debugging
-  const rawContent = state.messages[0]?.content;
-  console.log("Raw content:", rawContent);
-  // Try to parse as JSON first
-  let params = {};
   try {
-    const jsonMatch = rawContent.match(/{.*}/s);
-    if (jsonMatch) {
-      params = JSON.parse(jsonMatch[0]);
+    // Stringify state for debugging
+    const stringifiedState = JSON.stringify(state, null, 2);
+    console.log("DEBUG: Process Message - Stringified State:", stringifiedState);
+
+    // Parse the stringified state back to an object
+    const parsedState = JSON.parse(stringifiedState);
+
+    // Ensure messages exist in parsed state
+    if (
+      !parsedState.messages ||
+      !Array.isArray(parsedState.messages) ||
+      parsedState.messages.length === 0
+    ) {
+      throw new Error("Invalid state: messages array missing or empty.");
     }
-  } catch (e) {
-    // If JSON parsing fails, fall back to regex extraction
-    params = {
-      name: messageContent.match(/(?:name|project name):\s*["']?([^"'\n]+)/i)?.[1]?.trim(),
-      gitUrl: messageContent.match(/(?:gitUrl|git URI|repository):\s*<?([^\s>]+)>?/i)?.[1]?.trim(),
-      description: messageContent.match(/(?:description):\s*["']?([^"'\n]+)/i)?.[1]?.trim(),
-      ownerId: messageContent.match(/(?:ownerId|owner ID):\s*["']?(\d+)/i)?.[1]?.trim()
-    };
-  }
 
-  console.log("Extracted Parameters:", params);
+    console.log(
+      "Actual first message:",
+      JSON.stringify(parsedState.messages[0], null, 2)
+    );
 
-  // Validate required parameters
-  const errors = [];
-  if (!params.gitUrl) errors.push("Git URL is required");
-  if (!params.name) errors.push("Project name is required");
-  if (!params.ownerId) errors.push("Owner ID is required");
+    // Find the first message that contains required params (checking from parsed object)
+    const messageWithParams = parsedState.messages.find(
+      (msg) =>
+        JSON.stringify(msg).includes('"kwargs"') &&
+        JSON.stringify(msg).includes('"params"') &&
+        JSON.stringify(msg).includes('"gitUrl"') &&
+        JSON.stringify(msg).includes('"ownerId"') &&
+        JSON.stringify(msg).includes('"name"') &&
+        msg.kwargs &&
+        msg.kwargs.params &&
+        msg.kwargs.params.gitUrl &&
+        msg.kwargs.params.ownerId &&
+        msg.kwargs.params.name
+    );
 
-  if (errors.length > 0) {
-    console.error("Validation errors:", errors);
-    return { ...state, error: errors.join(", ") };
-  }
+    console.log(
+      "Filtered message with required params:",
+      JSON.stringify(messageWithParams, null, 2)
+    );
 
-  try {
-    const response = await axios.post("http://localhost:5000/projects", {
-      name: params.name,
-      gitUrl: params.gitUrl,
-      description: params.description || "No description provided",
-      ownerId: params.ownerId
-    });
-
-    if (!response.data.success) {
-      console.error("Project creation failed:", response.data);
-      return { ...state, error: "Failed to create project" };
+    if (!messageWithParams) {
+      throw new Error("Missing required parameters (gitUrl, ownerId, name).");
     }
-    else{
-      console.log("Project created successfully:", response.data);
-    }
+
+    // Extract necessary fields
+    const { gitUrl, ownerId, name } = messageWithParams.kwargs.params;
+
+    console.log("Extracted gitUrl:", gitUrl);
+    console.log("Extracted ownerId:", ownerId);
+    console.log("Extracted Project Name:", name);
 
     return {
-      ...state,
-      gitUri: params.gitUrl,  // Maintain consistent naming
-      projectId: response.data.projectId,
-      name: params.name,
-      ownerId: params.ownerId
+      ...parsedState,
+      gitUrl,
+      ownerId,
+      name,
+      validated: true, // Indicate successful validation
     };
-
   } catch (error) {
-    console.error("API request failed:", error.message);
-    return { ...state, error: "Server error during project creation" };
+    console.error("Process error:", error.message);
+    return {
+      ...state,
+      error: error.message,
+      validated: false, // Indicate validation failure
+    };
   }
 };
+
 
 // Validate Project ID
 const checkProjectId = async (state) => {
   if (!state.projectId) {
     return { ...state, error: "Invalid projectId." };
   }
+  console.log(`returning form node chkProjectid/......`);
   return state;
 };
 
@@ -117,11 +99,11 @@ const deployProject = async (state) => {
 // Monitor Deployment Logs
 const monitorLogs = async (state) => {
   try {
-    const response = await axios.get(`http://localhost:5000/projects/${state.projectId}/status`);
+    // const response = await axios.get(`http://localhost:5000/projects/${state.projectId}/status`);
     return {
       ...state,
-      deployment_status: response.data.status || "pending",
-      logs: response.data.logs
+      deployment_status:"pending",
+      logs:"Deployment in progress...",
     };
   } catch (error) {
     console.error("Log monitoring failed:", error.message);
@@ -129,28 +111,68 @@ const monitorLogs = async (state) => {
   }
 };
 
-// Build the LangGraph Workflow
-const workflow = new StateGraph({ channels: workflowState })
-  .addNode("process_message", processMessage)
-  .addNode("check_project_id", checkProjectId)
-  .addNode("deploy_project", deployProject)
-  .addNode("monitor_logs", monitorLogs)
-  .addEdge("__start__", "process_message")
-  .addEdge("process_message", "check_project_id")
-  .addEdge("check_project_id", "deploy_project")
-  .addEdge("deploy_project", "monitor_logs")
-  .addEdge("monitor_logs", "__end__");
+// ✅ LangGraph Workflow
+const workflow = new StateGraph(MessagesAnnotation)
+  .addNode("validateParams", async (state) => {
+    console.log("DEBUG: Validate Params - State:", JSON.stringify(state));
+    return { ...state };
+  })
+  .addEdge("__start__", "validateParams")
 
-// Compile and Export
-const app = workflow.compile();
+  .addNode("processMessage", processMessage)
+  .addEdge("validateParams", "processMessage")
 
-const runDeploymentWorkflow = async (user, message) => {
-  console.log("Running deployment workflow with message:", message);
-  return app.invoke({
-    messages: [{ role: "user", content: message }], // Ensure `message` is raw
-    user: user,
+  .addNode("processDeployment", async (state) => {
+    console.log("DEBUG: Process Deployment - State:", JSON.stringify(state));
+    return {
+      ...state,
+      deployment_status: "processing",
+      messages: [...state.messages, { role: "system", content: "Deployment started..." }],
+    };
+  })
+  .addEdge("processMessage", "processDeployment")
+
+  .addNode("deployProject", deployProject)
+  .addEdge("processDeployment", "deployProject")
+
+  .addNode("monitorLogs", monitorLogs)
+  .addEdge("deployProject", "monitorLogs")
+
+  .addNode("agent", async (state) => {
+    console.log("DEBUG: Agent Node - State:", JSON.stringify(state));
+    return { ...state, messages: [...state.messages, { role: "assistant", content: "Deployment complete!" }] };
+  })
+  .addEdge("monitorLogs", "agent")
+
+  .addConditionalEdges("agent", (state) => {
+    console.log("DEBUG: Should Continue? - State:", JSON.stringify(state));
+    return shouldContinue(state);
   });
 
+const app = workflow.compile();
+
+
+// Modify runDeploymentWorkflow function
+// Modified runDeploymentWorkflow function
+const runDeploymentWorkflow = async (user, params) => {
+  console.log("Running with params:", params);
+
+  // Create initial state
+  const initialState = {
+    params: params,
+    user: user,
+    deployment_status: "started",
+    messages: [],
+    projectId: null,
+    gitUri: null,
+    error: null
+  };
+
+  console.log("Initial State:", JSON.stringify(initialState, null, 2));
+
+  // Wrap initialState inside `messages`
+  return await app.invoke({ messages: [new HumanMessage(initialState)] });
 };
+
 
 module.exports = { runDeploymentWorkflow };
