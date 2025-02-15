@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import "./HeroSection.css";
 import { useNavigate } from "react-router-dom";
+import { SpiderMan } from './chatAssistance/SpiderMan'
+import { ChatInterface } from "./chatAssistance/ChaatInterface";
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, Environment } from '@react-three/drei'
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -35,8 +39,8 @@ const HeroSection = () => {
         ref={sectionRef}
         className="w-full min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-gray-900 via-black to-gray-800 text-white relative overflow-hidden pt-24"
       >
-         {/* Flaming Rocket Animation */}
-         <div className="rocket-container absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+        {/* Flaming Rocket Animation */}
+        <div className="rocket-container absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="rocket-body absolute w-8 h-24 bg-gray-100 rounded-lg transform -rotate-45 origin-bottom">
             <div className="flames absolute bottom-0 left-1/2 -translate-x-1/2">
               <div className="flame"></div>
@@ -188,6 +192,36 @@ const HeroSection = () => {
           </div>
         </div>
       </section>
+      // HeroSection.jsx
+      <div style={{
+        position: 'fixed',
+        top: '100px',
+        right: '100px',
+        width: '600px',
+        height: '400px',
+        zIndex: 1000,
+        pointerEvents: 'none',
+        overflow: 'hidden', // Crucial for containment
+        border: '2px solid red' // Temporary for debugging
+      }}>
+        <Canvas
+          style={{ background: 'transparent' }}
+          camera={{
+            position: [0, 1.5, 3], // Adjusted camera position
+            fov: 45,               // Narrower field of view
+            near: 0.1,
+            far: 1000
+          }}
+        >
+          <ambientLight intensity={1.2} />
+          <directionalLight position={[3, 5, 2]} intensity={1.5} />
+          <SpiderMan />
+          <Environment preset="sunset" />
+        </Canvas>
+      </div>
+      <ChatInterface
+
+      />
     </>
   );
 };
