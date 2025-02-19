@@ -6,10 +6,9 @@ const Redis = require('ioredis');
 const { Server } = require('socket.io');
 const { prisma } = require('./utils/prismaClient');
 const { z } = require("zod");
-const { Kafka } = require('kafkajs');
+const kafka = require('./utils/kafkaClient');
 const fs = require('fs');
 const path = require('path');
-const { createClient } = require('@clickhouse/client');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const buildQueue = require('./queues/buildQueue');
@@ -26,29 +25,7 @@ app.use(cors()); //mainn cross origin middlware to allow traffic form anywhere
 
 const PORT = 5000;
 
-// const clickHouseClient = createClient({
-//     host: process.env.CH_HOST,
-//     database: process.env.CH_DB,
-//     protocol: 'http',
-//     compression: true,
-//     timeout: 10000, // Timeout in milliseconds
-//     username: process.env.CH_USERNAME,
-//     password: process.env.CH_PASSWORD
-// });
 
-
-
-//updated kafka configuration
-const kafka = new Kafka({
-    clientId: `api-server-receiver_side`,
-    brokers: [`${process.env.KAFKA_BROKER}`],
-    // ssl: {
-    //     rejectUnauthorized: false, // Use true for strict verification
-    //     ca: [fs.readFileSync(path.join(__dirname, 'kafka.pem'), 'utf-8')],
-    //     cert: fs.readFileSync(path.join(__dirname, 'service.cert'), 'utf-8'),
-    //     key: fs.readFileSync(path.join(__dirname, 'service.key'), 'utf-8'),
-    // },
-})
 
 
 //create kafka consumer instance and try to consume logs by initializing them
@@ -336,7 +313,7 @@ app.post('/deploy', async (req, res) => {
             deploymentId: newDeployment.id, projectId: newDeployment.project.id, environment: validatedData.environment, gitUrl: newDeployment.project.gitUrl, version: validatedData.version || "v1.0.0", buildCommand: validatedData.buildCommand && validatedData.buildCommand.trim() !== "" ? validatedData.buildCommand : "npm install && npm run build",
             envVars: validatedData.envVariables?.length ? validatedData.envVariables : [],
         });
-        console.log("Job added to queue with build command:", validatedData.buildCommand);
+        console.log("Job added to main build queue with build command:", validatedData.buildCommand);
 
         return res.json({ status: 'queued', data: { deploymentId: newDeployment.id, domain: newDeployment.url } })
 

@@ -44,6 +44,7 @@ const s3Client = new S3Client({
 // Environment variables
 const PROJECT_ID = process.env.PROJECT_ID;
 const DEPLOYMENT_ID = process.env.DEPLOYMENT_ID;
+const GIT_URI = process.env.GIT_URI;
 
 // Kafka configuration
 // const kafka = new Kafka({
@@ -58,6 +59,7 @@ async function publishLog(log, producer, logLevel = 'info', fileDetails = {}) {
     const logMessage = {
         PROJECT_ID,
         DEPLOYMENT_ID,
+        GIT_URI,
         log,
         logLevel: logLevel,  // Ensure log level is passed properly
         ...fileDetails, // Spread fileDetails into the log message
