@@ -192,7 +192,7 @@ const HeroSection = () => {
           </div>
         </div>
       </section>
-      // HeroSection.jsx
+  
       <div style={{
         position: 'fixed',
         top: '100px',
