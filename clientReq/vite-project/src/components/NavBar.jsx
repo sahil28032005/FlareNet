@@ -17,81 +17,157 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white/10 backdrop-blur-sm border-b border-white/20 z-50 p-4">
-      <div className="flex justify-between items-center max-w-7xl mx-auto">
-        {/* Logo Section */}
-        <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-          FlareNet
-        </div>
+    <nav className="fixed top-0 left-0 w-full bg-black/20 backdrop-blur-md border-b border-white/10 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo Section */}
+          <div className="flex-shrink-0">
+            <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent hover:from-blue-500 hover:to-cyan-500 transition-all duration-300">
+              FlareNet
+            </div>
+          </div>
 
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden text-white text-2xl focus:outline-none"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button 
+              className="inline-flex items-center justify-center p-2 rounded-md text-blue-400 hover:text-blue-500 hover:bg-black/20 focus:outline-none transition-colors duration-200"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <FaTimes className="h-6 w-6" /> : <FaBars className="h-6 w-6" />}
+            </button>
+          </div>
 
-        {/* Navigation Tabs */}
-        <div className={`md:flex items-center space-x-4 flex-grow max-w-2xl mx-8 ${menuOpen ? "block" : "hidden"} md:block`}>
-          <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
-            {[{ name: "Home", icon: FiHome, path: "/" },
-              { name: "My Projects", icon: FiFolder, path: "/projects" },
-              { name: "About Us", icon: FiInfo, path: "/about" },
-              { name: "Contact Us", icon: FiMail, path: "/contact" }].map(({ name, icon: Icon, path }) => (
-              <Button
-                key={name}
-                variant="ghost"
-                onClick={() => { navigate(path); setMenuOpen(false); }}
-                className="text-white/90 hover:text-yellow-400 transition-all duration-300 px-4 py-2 rounded-full flex items-center gap-2 hover:scale-105 shadow-sm hover:shadow-md"
-              >
-                <Icon className="text-xl" />
-                {name}
-              </Button>
-            ))}
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center justify-between flex-1 ml-10">
+            <div className="flex space-x-4">
+              {[
+                { name: "Home", icon: FiHome, path: "/" },
+                { name: "My Projects", icon: FiFolder, path: "/projects" },
+                { name: "About Us", icon: FiInfo, path: "/about" },
+                { name: "Contact Us", icon: FiMail, path: "/contact" }
+              ].map(({ name, icon: Icon, path }) => (
+                <Button
+                  key={name}
+                  variant="ghost"
+                  onClick={() => navigate(path)}
+                  className="text-gray-300 hover:text-blue-400 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all duration-300 hover:bg-white/10 hover:shadow-glow"
+                >
+                  <Icon className="h-4 w-4" />
+                  {name}
+                </Button>
+              ))}
+            </div>
+
+            {/* Auth Buttons */}
+            <div className="flex items-center space-x-4">
+              {!user?.email ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate("/login")}
+                    className="text-blue-400 hover:text-blue-300 border border-blue-400/50 hover:border-blue-300 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:shadow-glow-blue"
+                  >
+                    <FaSignInAlt className="mr-2" />
+                    Login
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate("/signup")}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:shadow-glow-cyan"
+                  >
+                    <FaUserPlus className="mr-2" />
+                    Sign Up
+                  </Button>
+                </>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-gray-300 bg-white/5 px-4 py-2 rounded-full">
+                    <FaUserCircle className="text-blue-400 h-5 w-5" />
+                    <span className="text-sm font-medium">{user.email}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="text-red-400 hover:text-red-300 border border-red-400/50 hover:border-red-300 px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:shadow-glow-red"
+                  >
+                    <FaSignOutAlt className="mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* User Auth Buttons */}
-        <div className={`md:flex items-center space-x-6 ${menuOpen ? "block" : "hidden"} md:block`}>
-          {!user?.email ? (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => { navigate("/login"); setMenuOpen(false); }}
-                className="border border-yellow-400 text-yellow-400 hover:bg-yellow-50 transition-colors duration-200 px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                <FaSignInAlt className="text-yellow-400" />
-                Login
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => { navigate("/signup"); setMenuOpen(false); }}
-                className="bg-yellow-400 text-black hover:bg-yellow-300 transition-colors duration-200 px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                <FaUserPlus className="text-white" />
-                Sign Up
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-4">
-                <FaUserCircle className="text-yellow-400 text-2xl" />
-                <span className="text-white/90 text-lg font-medium">
-                  Welcome, {user?.email}
-                </span>
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-black/30 backdrop-blur-md rounded-lg mt-2">
+              {[
+                { name: "Home", icon: FiHome, path: "/" },
+                { name: "My Projects", icon: FiFolder, path: "/projects" },
+                { name: "About Us", icon: FiInfo, path: "/about" },
+                { name: "Contact Us", icon: FiMail, path: "/contact" }
+              ].map(({ name, icon: Icon, path }) => (
+                <Button
+                  key={name}
+                  variant="ghost"
+                  onClick={() => {
+                    navigate(path);
+                    setMenuOpen(false);
+                  }}
+                  className="w-full text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium flex items-center gap-2 transition-all duration-300 hover:bg-white/5"
+                >
+                  <Icon className="h-5 w-5" />
+                  {name}
+                </Button>
+              ))}
+              <div className="pt-4 pb-3 border-t border-gray-700">
+                {!user?.email ? (
+                  <div className="space-y-2">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        navigate("/login");
+                        setMenuOpen(false);
+                      }}
+                      className="w-full text-blue-400 hover:text-blue-300 border border-blue-400/50 hover:border-blue-300 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300"
+                    >
+                      <FaSignInAlt className="mr-2" />
+                      Login
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        navigate("/signup");
+                        setMenuOpen(false);
+                      }}
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-300"
+                    >
+                      <FaUserPlus className="mr-2" />
+                      Sign Up
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-300 px-3">
+                      <FaUserCircle className="text-blue-400 h-5 w-5" />
+                      <span className="text-sm font-medium">{user.email}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      onClick={handleLogout}
+                      className="w-full text-red-400 hover:text-red-300 border border-red-400/50 hover:border-red-300 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300"
+                    >
+                      <FaSignOutAlt className="mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                )}
               </div>
-              <Button
-                variant="ghost"
-                onClick={handleLogout}
-                className="border border-red-500 text-red-500 hover:bg-red-50 transition-colors duration-200 px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                <FaSignOutAlt className="text-red-500" />
-                Logout
-              </Button>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

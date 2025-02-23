@@ -7,52 +7,87 @@ export function SpiderMan({ animationTrigger }) {
   const { scene, animations } = useGLTF("/final.glb");
   const spidermanRef = useRef();
   const { actions } = useAnimations(animations, spidermanRef);
-  const [currentAnimation, setCurrentAnimation] = useState("action6");
+  const [currentAnimation, setCurrentAnimation] = useState("idle");
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animationQueue = useRef([]);
 
   // Map animation triggers to actual animation names
   const animationMap = {
-    idle: "Armature|mixamo.com|Layer0",       // Index 8
-    jump: "Armature.001|mixamo.com|Layer0",   // Index 0
-    wave: "Armature.002|mixamo.com|Layer0",   // Index 1
-    talk: "Armature.003|mixamo.com|Layer0",   // Index 2
-    action4: "Armature.004|mixamo.com|Layer0", // Index 3
-    action5: "Armature.005|mixamo.com|Layer0", // Index 4
-    action6: "Armature.006|mixamo.com|Layer0", // Index 5
-    action7: "Armature.007|mixamo.com|Layer0", // Index 6
-    action8: "Armature.008|mixamo.com|Layer0", // Index 7
+    idle: "Armature|mixamo.com|Layer0",
+    jump: "Armature.001|mixamo.com|Layer0",
+    wave: "Armature.002|mixamo.com|Layer0",
+    talk: "Armature.003|mixamo.com|Layer0",
+    action4: "Armature.004|mixamo.com|Layer0",
+    action5: "Armature.005|mixamo.com|Layer0",
+    action6: "Armature.006|mixamo.com|Layer0",
+    action7: "Armature.007|mixamo.com|Layer0",
+    action8: "Armature.008|mixamo.com|Layer0",
+  };
+  const playAnimation = async (animationName) => {
+    if (!actions[animationMap[animationName]]) return;
+    
+    setIsAnimating(true);
+    Object.values(actions).forEach(action => action.stop());
+    
+    const action = actions[animationMap[animationName]];
+    
+    return new Promise((resolve) => {
+      action
+        .reset()
+        .setLoop(THREE.LoopOnce)
+        .fadeIn(0.3)
+        .play();
+    // Listen for animation completion
+    action.clampWhenFinished = true;
+    const duration = action.getClip().duration * 1000;
+    
+    console.log(`🕷️ Playing: ${animationName}, Duration: ${duration}ms`);
+    
+    setTimeout(() => {
+      action.fadeOut(0.3);
+      resolve();
+    }, duration);
+    });
   };
 
-  // Handle animation state changes
-  useEffect(() => {
-    const animationName = animationMap[currentAnimation];
+  const playAllAnimations = async () => {
+    const animationList = Object.keys(animationMap);
     
-    if (actions[animationName]) {
-      // Stop all current animations
-      Object.values(actions).forEach(action => action.stop());
-      
-      // Play the requested animation
-      actions[animationName]
-        .reset()
-        .setLoop(currentAnimation === 'wave' ? THREE.LoopRepeat : THREE.LoopOnce)
-        .fadeIn(0.5)
-        .play();
-
-      console.log(`🕷️ Playing animation: ${animationName}`);
+    for (const anim of animationList) {
+      setCurrentAnimation(anim);
+      await playAnimation(anim);
+      // Shorter delay between animations
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
-  }, [currentAnimation, actions]);
-
-  // Handle external triggers
+    
+    setIsAnimating(false);
+    // Return to idle animation
+    playAnimation('idle');
+  };
+  // Updated effect to handle animation triggers
   useEffect(() => {
-    const trigger = (animationTrigger || 'wave').toLowerCase();
-    setCurrentAnimation(trigger in animationMap ? trigger : 'wave');
+    if (!animationTrigger || isAnimating) return;
+
+    const handleAnimation = async () => {
+      if (animationTrigger === 'all') {
+        await playAllAnimations();
+      } else if (animationMap[animationTrigger]) {
+        setIsAnimating(true);
+        await playAnimation(animationTrigger);
+        setIsAnimating(false);
+        // Return to idle after single animation
+        playAnimation('idle');
+      }
+    };
+
+    handleAnimation();
   }, [animationTrigger]);
-
-  // Optional: Remove rotation if it conflicts with animations
-  useFrame(() => {
-    // Keep this empty if you want pure animations without rotation
-    // Or add controlled rotation here if needed
-  });
-
+  // Initial idle animation
+  useEffect(() => {
+    if (actions && Object.keys(actions).length > 0) {
+      playAnimation('idle');
+    }
+  }, [actions]);
   return (
     <primitive
       ref={spidermanRef}
@@ -64,5 +99,5 @@ export function SpiderMan({ animationTrigger }) {
 }
 
 SpiderMan.defaultProps = {
-  animationTrigger: "wave"
+  animationTrigger: "idle"
 };

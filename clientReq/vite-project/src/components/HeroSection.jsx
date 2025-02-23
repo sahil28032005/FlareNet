@@ -6,12 +6,23 @@ import { SpiderMan } from './chatAssistance/SpiderMan'
 import { ChatInterface } from "./chatAssistance/ChaatInterface";
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
+import { TypeAnimation } from 'react-type-animation';
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -37,8 +48,43 @@ const HeroSection = () => {
     <>
       <section
         ref={sectionRef}
-        className="w-full min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-b from-gray-900 via-black to-gray-800 text-white relative overflow-hidden pt-24"
+        className="w-full min-h-screen flex flex-col justify-center items-center text-center bg-[#030712] text-white relative overflow-hidden pt-24"
       >
+        {/* Modern Background Elements with Parallax */}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            transform: `translateY(${scrollY * 0.2}px)`,
+            transition: 'transform 0.1s ease-out'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-950/50 via-gray-900 to-black" />
+          <div className="absolute inset-0 bg-grid-pattern opacity-[0.07]" />
+          <div className="absolute inset-0 bg-noise-pattern mix-blend-soft-light opacity-[0.3]" />
+          
+          {/* Modern Gradient Orbs */}
+          <div className="absolute inset-0">
+            <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full filter blur-3xl animate-orb-float" />
+            <div className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-orb-float-delayed" />
+          </div>
+
+          {/* Subtle Moving Lines */}
+          <div className="absolute inset-0">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute h-[1px] w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"
+                style={{
+                  top: `${30 * (i + 1)}%`,
+                  animation: `moveLines ${15 + i * 5}s linear infinite`,
+                  opacity: 0.5,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Rest of your content remains the same */}
         {/* Flaming Rocket Animation */}
         <div className="rocket-container absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="rocket-body absolute w-8 h-24 bg-gray-100 rounded-lg transform -rotate-45 origin-bottom">
@@ -53,7 +99,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           {/* Animated Grid Lines */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjEwMCUiIHkyPSIxMDAlIiBzdHJva2U9InJnYmEoMjU1LDE5MiwwLDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjxsaW5lIHgxPSIxMDAlIiB5MT0iMCIgeDI9IjAiIHkyPSIxMDAlIiBzdHJva2U9InJnYmEoMjU1LDE5MiwwLDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] opacity-20" />
-
+        
           {/* Glowing Lines */}
           {[...Array(8)].map((_, i) => (
             <div
@@ -67,7 +113,7 @@ const HeroSection = () => {
               }}
             />
           ))}
-
+        
           {/* Circuit Nodes */}
           <div className="circuit-lines">
             {[...Array(50)].map((_, i) => (
@@ -86,8 +132,29 @@ const HeroSection = () => {
 
         {/* Original Headline Section */}
         <div className="max-w-4xl px-4 md:px-12 relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 glowing-headline">
-            <span className="text-yellow-400">Single-Click</span> Deploy with{" "}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 glowing-headline flex flex-col items-center gap-2">
+            <div className="min-h-[80px] flex items-center">
+              <TypeAnimation
+                sequence={[
+                  'Single-Click Deploy with',
+                  1000,
+                  'Instant Deployment with',
+                  1000,
+                  'Cloud Solutions with',
+                  1000,
+                ]}
+                wrapper="span"
+                speed={50}
+                repeat={Infinity}
+                style={{ 
+                  display: 'inline-block',
+                  minWidth: 'auto',
+                  maxWidth: '100%',
+                  fontSize: 'inherit'
+                }}
+                className="w-full text-center px-2"
+              />
+            </div>
             <span className="tech-text">FlareNet</span>
           </h1>
           <p className="text-lg md:text-xl mb-8 neon-text">
@@ -102,41 +169,66 @@ const HeroSection = () => {
         </div>
 
         {/* Original 3D Cards with Holographic Effect */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 max-w-7xl px-4 md:px-8">
-          {[
-            {
-              title: "Single-Click Deploy",
-              description: "No complex setups. Deploy your app with a single click, saving you time and effort.",
-            }, {
-              title: "24/7 Uptime",
-              description: "Guaranteed uptime for your applications with advanced monitoring and redundancy.",
-            }, {
-              title: "Scalable Architecture",
-              description: "Easily handle traffic spikes with our highly scalable deployment solutions.",
-            }, {
-              title: "Free Hosting Tier",
-              description: "Get started with our free tier that includes hosting for one website.",
-            }, {
-              title: "Real-Time Insights",
-              description: "Track deployments, monitor traffic, and gain actionable insights.",
-            }, {
-              title: "Concurrency Deployment",
-              description: "Deploy multiple versions simultaneously with ease.",
-            }
-            // ... (keep all your original card objects)
-          ].map((feature, index) => (
-            <div
-              key={index}
-              className="holographic-card p-6 rounded-lg bg-gray-800/50 backdrop-blur-sm border border-yellow-400/30 hover:border-yellow-400/50 transition-all duration-300"
-            >
-              <h2 className="text-xl font-semibold mb-4 text-yellow-400 neon-title">
-                {feature.title}
-              </h2>
-              <p className="text-gray-300">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-
+        {/* Modern Feature Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-7xl px-4 md:px-8 mx-auto">
+                  {[
+                    {
+                      title: "Single-Click Deploy",
+                      description: "No complex setups. Deploy your app with a single click, saving you time and effort.",
+                      icon: "🚀",
+                      gradient: "from-blue-500 to-cyan-400"
+                    }, {
+                      title: "24/7 Uptime",
+                      description: "Guaranteed uptime for your applications with advanced monitoring and redundancy.",
+                      icon: "⚡",
+                      gradient: "from-purple-500 to-blue-400"
+                    }, {
+                      title: "Scalable Architecture",
+                      description: "Easily handle traffic spikes with our highly scalable deployment solutions.",
+                      icon: "📈",
+                      gradient: "from-cyan-500 to-blue-400"
+                    }, {
+                      title: "Free Hosting Tier",
+                      description: "Get started with our free tier that includes hosting for one website.",
+                      icon: "🎯",
+                      gradient: "from-blue-500 to-indigo-400"
+                    }, {
+                      title: "Real-Time Insights",
+                      description: "Track deployments, monitor traffic, and gain actionable insights.",
+                      icon: "📊",
+                      gradient: "from-indigo-500 to-blue-400"
+                    }, {
+                      title: "Concurrency Deployment",
+                      description: "Deploy multiple versions simultaneously with ease.",
+                      icon: "🔄",
+                      gradient: "from-blue-500 to-cyan-400"
+                    }
+                  ].map((feature, index) => (
+                    <div
+                      key={index}
+                      className="group relative p-8 rounded-2xl backdrop-blur-xl 
+                                 bg-gradient-to-br from-slate-900/90 to-slate-800/90
+                                 border border-blue-500/10 hover:border-blue-500/30 
+                                 transition-all duration-500 hover:-translate-y-1"
+                    >
+                      {/* Simplified Content */}
+                      <div className="relative z-10 flex flex-col h-full">
+                        <span className="text-4xl mb-6">
+                          {feature.icon}
+                        </span>
+                        
+                        <h2 className={`text-2xl font-bold mb-4 bg-gradient-to-r ${feature.gradient} 
+                                     bg-clip-text text-transparent`}>
+                          {feature.title}
+                        </h2>
+                        
+                        <p className="text-gray-300/90 leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
         {/* Original Floating Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-20 left-10 w-32 h-32 bg-yellow-400 rounded-full filter blur-xl animate-pulse opacity-50 animate-move"></div>
@@ -165,34 +257,49 @@ const HeroSection = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full max-w-7xl relative z-10">
-          <div className="text-content">
-            <h2 className="text-4xl md:text-5xl font-bold glowing-headline mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full max-w-7xl relative z-10">
+          <div className="text-content space-y-8 p-6 bg-black/20 rounded-2xl backdrop-blur-sm border border-blue-500/10 hover:border-blue-500/20 transition-all duration-500">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent animate-gradient">
               Seamless Integration for Your Customers
             </h2>
-            <p className="text-lg md:text-xl text-gray-300 mb-6">
+            <p className="text-lg md:text-xl text-gray-300/90 leading-relaxed">
               Empower your applications with cutting-edge deployment, real-time analytics, and unparalleled scalability.
               Join thousands of businesses who trust FlareNet to deliver world-class performance.
             </p>
-            <ul className="space-y-3 text-gray-400">
-              <li>✅ Easy customer onboarding</li>
-              <li>✅ Seamless integration with third-party tools</li>
-              <li>✅ Advanced analytics for better decision-making</li>
-              <li>✅ 24/7 support for you and your customers</li>
+            <ul className="space-y-4">
+              {[
+                "Easy customer onboarding",
+                "Seamless integration with third-party tools",
+                "Advanced analytics for better decision-making",
+                "24/7 support for you and your customers"
+              ].map((item, index) => (
+                <li key={index} className="flex items-center space-x-3 text-gray-300 group">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-white text-sm">✓</span>
+                  </span>
+                  <span className="group-hover:text-blue-400 transition-colors duration-300">{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div className="image-container relative">
-            <img
-              src="/assects/images/heroSectionInsights.png"
-              alt="Integration Illustration"
-              className="holographic-card w-full rounded-lg shadow-lg transform hover:scale-105 transition-transform"
-            />
-            <div className="absolute top-0 left-0 w-full h-full rounded-lg bg-gradient-to-r from-yellow-500 to-purple-500 opacity-20 blur-xl z-[-1]"></div>
+          <div className="image-container relative group">
+            <div className="relative rounded-2xl overflow-hidden">
+              <img
+                src="/assects/images/heroSectionInsights.png"
+                alt="Integration Illustration"
+                className="w-full rounded-2xl shadow-2xl transform group-hover:scale-105 transition-all duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 transition-opacity duration-500" />
+            </div>
+            {/* Glow Effects */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl opacity-0 group-hover:opacity-15 blur-2xl transition-opacity duration-500" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/50 to-cyan-500/50 rounded-2xl opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500" />
           </div>
         </div>
       </section>
-  
+
       <div style={{
         position: 'fixed',
         top: '100px',
@@ -202,7 +309,7 @@ const HeroSection = () => {
         zIndex: 1000,
         pointerEvents: 'none',
         overflow: 'hidden', // Crucial for containment
-        border: '2px solid red' // Temporary for debugging
+        // border: '2px solid red' // Temporary for debugging
       }}>
         <Canvas
           style={{ background: 'transparent' }}
@@ -215,7 +322,7 @@ const HeroSection = () => {
         >
           <ambientLight intensity={1.2} />
           <directionalLight position={[3, 5, 2]} intensity={1.5} />
-          <SpiderMan />
+          <SpiderMan animationTrigger="all" />
           <Environment preset="sunset" />
         </Canvas>
       </div>

@@ -151,101 +151,103 @@ const DeployForm = () => {
     }, [id]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-space-900 to-black flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="w-full max-w-2xl bg-gray-900/50 backdrop-blur-lg rounded-2xl border border-white/10 p-8 shadow-xl"
-            >
-                <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-green-400 to-cyan-500 bg-clip-text text-transparent text-center">
-                    Deploy Your Project
-                </h2>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-4">
-                        {validationError && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="flex items-center gap-2 p-3 bg-red-900/50 rounded-lg border border-red-400/30"
-                            >
-                                <FiXCircle className="flex-shrink-0 text-red-400" />
-                                <span className="text-red-200 text-sm">{validationError}</span>
-                            </motion.div>
-                        )}
-
-                        {isReactProject && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="p-4 bg-green-900/20 rounded-lg border border-green-400/30"
-                            >
-                                <div className="flex items-center gap-2 mb-3">
-                                    <FiCheckCircle className="text-green-400" />
-                                    <span className="font-semibold text-green-200">
-                                        Valid {detectedFramework.framework} Project
-                                    </span>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm text-green-100">Build Command</Label>
-                                    <div className="flex gap-2 items-center">
-                                        <FiTerminal className="text-green-400" />
-                                        <Input
-                                            value={customBuildCommand}
-                                            onChange={(e) => setCustomBuildCommand(e.target.value)}
-                                            className="font-mono bg-gray-800 border-gray-700 hover:border-green-400/50 focus:border-green-400"
-                                        />
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        <div className="space-y-2">
-                            <Label className="text-gray-300">Git Repository URL</Label>
-                            <div className="flex items-center gap-2">
-                                <FiGitBranch className="text-gray-400" />
-                                <Input
-                                    value={gitUrl}
-                                    onChange={(e) => setGitUrl(e.target.value)}
-                                    placeholder="https://github.com/username/repository"
-                                    className="bg-gray-800 border-gray-700 hover:border-green-400/50 focus:border-green-400"
-                                />
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-grid-pattern opacity-[0.07]" />
+                <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full filter blur-3xl animate-orb-float" />
+                <div className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-orb-float-delayed" />
+            </div>
+            <div className="relative z-10 container mx-auto px-4 py-12 flex items-center justify-center min-h-screen">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full max-w-2xl backdrop-blur-xl bg-slate-900/50 rounded-2xl border border-blue-500/10 
+                              hover:border-blue-500/20 transition-all duration-500 p-8 shadow-xl"
+                >
+                    <h2 className="text-3xl sm:text-4xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-cyan-400 
+                                 bg-clip-text text-transparent text-center">
+                        Deploy Your Project
+                    </h2>
+                    {/* Validation Messages */}
+                    {validationError && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex items-center gap-2 p-4 rounded-xl bg-red-500/10 border border-red-500/20 
+                                     backdrop-blur-md mb-6"
+                        >
+                            <FiXCircle className="flex-shrink-0 text-red-400" />
+                            <span className="text-red-200 text-sm">{validationError}</span>
+                        </motion.div>
+                    )}
+                    {isReactProject && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 backdrop-blur-md mb-6"
+                        >
+                            <div className="flex items-center gap-2 mb-3">
+                                <FiCheckCircle className="text-blue-400" />
+                                <span className="font-semibold text-blue-200">
+                                    Valid {detectedFramework.framework} Project
+                                </span>
                             </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label className="text-gray-300">Project Name</Label>
-                            <Input
-                                value={projectName}
-                                onChange={(e) => setProjectName(e.target.value)}
-                                className="bg-gray-800 border-gray-700 hover:border-green-400/50 focus:border-green-400"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label className="text-gray-300">Framework</Label>
-                            <Select onValueChange={handleFrameworkChange}>
-                                <SelectTrigger className="bg-gray-800 border-gray-700 hover:border-green-400/50">
-                                    <SelectValue placeholder="Select framework" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-gray-800 border-gray-700">
-                                    {["react", "nextjs", "angular", "vue"].map((fw) => (
-                                        <SelectItem
-                                            key={fw}
-                                            value={fw}
-                                            className="hover:bg-gray-700 focus:bg-gray-700 capitalize"
-                                        >
-                                            {fw}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label className="text-gray-300">Environment Variables</Label>
+                            <div className="space-y-2">
+                                <Label className="text-sm text-blue-100">Build Command</Label>
+                                <div className="flex gap-2 items-center">
+                                    <FiTerminal className="text-blue-400" />
+                                    <Input
+                                        value={customBuildCommand}
+                                        onChange={(e) => setCustomBuildCommand(e.target.value)}
+                                        className="font-mono bg-slate-800/50 border-blue-500/20 hover:border-blue-500/40 
+                                                 focus:border-blue-500 transition-all duration-300"
+                                    />
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Form Fields */}
+                        <div className="space-y-4">
+                            {/* Git URL Input */}
+                            <div className="space-y-2">
+                                <Label className="text-gray-200">Git Repository URL</Label>
+                                <div className="flex items-center gap-2">
+                                    <FiGitBranch className="text-blue-400" />
+                                    <Input
+                                        value={gitUrl}
+                                        onChange={(e) => setGitUrl(e.target.value)}
+                                        placeholder="https://github.com/username/repository"
+                                        className="bg-slate-800/50 border-blue-500/20 hover:border-blue-500/40 
+                                                 focus:border-blue-500 transition-all duration-300"
+                                    />
+                                </div>
+                            </div>
+                            {/* Framework Select */}
+                            <div className="space-y-2">
+                                <Label className="text-gray-200">Framework</Label>
+                                <Select onValueChange={handleFrameworkChange}>
+                                    <SelectTrigger className="bg-slate-800/50 border-blue-500/20 hover:border-blue-500/40">
+                                        <SelectValue placeholder="Select framework" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-800 border-blue-500/20">
+                                        {["react", "nextjs", "angular", "vue"].map((fw) => (
+                                            <SelectItem
+                                                key={fw}
+                                                value={fw}
+                                                className="hover:bg-blue-500/10 focus:bg-blue-500/10 capitalize"
+                                            >
+                                                {fw}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {/* Environment Variables */}
                             <div className="space-y-3">
+                                <Label className="text-gray-200">Environment Variables</Label>
                                 {envVariables.map((env, index) => (
                                     <motion.div
                                         key={index}
@@ -257,58 +259,67 @@ const DeployForm = () => {
                                             placeholder="Key"
                                             value={env.key}
                                             onChange={(e) => handleEnvVariableChange(index, "key", e.target.value)}
-                                            className="bg-gray-800 border-gray-700"
+                                            className="bg-slate-800/50 border-blue-500/20 hover:border-blue-500/40 
+                                                     focus:border-blue-500 transition-all duration-300"
                                         />
                                         <Input
                                             placeholder="Value"
                                             value={env.value}
                                             onChange={(e) => handleEnvVariableChange(index, "value", e.target.value)}
-                                            className="bg-gray-800 border-gray-700"
+                                            className="bg-slate-800/50 border-blue-500/20 hover:border-blue-500/40 
+                                                     focus:border-blue-500 transition-all duration-300"
                                         />
                                     </motion.div>
                                 ))}
                                 <Button
                                     type="button"
                                     onClick={handleAddEnvVariable}
-                                    className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border border-green-400/30"
+                                    className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border 
+                                             border-blue-500/30 transition-all duration-300"
                                 >
                                     Add Variable +
                                 </Button>
                             </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={autoDeploy}
-                                    onChange={handleAutoDeployChange}
-                                    className="sr-only"
-                                />
-                                <div className={`w-11 h-6 rounded-full transition-colors ${autoDeploy ? 'bg-green-500' : 'bg-gray-600'}`}>
-                                    <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform transform ${autoDeploy ? 'translate-x-5 bg-white' : 'bg-gray-200'}`} />
-                                </div>
-                            </label>
-                            <span className="text-gray-300">Enable Auto Deployment</span>
-                        </div>
-                    </div>
-
-                    <Button
-                        type="submit"
-                        disabled={!isReactProject || isSubmitting}
-                        className="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 hover:text-green-300 border border-green-400/30 transition-all"
-                    >
-                        {isSubmitting ? (
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
-                                Deploying...
+                            {/* Auto Deploy Toggle */}
+                            <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-800/50 border border-blue-500/20">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={autoDeploy}
+                                        onChange={handleAutoDeployChange}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 rounded-full bg-slate-700 peer-checked:bg-blue-500 
+                                                transition-all duration-300 peer-checked:after:translate-x-full 
+                                                after:content-[''] after:absolute after:top-0.5 after:left-0.5 
+                                                after:bg-white after:rounded-full after:h-5 after:w-5 
+                                                after:transition-all peer-checked:after:border-white">
+                                    </div>
+                                </label>
+                                <span className="text-gray-200">Enable Auto Deployment</span>
                             </div>
-                        ) : (
-                            "Deploy Project"
-                        )}
-                    </Button>
-                </form>
-            </motion.div>
+                        </div>
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            disabled={!isReactProject || isSubmitting}
+                            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white 
+                                     hover:from-blue-500 hover:to-blue-400 transform hover:scale-[1.02] 
+                                     transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
+                                     shadow-lg shadow-blue-500/20"
+                        >
+                            {isSubmitting ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Deploying...</span>
+                                </div>
+                            ) : (
+                                "Deploy Project"
+                            )}
+                        </Button>
+                    </form>
+                </motion.div>
+            </div>
         </div>
     );
 };

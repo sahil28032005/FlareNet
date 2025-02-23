@@ -149,3 +149,52 @@ button:disabled {
 .framework-icon:hover {
   filter: invert(87%) sepia(21%) saturate(1733%) hue-rotate(81deg) brightness(97%) contrast(89%);
 }
+@keyframes orb-float {
+    0%, 100% { 
+        transform: translate(0, 0) rotate(0deg); 
+        opacity: 0.5;
+    }
+    50% { 
+        transform: translate(-15px, -15px) rotate(5deg); 
+        opacity: 0.7;
+    }
+}
+
+.animate-orb-float {
+    animation: orb-float 12s ease-in-out infinite;
+}
+
+.animate-orb-float-delayed {
+    animation: orb-float 12s ease-in-out infinite;
+    animation-delay: -6s;
+}
+
+.bg-grid-pattern {
+    background-image: linear-gradient(to right, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+/* Add these styles at the beginning of your CSS file */
+.min-h-screen {
+  padding-top: 5rem; /* Adjust this value based on your navbar height */
+  min-height: calc(100vh - 4rem); /* Adjust 4rem based on your navbar height */
+}
+
+/* Form container positioning */
+.container {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Adjust the background elements positioning */
+.absolute.inset-0 {
+  top: 4rem; /* Match your navbar height */
+}
+
+/* Adjust vertical spacing for the form content */
+.py-12 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
