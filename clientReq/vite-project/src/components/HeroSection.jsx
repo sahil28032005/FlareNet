@@ -51,55 +51,45 @@ const HeroSection = () => {
         className="w-full min-h-screen flex flex-col justify-center items-center text-center bg-[#030712] text-white relative overflow-hidden pt-24"
       >
         {/* Modern Background Elements with Parallax */}
-        <div 
+        {/* <div 
           className="absolute inset-0 z-0"
           style={{
             transform: `translateY(${scrollY * 0.2}px)`,
             transition: 'transform 0.1s ease-out'
           }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-950/50 via-gray-900 to-black" />
-          <div className="absolute inset-0 bg-grid-pattern opacity-[0.07]" />
-          <div className="absolute inset-0 bg-noise-pattern mix-blend-soft-light opacity-[0.3]" />
-          
-          {/* Modern Gradient Orbs */}
-          <div className="absolute inset-0">
-            <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full filter blur-3xl animate-orb-float" />
-            <div className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-orb-float-delayed" />
-          </div>
+        > */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/50 via-gray-900 to-black" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.07]" />
+        <div className="absolute inset-0 bg-noise-pattern mix-blend-soft-light opacity-[0.3]" />
 
-          {/* Subtle Moving Lines */}
-          <div className="absolute inset-0">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute h-[1px] w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"
-                style={{
-                  top: `${30 * (i + 1)}%`,
-                  animation: `moveLines ${15 + i * 5}s linear infinite`,
-                  opacity: 0.5,
-                }}
-              />
-            ))}
-          </div>
+        {/* Modern Gradient Orbs */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-[40rem] h-[40rem] bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full filter blur-3xl animate-orb-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-[35rem] h-[35rem] bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-orb-float-delayed" />
         </div>
 
-        {/* Rest of your content remains the same */}
-        {/* Flaming Rocket Animation */}
-        <div className="rocket-container absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="rocket-body absolute w-8 h-24 bg-gray-100 rounded-lg transform -rotate-45 origin-bottom">
-            <div className="flames absolute bottom-0 left-1/2 -translate-x-1/2">
-              <div className="flame"></div>
-              <div className="flame"></div>
-              <div className="flame"></div>
-            </div>
-          </div>
+        {/* Subtle Moving Lines */}
+        <div className="absolute inset-0">
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute h-[1px] w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"
+              style={{
+                top: `${30 * (i + 1)}%`,
+                animation: `moveLines ${15 + i * 5}s linear infinite`,
+                opacity: 0.5,
+              }}
+            />
+          ))}
         </div>
+        {/* </div> */}
+
+
         {/* New Glowing Tech Effects */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           {/* Animated Grid Lines */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjEwMCUiIHkyPSIxMDAlIiBzdHJva2U9InJnYmEoMjU1LDE5MiwwLDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjxsaW5lIHgxPSIxMDAlIiB5MT0iMCIgeDI9IjAiIHkyPSIxMDAlIiBzdHJva2U9InJnYmEoMjU1LDE5MiwwLDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] opacity-20" />
-        
+
           {/* Glowing Lines */}
           {[...Array(8)].map((_, i) => (
             <div
@@ -113,7 +103,7 @@ const HeroSection = () => {
               }}
             />
           ))}
-        
+
           {/* Circuit Nodes */}
           <div className="circuit-lines">
             {[...Array(50)].map((_, i) => (
@@ -146,7 +136,7 @@ const HeroSection = () => {
                 wrapper="span"
                 speed={50}
                 repeat={Infinity}
-                style={{ 
+                style={{
                   display: 'inline-block',
                   minWidth: 'auto',
                   maxWidth: '100%',
@@ -170,73 +160,66 @@ const HeroSection = () => {
 
         {/* Original 3D Cards with Holographic Effect */}
         {/* Modern Feature Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-7xl px-4 md:px-8 mx-auto">
-                  {[
-                    {
-                      title: "Single-Click Deploy",
-                      description: "No complex setups. Deploy your app with a single click, saving you time and effort.",
-                      icon: "🚀",
-                      gradient: "from-blue-500 to-cyan-400"
-                    }, {
-                      title: "24/7 Uptime",
-                      description: "Guaranteed uptime for your applications with advanced monitoring and redundancy.",
-                      icon: "⚡",
-                      gradient: "from-purple-500 to-blue-400"
-                    }, {
-                      title: "Scalable Architecture",
-                      description: "Easily handle traffic spikes with our highly scalable deployment solutions.",
-                      icon: "📈",
-                      gradient: "from-cyan-500 to-blue-400"
-                    }, {
-                      title: "Free Hosting Tier",
-                      description: "Get started with our free tier that includes hosting for one website.",
-                      icon: "🎯",
-                      gradient: "from-blue-500 to-indigo-400"
-                    }, {
-                      title: "Real-Time Insights",
-                      description: "Track deployments, monitor traffic, and gain actionable insights.",
-                      icon: "📊",
-                      gradient: "from-indigo-500 to-blue-400"
-                    }, {
-                      title: "Concurrency Deployment",
-                      description: "Deploy multiple versions simultaneously with ease.",
-                      icon: "🔄",
-                      gradient: "from-blue-500 to-cyan-400"
-                    }
-                  ].map((feature, index) => (
-                    <div
-                      key={index}
-                      className="group relative p-8 rounded-2xl backdrop-blur-xl 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-7xl px-4 md:px-8 mx-auto">
+          {[
+            {
+              title: "Single-Click Deploy",
+              description: "No complex setups. Deploy your app with a single click, saving you time and effort.",
+              icon: "🚀",
+              gradient: "from-blue-500 to-cyan-400"
+            }, {
+              title: "24/7 Uptime",
+              description: "Guaranteed uptime for your applications with advanced monitoring and redundancy.",
+              icon: "⚡",
+              gradient: "from-purple-500 to-blue-400"
+            }, {
+              title: "Scalable Architecture",
+              description: "Easily handle traffic spikes with our highly scalable deployment solutions.",
+              icon: "📈",
+              gradient: "from-cyan-500 to-blue-400"
+            }, {
+              title: "Free Hosting Tier",
+              description: "Get started with our free tier that includes hosting for one website.",
+              icon: "🎯",
+              gradient: "from-blue-500 to-indigo-400"
+            }, {
+              title: "Real-Time Insights",
+              description: "Track deployments, monitor traffic, and gain actionable insights.",
+              icon: "📊",
+              gradient: "from-indigo-500 to-blue-400"
+            }, {
+              title: "Concurrency Deployment",
+              description: "Deploy multiple versions simultaneously with ease.",
+              icon: "🔄",
+              gradient: "from-blue-500 to-cyan-400"
+            }
+          ].map((feature, index) => (
+            <div
+              key={index}
+              className="group relative p-8 rounded-2xl backdrop-blur-xl 
                                  bg-gradient-to-br from-slate-900/90 to-slate-800/90
                                  border border-blue-500/10 hover:border-blue-500/30 
                                  transition-all duration-500 hover:-translate-y-1"
-                    >
-                      {/* Simplified Content */}
-                      <div className="relative z-10 flex flex-col h-full">
-                        <span className="text-4xl mb-6">
-                          {feature.icon}
-                        </span>
-                        
-                        <h2 className={`text-2xl font-bold mb-4 bg-gradient-to-r ${feature.gradient} 
+            >
+              {/* Simplified Content */}
+              <div className="relative z-10 flex flex-col h-full">
+                <span className="text-4xl mb-6">
+                  {feature.icon}
+                </span>
+
+                <h2 className={`text-2xl font-bold mb-4 bg-gradient-to-r ${feature.gradient} 
                                      bg-clip-text text-transparent`}>
-                          {feature.title}
-                        </h2>
-                        
-                        <p className="text-gray-300/90 leading-relaxed">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-        {/* Original Floating Elements */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-20 left-10 w-32 h-32 bg-yellow-400 rounded-full filter blur-xl animate-pulse opacity-50 animate-move"></div>
-          <div className="absolute bottom-20 right-20 w-48 h-48 bg-purple-500 rounded-full filter blur-2xl animate-pulse opacity-50 animate-move-slow"></div>
-          <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 w-64 h-64 bg-blue-500 rounded-full filter blur-3xl animate-pulse opacity-40 animate-move-fast"></div>
-          <div className="absolute top-1/2 left-1/3 transform -translate-x-1/3 w-48 h-48 bg-green-500 rounded-full filter blur-xl animate-rotate opacity-30"></div>
-          <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-red-500 rounded-full filter blur-3xl animate-rotate opacity-40"></div>
+                  {feature.title}
+                </h2>
+
+                <p className="text-gray-300/90 leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
+
       </section>
 
       {/* Original Advertising Section with Effects */}

@@ -403,9 +403,9 @@ const processLogMessage = async ({ topic, partition, batch, heartbeat, commitOff
     }
 };
 
-(async () => {
-    await consumer.connect();
-    console.log("Receiver connected...");
-    await consumer.subscribe({ topic: 'builder-logs', fromBeginning: true });
-    await consumer.run({ eachBatch: processLogMessage }); // Changed to `eachBatch`
-})();
+// (async () => {
+//     await consumer.connect();
+//     console.log("Receiver connected...");
+//     await consumer.subscribe({ topic: 'builder-logs', fromBeginning: true });
+//     await consumer.run({ eachBatch: processLogMessage }); // Changed to `eachBatch`
+// })();

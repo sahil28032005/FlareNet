@@ -21,6 +21,8 @@
     "@prisma/client": "^5.22.0",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
+    "botbuilder": "^4.23.2",
+    "botbuilder-dialogs": "^4.23.2",
     "bullmq": "^5.34.4",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

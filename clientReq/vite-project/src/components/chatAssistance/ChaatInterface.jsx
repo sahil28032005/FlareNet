@@ -12,14 +12,27 @@ import './chat.css';
 export const ChatInterface = ({ triggerAnimation }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
+  const [userId, setUserId] = useState(null);
   const [messages, setMessages] = useState([
     { text: "Hi! I'm your Spider-Man assistant! How can I help?", isBot: true }
   ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [userTyping, setUserTyping] = useState(false);
   const [botThinking, setBotThinking] = useState(false);
+  const [userTyping, setUserTyping] = useState(false);
   const messagesEndRef = useRef(null);
-  
+
+  // Get userId from localStorage
+  useEffect(() => {
+    try {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (userData && userData.id) {
+        setUserId(userData.id);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -30,15 +43,12 @@ export const ChatInterface = ({ triggerAnimation }) => {
 
   const handleTyping = (e) => {
     setInputMessage(e.target.value);
-    setUserTyping(true);
-    setTimeout(() => setUserTyping(false), 1000);
   };
 
   const handleSend = async () => {
-    if (!inputMessage.trim()) return;
-    const userId = 1;
-    setUserTyping(false);
-    
+    if (!inputMessage.trim() || !userId) return;
+    setIsTyping(true);
+
     const newMessages = [...messages, { text: inputMessage, isBot: false }];
     setMessages(newMessages);
     setInputMessage('');
@@ -47,27 +57,23 @@ export const ChatInterface = ({ triggerAnimation }) => {
       triggerAnimation('jump');
     }
 
-    setBotThinking(true);
-    setIsTyping(true);
-    
     try {
       const response = await fetch('http://localhost:5000/api/llm/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: inputMessage, userId })
       });
-      
+
       const data = await response.json();
       setMessages([...newMessages, { text: data.reply, isBot: true }]);
     } catch (error) {
       console.error("❌ Error calling API:", error);
       setMessages([...newMessages, { text: "Oops! Something went wrong. 😵", isBot: true }]);
     }
-    
-    setBotThinking(false);
+
     setIsTyping(false);
   };
-  
+
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {isOpen ? (
